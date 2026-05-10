@@ -1,12 +1,38 @@
-\section{Reference frames}
+\section{Reference Frames}
 
-    \subsection{ECI}
+A reference frame $\mathcal{F}^{rf}: \left\{ \mathcal{O}_{rf}; \; \hat{\textbf{x}}_{rf}, \hat{\textbf{y}}_{rf}, \hat{\textbf{z}}_{rf} \right\}$ is uniquely defined by three dextral orthogonal unit vectors 
+$\{\hat{\textbf{x}}_{rf}, \hat{\textbf{y}}_{rf}, \hat{\textbf{z}}_{rf}\}$ and the origin $\mathcal{O}_{rf}$ \cite{grotte2020spacecraft}. This section will present rigid mathematical definitions for the most important reference frames used in the paper. The individual reference frame indexes are assigned to be consistent with the conventional Basilisk notation. 
 
-    \subsection{RTN}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{Figures/03Theory/frames.png}
+    \caption{Illustration of the ECI ($\mathcal{F}^n$)and RTN ($\mathcal{F}^f$) reference frame definitions. The basis unit vectors are displayed with different lengths for illustrative purposes. Adopted from \cite{eci2014, Metz2020CollisionAvoidance} and modified from \cite{hystad2025}}.
+    \label{fig:frames} 
+\end{figure}
 
-    \subsection{ECEF}
+\subsection{J2000 Earth-Centered Inertial (ECI) Frame}
+The \gls{eci} reference frame, $\mathcal{F}^{rf}: \left\{ \mathcal{O}_{n}; \; \hat{\textbf{x}}_{n}, \hat{\textbf{y}}_{n}, \hat{\textbf{z}}_{n} \right\}$, is fixed relative to the distant stars, and is therefore commonly approximated as an inertial frame in which Newtonian mechanics are valid \cite{modsim2002}. The frame is defined with its origin in the Earth's \gls{cm}, with $\hat{\textbf{z}}_{n}$ pointing along its rotational axis towards the geographical North Pole, $\hat{\textbf{x}}_{n}$ pointing towards the vernal equinox through the equator, and $\hat{\textbf{y}}_{n}$ defined according to the right-hand rule. Multiple variants of the \gls{eci} definition exists, primarily varying in the epoch used to define the Earth's equatorial plane and equinox direction. In this thesis, the J2000 \gls{eci} frame is adopted. It is defined using the J2000.0 reference epoch, equivalent to 1st January 2000, at 12:00 \gls{tt} \cite{nasa_eci}. The frame definition is illustrated in Figure \ref{fig:frames}. 
 
-    \subsection{Body}
+
+    \subsection{Earth-Centered Earth-Fixed (ECEF) Frame}
+$\mathcal{F}^{e}: \left\{ \mathcal{O}_e; \; \hat{\textbf{x}}_{e}, \hat{\textbf{y}}_{e}, \hat{\textbf{z}}_{e} \right\}$
+
+
+\subsection{Radial-Transverse-Normal (RTN) Frame}
+The \gls{rtn} reference frame, $\mathcal{F}^{f}: \left\{ \mathcal{O}_{f}; \; \hat{\textbf{x}}_{f}, \hat{\textbf{y}}_{f}, \hat{\textbf{z}}_{f} \right\}$, is a local orbital frame that is useful for expressing relative motion between spaceborne objects. Vallado presents the frame as the \textit{Satellite coordinate system, RSW} in \cite{vallado2001fundamentals}, but the \textit{RTN} name is chosen for this thesis to better convey each component's physical significance. For use in formation flight, the coordinate frame origin is assigned to the leader satellite, $l$'s \gls{cm}. The dextral orthogonal unit vectors are defined with the $\hat{\textbf{x}}_f$ pointing in the radial direction along the satellite's Earth-relative position vector, the $\hat{\textbf{z}}_f$ axis points normal to the orbital plane spanned by the position and velocity vector, and $\hat{\textbf{y}}_f$ fulfills the right-hand rule. Note that the latter will always point in direction of positive velocity, but will only be perpendicular to the velocity for circular orbits \cite{vallado2001fundamentals, stratton2025rtn}. Using this definition, the frame can be expressed mathematically as:
+\begin{equation}
+    \hat{\textbf{R}}^n = \hat{\textbf{x}}_f^n = \frac{\textbf{r}^n_{l/n}}{||\textbf{r}^n_{l/n}||}, \qquad \hat{\textbf{N}}^n = \hat{\textbf{z}}_f^n = \frac{\textbf{r}^n_{l/n} \times \textbf{v}^n_{l/n}}{||\textbf{r}^n_{l/n} \times \textbf{v}^n_{l/n}||}, \qquad \hat{\textbf{T}}^n = \hat{\textbf{y}}_f^n = \hat{\textbf{z}}^n_f \times \hat{\textbf{x}}_f^n
+\end{equation}
+Here, $r^n_{l/n}$ and $v^n_{l/n}$ are used to denote the Earth-relative leader position and velocity expressed in \gls{eci}, while $\hat{\textbf{y}}_f$ and $\hat{\textbf{z}}_f$ correspond to the along- and cross-track directions, respectively. An illustration of the leader satellite's position relative to $\mathcal{O}_n$ and its affixed \gls{rtn} frame is shown in Figure \ref{fig:frames}.
+
+% Add coordinate transformation RTN <-> ECI if needed.
+
+
+    \subsection{Body frame}
+$\mathcal{F}^{b}: \left\{ \mathcal{O}_b; \; \hat{\textbf{x}}_{b}, \hat{\textbf{y}}_{b}, \hat{\textbf{z}}_{b} \right\}$
+
+\subsection{Attitude Reference Frame}
+$\mathcal{F}^{r}: \left\{ \mathcal{O}_f; \; \hat{\textbf{x}}_{r}, \hat{\textbf{y}}_{r}, \hat{\textbf{z}}_{r} \right\}$
 
 
 \section{Modified Rodrigues parameters}
