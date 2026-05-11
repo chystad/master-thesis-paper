@@ -1,7 +1,7 @@
 \section{Reference Frames}
 
 A reference frame $\mathcal{F}^{rf}: \left\{ \mathcal{O}_{rf}; \; \hat{\textbf{x}}_{rf}, \hat{\textbf{y}}_{rf}, \hat{\textbf{z}}_{rf} \right\}$ is uniquely defined by three dextral orthogonal unit vectors 
-$\{\hat{\textbf{x}}_{rf}, \hat{\textbf{y}}_{rf}, \hat{\textbf{z}}_{rf}\}$ and the origin $\mathcal{O}_{rf}$ \cite{grotte2020spacecraft}. This section will present rigid mathematical definitions for the most important reference frames used in the paper. The individual reference frame indexes are assigned to be consistent with the conventional Basilisk notation. 
+$\{\hat{\textbf{x}}_{rf}, \hat{\textbf{y}}_{rf}, \hat{\textbf{z}}_{rf}\}$ and the origin $\mathcal{O}_{rf}$ \cite{grotte2020spacecraft}. This section will present mathematical definitions for the most important reference frames used in the thesis. The individual reference frame indices are assigned to be consistent with the conventional Basilisk notation. 
 
 \begin{figure}[H]
     \centering
@@ -14,8 +14,9 @@ $\{\hat{\textbf{x}}_{rf}, \hat{\textbf{y}}_{rf}, \hat{\textbf{z}}_{rf}\}$ and th
 The \gls{eci} reference frame, $\mathcal{F}^{rf}: \left\{ \mathcal{O}_{n}; \; \hat{\textbf{x}}_{n}, \hat{\textbf{y}}_{n}, \hat{\textbf{z}}_{n} \right\}$, is fixed relative to the distant stars, and is therefore commonly approximated as an inertial frame in which Newtonian mechanics are valid \cite{modsim2002}. The frame is defined with its origin in the Earth's \gls{cm}, with $\hat{\textbf{z}}_{n}$ pointing along its rotational axis towards the geographical North Pole, $\hat{\textbf{x}}_{n}$ pointing towards the vernal equinox through the equator, and $\hat{\textbf{y}}_{n}$ defined according to the right-hand rule. Multiple variants of the \gls{eci} definition exists, primarily varying in the epoch used to define the Earth's equatorial plane and equinox direction. In this thesis, the J2000 \gls{eci} frame is adopted. It is defined using the J2000.0 reference epoch, equivalent to 1st January 2000, at 12:00 \gls{tt} \cite{nasa_eci}. The frame definition is illustrated in Figure \ref{fig:frames}. 
 
 
-    \subsection{Earth-Centered Earth-Fixed (ECEF) Frame}
-$\mathcal{F}^{e}: \left\{ \mathcal{O}_e; \; \hat{\textbf{x}}_{e}, \hat{\textbf{y}}_{e}, \hat{\textbf{z}}_{e} \right\}$
+% Don't actually know if I need this section
+%     \subsection{Earth-Centered Earth-Fixed (ECEF) Frame}
+% $\mathcal{F}^{e}: \left\{ \mathcal{O}_e; \; \hat{\textbf{x}}_{e}, \hat{\textbf{y}}_{e}, \hat{\textbf{z}}_{e} \right\}$
 
 
 \subsection{Radial-Transverse-Normal (RTN) Frame}
@@ -28,17 +29,83 @@ Here, $r^n_{l/n}$ and $v^n_{l/n}$ are used to denote the Earth-relative leader p
 % Add coordinate transformation RTN <-> ECI if needed.
 
 
-    \subsection{Body frame}
-$\mathcal{F}^{b}: \left\{ \mathcal{O}_b; \; \hat{\textbf{x}}_{b}, \hat{\textbf{y}}_{b}, \hat{\textbf{z}}_{b} \right\}$
+\subsection{Body-Fixed Frame}
+The body-fixed reference frame, $\mathcal{F}^{b}: \left\{ \mathcal{O}_b; \; \hat{\textbf{x}}_{b}, \hat{\textbf{y}}_{b}, \hat{\textbf{z}}_{b} \right\}$, is a moving reference frame that is rigidly attached to the spacecraft body. Because of this property, the body-fixed frame is used for expressing satellite attitude, actuator torques and sensor measurements, since these quantities are naturally expressed relative to the body itself. The orientation of its axes are typically chosen to best represent the spacecraft geometry, and to coincide with the principal axes of inertia \cite{fossen2021}. Consequentially, CubeSat body axes are commonly selected to be perpendicular to its side panels. The frame origin is commonly placed at the \gls{cm} in order to simplify the rotational equations of motion, and to reduce translational-rotational coupling \cite{schaub2018analytical}. An illustration of the body frame definition for a 1U CubeSat is shown in Figure \ref{fig:body_rtn}. 
 
-\subsection{Attitude Reference Frame}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{Figures/03Theory/BODY RTN Placeholder.png}
+    \caption{[PLACEHOLDER] Illustration of the body-fixed ($\mathcal{F}^b$)and RTN ($\mathcal{F}^f$) reference frame definitions for a 1U CubeSat. Adopted from \cite{montenbruck2015gnss}.}
+    \label{fig:body_rtn} 
+\end{figure}
+
+\subsection{Desired Attitude Frame}
 $\mathcal{F}^{r}: \left\{ \mathcal{O}_f; \; \hat{\textbf{x}}_{r}, \hat{\textbf{y}}_{r}, \hat{\textbf{z}}_{r} \right\}$
 
 
+
+
 \section{Modified Rodrigues parameters}
+\gls{mrp}s are 3-element attitude parameterization commonly used for spacecraft attitude control. The representation can be derived from the Euler-Rodrigues symmetric parameters, better known as the unit quaternion:
+\begin{equation}
+    \textbf{q} = \begin{bmatrix}
+        \boldsymbol{\epsilon} \\
+        \eta
+    \end{bmatrix} = \begin{bmatrix}
+        \epsilon_1 & \epsilon_2 & \epsilon_3 & \eta
+    \end{bmatrix}^T,
+    \qquad
+    \textbf{q}^T \textbf{q} = |\boldsymbol{\epsilon}|^2 + \eta^2 = 1
+\end{equation}
+
+where $\eta$ is the scalar component and $\boldsymbol{\epsilon}$ is the imaginary vector. Using this definition, Shuster writes in \cite{shuster1993survey} that the \gls{mrp}s are obtained through a stereographic projection of the unit quaternion onto $\mathbb{R}^{3}$
+
+\begin{equation}
+    \textbf{p} = \frac{\boldsymbol{\epsilon}}{1 + \eta}, \qquad 
+    \textbf{m} = \frac{\boldsymbol{\epsilon}}{1 - \eta}
+\end{equation}
+
+Here, $\textbf{p}$ and $\textbf{m}$ are the positive and negative forms, differing only in the singularity placement. This thesis utilizes the positive form, and will hereby be referred to as $\boldsymbol{\sigma}$. Using the axis-angle representation of a rotation, where $\hat{\textbf{n}}$ represents the unit rotation axis and $\theta$ is the angle of rotation about the axis, the positive-form \gls{mrp}s can be expressed as:
+\begin{equation}
+    \textbf{q} = \begin{bmatrix}
+        \hat{\textbf{n}}\sin(\theta/2) \\
+        \cos(\theta/2)         
+    \end{bmatrix} \quad \Rightarrow \quad \boldsymbol{\sigma}(\theta, \hat{\textbf{n}}) = \hat{\textbf{n}}\tan\left(\frac{\theta}{4}\right),
+\end{equation}
+From this formulation, it follows that the \gls{mrp}s become singular as $\theta \rightarrow 2\pi$, since
+\begin{equation}
+    \tan \left( \frac{\theta}{4}\right) \rightarrow \infty \quad \text{for} \quad \theta \rightarrow 2\pi 
+\end{equation}
+
+To avoid numerical issues near the singularity, an equivalent \gls{mrp} shadow set, $\boldsymbol{\sigma}^s$, may be used \cite{okeefe2014shadow}. The shadow set transformation is defined as:
+
+\begin{equation}
+    \boldsymbol{\sigma}^s = -\frac{\boldsymbol{\sigma}}{\boldsymbol{\sigma}^T \boldsymbol{\sigma}}
+\end{equation}
+Switching to the shadow set when $||\boldsymbol{\sigma}|| > 1$ effectively bounds the \gls{mrp} set by the unit sphere, and prevents the parameterization from approaching the singularity numerically \cite{marandi1987preferred, okeefe2014shadow, shuster1993survey}.
+
+% If time, point out som up- and down-sides for this attitude parameterization
 
 
-\subsection{Classic Orbital elements}
+\section{Classic Orbital elements}
+The classic orbital elements are a set of six parameters that uniquely describes
+
+\begin{itemize}[noitemsep, topsep=0pt, labelsep=0.5em]
+    \item[\makebox[1.2cm][l]{$a$:}] semi-major axis
+    \item[\makebox[1.2cm][l]{$e$:}] eccentricity
+    \item[\makebox[1.2cm][l]{$i$:}] inclination
+    \item[\makebox[1.2cm][l]{$\Omega$:}] right ascension of the ascending node (RAAN)
+    \item[\makebox[1.2cm][l]{$\omega$:}] argument of perigee
+    \item[\makebox[1.2cm][l]{$M$:}] mean anomaly
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{Figures/03Theory/OEs.png}
+    \caption{Courtesy of \cite{curtis2005orbital}}.
+    \label{fig:frames} 
+\end{figure}
+
 
 
 \section{Orbital perturbations}
@@ -57,6 +124,7 @@ $\mathcal{F}^{r}: \left\{ \mathcal{O}_f; \; \hat{\textbf{x}}_{r}, \hat{\textbf{y
 
 
 \section{Formation flying dynamics}
+% Check this source sent from Tommy: https://link.springer.com/article/10.1007/s40295-025-00556-w
 
 
 \section{Differential perturbation effects}
