@@ -1,7 +1,7 @@
 \section{Reference Frames}
 
 A reference frame $\mathcal{F}^{rf}: \left\{ \mathcal{O}_{rf}; \; \hat{\textbf{x}}_{rf}, \hat{\textbf{y}}_{rf}, \hat{\textbf{z}}_{rf} \right\}$ is uniquely defined by three dextral orthogonal unit vectors 
-$\{\hat{\textbf{x}}_{rf}, \hat{\textbf{y}}_{rf}, \hat{\textbf{z}}_{rf}\}$ and the origin $\mathcal{O}_{rf}$ \cite{grotte2020spacecraft}. This section will present mathematical definitions for the most important reference frames used in the thesis. The individual reference frame indices are assigned to be consistent with the conventional Basilisk notation. 
+$\{\hat{\textbf{x}}_{rf}, \hat{\textbf{y}}_{rf}, \hat{\textbf{z}}_{rf}\}$ and the origin placement $\mathcal{O}_{rf}$ \cite{grotte2020spacecraft}. This section will present the definitions for the most important reference frames used in the thesis. The reader should note that the individual reference frame subscripts are assigned to be consistent with the conventional Basilisk notation. 
 
 \begin{figure}[H]
     \centering
@@ -11,26 +11,33 @@ $\{\hat{\textbf{x}}_{rf}, \hat{\textbf{y}}_{rf}, \hat{\textbf{z}}_{rf}\}$ and th
 \end{figure}
 
 \subsection{J2000 Earth-Centered Inertial (ECI) Frame}
-The \gls{eci} reference frame, $\mathcal{F}^{rf}: \left\{ \mathcal{O}_{n}; \; \hat{\textbf{x}}_{n}, \hat{\textbf{y}}_{n}, \hat{\textbf{z}}_{n} \right\}$, is fixed relative to the distant stars, and is therefore commonly approximated as an inertial frame in which Newtonian mechanics are valid \cite{modsim2002}. The frame is defined with its origin in the Earth's \gls{cm}, with $\hat{\textbf{z}}_{n}$ pointing along its rotational axis towards the geographical North Pole, $\hat{\textbf{x}}_{n}$ pointing towards the vernal equinox through the equator, and $\hat{\textbf{y}}_{n}$ defined according to the right-hand rule. Multiple variants of the \gls{eci} definition exists, primarily varying in the epoch used to define the Earth's equatorial plane and equinox direction. In this thesis, the J2000 \gls{eci} frame is adopted. It is defined using the J2000.0 reference epoch, equivalent to 1st January 2000, at 12:00 \gls{tt} \cite{nasa_eci}. The frame definition is illustrated in Figure \ref{fig:frames}. 
+The \gls{eci} reference frame, $\mathcal{F}^{n}: \left\{ \mathcal{O}_{n}; \; \hat{\textbf{x}}_{n}, \hat{\textbf{y}}_{n}, \hat{\textbf{z}}_{n} \right\}$, is fixed relative to the distant stars, and is therefore commonly approximated as an inertial frame in which Newtonian mechanics are valid \cite{modsim2002}. The frame is defined with its origin in the Earth's \gls{cm}, with $\hat{\textbf{z}}_{n}$ pointing along its rotational axis towards the geographical North Pole, $\hat{\textbf{x}}_{n}$ pointing towards the vernal equinox through the equator, and $\hat{\textbf{y}}_{n}$ defined according to the right-hand rule. Multiple variants of the \gls{eci} definition exists, primarily varying in the epoch used to define the Earth's equatorial plane and equinox direction. In this thesis, the J2000 \gls{eci} frame is adopted. It is defined using the J2000.0 reference epoch, equivalent to 1st January 2000, at 12:00 \gls{tt} \cite{nasa_eci}. The frame definition is illustrated in Figure \ref{fig:frames}. 
 
 
-% Don't actually know if I need this section
-%     \subsection{Earth-Centered Earth-Fixed (ECEF) Frame}
-% $\mathcal{F}^{e}: \left\{ \mathcal{O}_e; \; \hat{\textbf{x}}_{e}, \hat{\textbf{y}}_{e}, \hat{\textbf{z}}_{e} \right\}$
 
+\subsection{Earth-Centered Earth-Fixed (ECEF) Frame}
+The \gls{ecef} reference frame $\mathcal{F}^{e}: \left\{ \mathcal{O}_e; \; \hat{\textbf{x}}_{e}, \hat{\textbf{y}}_{e}, \hat{\textbf{z}}_{e} \right\}$ is fixed relative to the Earth's surface, with the frame origin positioned in its \gls{cm}. This thesis adopts the WGS84 \gls{ecef} formulation as presented by Stryjewski in \cite{Stryjewski2020}, where the $\hat{\textbf{x}}_e$ axis points through the Prime Meridian in the equatorial plane, $\hat{\textbf{z}}_e = \hat{\textbf{z}}_n$ points along the Earth's rotational axis, and $\hat{\textbf{y}}_e$ is defined according to the right-hand rule. Because of the Earth's angular velocity, the transformation $\textbf{R}^e_n$ between \gls{eci} to \gls{ecef} can be expressed using a time-dependent rotation angle $\theta(t)$ about the shared $\hat{\textbf{z}}_e$ axis \cite{hystad2025}
+\begin{equation}
+    \textbf{R}^e_n = \begin{bmatrix}
+        \cos \theta(t) & -\sin \theta(t) &  0 \\
+        \sin \theta(t) & \cos \theta(t) & 0 \\
+        0 & 0 & 1
+    \end{bmatrix}, \qquad \textbf{R}^n_e = (\textbf{R}^e_i)^T
+\label{eq:eci2ecef}
+\end{equation}
 
 \subsection{Radial-Transverse-Normal (RTN) Frame}
-The \gls{rtn} reference frame, $\mathcal{F}^{f}: \left\{ \mathcal{O}_{f}; \; \hat{\textbf{x}}_{f}, \hat{\textbf{y}}_{f}, \hat{\textbf{z}}_{f} \right\}$, is a local orbital frame that is useful for expressing relative motion between spaceborne objects. Vallado presents the frame as the \textit{Satellite coordinate system, RSW} in \cite{vallado2001fundamentals}, but the \textit{RTN} name is chosen for this thesis to better convey each component's physical significance. For use in formation flight, the coordinate frame origin is assigned to the leader satellite, $l$'s \gls{cm}. The dextral orthogonal unit vectors are defined with the $\hat{\textbf{x}}_f$ pointing in the radial direction along the satellite's Earth-relative position vector, the $\hat{\textbf{z}}_f$ axis points normal to the orbital plane spanned by the position and velocity vector, and $\hat{\textbf{y}}_f$ fulfills the right-hand rule. Note that the latter will always point in direction of positive velocity, but will only be perpendicular to the velocity for circular orbits \cite{vallado2001fundamentals, stratton2025rtn}. Using this definition, the frame can be expressed mathematically as:
+The \gls{rtn} reference frame, $\mathcal{F}^{f}: \left\{ \mathcal{O}_{f}; \; \hat{\textbf{x}}_{f}, \hat{\textbf{y}}_{f}, \hat{\textbf{z}}_{f} \right\}$, is a local orbital frame that is useful for expressing relative motion between spaceborne objects. Vallado presents the frame as the \textit{Satellite coordinate system, RSW} in \cite{vallado2001fundamentals}, but the \textit{RTN} name is chosen for this thesis to better convey each component's physical significance. For use in formation flight, the coordinate frame origin is assigned to the leader satellite, $l$'s \gls{cm}. The dextral orthogonal unit vectors are defined with the $\hat{\textbf{x}}_f$ axis pointing in the radial direction along $\textbf{r}^n_{l/n}$, the $\hat{\textbf{z}}_f$ axis points normal to the orbital plane, and $\hat{\textbf{y}}_f$ fulfills the right-hand rule. Note that the latter will always point in direction of positive velocity, but will only be perpendicular to the velocity for circular orbits \cite{vallado2001fundamentals, stratton2025rtn}. Using this definition, the frame can be expressed mathematically as:
 \begin{equation}
     \hat{\textbf{R}}^n = \hat{\textbf{x}}_f^n = \frac{\textbf{r}^n_{l/n}}{||\textbf{r}^n_{l/n}||}, \qquad \hat{\textbf{N}}^n = \hat{\textbf{z}}_f^n = \frac{\textbf{r}^n_{l/n} \times \textbf{v}^n_{l/n}}{||\textbf{r}^n_{l/n} \times \textbf{v}^n_{l/n}||}, \qquad \hat{\textbf{T}}^n = \hat{\textbf{y}}_f^n = \hat{\textbf{z}}^n_f \times \hat{\textbf{x}}_f^n
 \end{equation}
-Here, $r^n_{l/n}$ and $v^n_{l/n}$ are used to denote the Earth-relative leader position and velocity expressed in \gls{eci}, while $\hat{\textbf{y}}_f$ and $\hat{\textbf{z}}_f$ correspond to the along- and cross-track directions, respectively. An illustration of the leader satellite's position relative to $\mathcal{O}_n$ and its affixed \gls{rtn} frame is shown in Figure \ref{fig:frames}.
+Here, $\textbf{r}^n_{l/n}$ and $\textbf{v}^n_{l/n}$ are used to denote the Earth-relative leader position and velocity expressed in \gls{eci}, while $\hat{\textbf{y}}_f$ and $\hat{\textbf{z}}_f$ correspond to the along- and cross-track directions, respectively. An illustration of the leader satellite's position relative to $\mathcal{O}_n$ and its affixed \gls{rtn} frame is shown in Figure \ref{fig:frames}.
 
 % Add coordinate transformation RTN <-> ECI if needed.
 
 
 \subsection{Body-Fixed Frame}
-The body-fixed reference frame, $\mathcal{F}^{b}: \left\{ \mathcal{O}_b; \; \hat{\textbf{x}}_{b}, \hat{\textbf{y}}_{b}, \hat{\textbf{z}}_{b} \right\}$, is a moving reference frame that is rigidly attached to the spacecraft body. Because of this property, the body-fixed frame is used for expressing satellite attitude, actuator torques and sensor measurements, since these quantities are naturally expressed relative to the body itself. The orientation of its axes are typically chosen to best represent the spacecraft geometry, and to coincide with the principal axes of inertia \cite{fossen2021}. Consequentially, CubeSat body axes are commonly selected to be perpendicular to its side panels. The frame origin is commonly placed at the \gls{cm} in order to simplify the rotational equations of motion, and to reduce translational-rotational coupling \cite{schaub2018analytical}. An illustration of the body frame definition for a 1U CubeSat is shown in Figure \ref{fig:body_rtn}. 
+The body-fixed reference frame, $\mathcal{F}^{b}: \left\{ \mathcal{O}_b; \; \hat{\textbf{x}}_{b}, \hat{\textbf{y}}_{b}, \hat{\textbf{z}}_{b} \right\}$, is a moving reference frame that is rigidly attached to the spacecraft body. Because of this property, the body-fixed frame is used for expressing satellite attitude relative to an inertial frame, actuator torques and sensor measurements, since these quantities are naturally expressed relative to the body itself. The orientation of its axes are typically chosen to best represent the spacecraft geometry, and to coincide with the principal axes of inertia \cite{fossen2021}. Consequentially, CubeSat body axes are commonly selected to be perpendicular to its side panels. The frame origin is commonly placed at the \gls{cm} in order to simplify the rotational equations of motion, and to reduce translational-rotational coupling \cite{schaub2018analytical}. An illustration of the body frame definition for a 1U CubeSat is shown in Figure \ref{fig:body_rtn}. 
 
 \begin{figure}[H]
     \centering
@@ -39,8 +46,8 @@ The body-fixed reference frame, $\mathcal{F}^{b}: \left\{ \mathcal{O}_b; \; \hat
     \label{fig:body_rtn} 
 \end{figure}
 
-\subsection{Desired Attitude Frame}
-$\mathcal{F}^{r}: \left\{ \mathcal{O}_f; \; \hat{\textbf{x}}_{r}, \hat{\textbf{y}}_{r}, \hat{\textbf{z}}_{r} \right\}$
+% \subsection{Desired Attitude Frame}
+% $\mathcal{F}^{r}: \left\{ \mathcal{O}_f; \; \hat{\textbf{x}}_{r}, \hat{\textbf{y}}_{r}, \hat{\textbf{z}}_{r} \right\}$
 
 
 
@@ -120,7 +127,7 @@ i      &: & \text{inclination}\\
 \text{orbital plane orientation}
 \\[1em]
 \begin{array}{@{}r@{\;}l@{\quad}l@{}}
-M      &: & \text{spacecraft }
+M      &: & \text{mean anomaly}
 \end{array}
 &
 \left.\vphantom{\begin{array}{c}x\end{array}}\right\}
@@ -138,30 +145,68 @@ It is important to note that the semimajor axis, and mean anomaly are in some or
     \label{fig:OEs}
 \end{figure} 
 
-The semimajor axis is defined as half of the longest ellipse diameter, and determines the overall size of the orbit. For elliptical orbits, this parameter is directly coupled with the orbital period through Kepler's third law. The eccentricity is a measure of how much the orbital trajectory deviates from a circle. It takes values in the span between zero and one inclusive, where an eccentricity of zero corresponds to a perfectly circular orbit, and an increasing eccentricity correspond to elliptical orbits of increasing elongation. 
+The semimajor axis is defined as half of the longest ellipse diameter, and determines the overall size of the orbit. For elliptical orbits, this parameter is directly coupled with the orbital period through Kepler's third law. The eccentricity is a measure of how much the orbital trajectory deviates from a circle. It takes values in the span between zero and one, where an eccentricity of zero corresponds to a perfectly circular orbit, and an increasing eccentricity correspond to an elliptical orbit of increasing elongation. 
 
-The inclination is the intersection angle between the orbital plane and the reference plane, commonly the equatorial plane spanned by the $\hat{x}_n$ and $\hat{y}_n$ axes in \gls{eci}. This angle determines the tilt of the orbital plane, while its orientation about the $\hat{z}_n$ axis is determined by the RAAN parameter. For nonzero inclinations, the orbital trajectory intersects the reference plane at two points, the ascending and descending nodes. The ascending node is where the object travels from the Southern to the Northern Hemisphere, and RAAN is defined as the angle between this node and the $\hat{x}_n$ axis in the equatorial plane. The argument of perigee specifies the orientation of the ellipse within the orbital plane. It is defined as the angle from the ascending node to the perigee along the orbital trajectory, where perigee is a term specific to Earth satellites describing the point along the trajectory closest to Earth. Finally, the mean anomaly defines the orbiting body's position along the orbit as a function of time. It is defined as the elapsed fraction of the orbital period since the orbiting body passed the perigee \cite{curtis2005orbital, astronomicalreturns_orbitalelements}. 
+The inclination is the intersection angle between the orbital plane and the reference plane, commonly the equatorial plane spanned by the $\hat{x}_n$ and $\hat{y}_n$ axes in \gls{eci}. This angle determines the tilt of the orbital plane, while its orientation about the $\hat{z}_n$ axis is determined by the RAAN parameter. For nonzero inclinations, the orbital trajectory intersects the reference plane at two points, the ascending and descending nodes. The ascending node is where the object travels from the Southern to the Northern Hemisphere, and RAAN is defined as the angle between this node and the $\hat{x}_n$ axis in the equatorial plane. 
 
-
-
-
+The argument of perigee specifies the orientation of the ellipse within the orbital plane. It is defined as the angle from the ascending node to the perigee along the orbital trajectory, where perigee is a term specific to Earth satellites, describing the point along the trajectory closest to Earth. Finally, the mean anomaly defines the orbiting body's position along the orbit as a function of time. It is defined as the elapsed fraction of the orbital period since the orbiting body passed the perigee \cite{curtis2005orbital, astronomicalreturns_orbitalelements}. 
 
 
  
-
+\newpage
 \section{Orbital perturbations}
+Perhaps note that I make use of the orbital perturbation review conducted in \cite{hystad2025}??
 
-    \subsection{Spherical harmonics}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{Figures/03Theory/perturbation magnitudes.png}
+    \caption{Acceleration magnitudes caused by various orbital perturbations. Courtesy of \cite{montenbruck2000}}.
+    \label{fig:orbital_perturb}
+\end{figure} 
+
+
+\subsection{Spherical harmonics}
+Keplerian motion assumes that the Earth can be represented as a perfectly spherical body with all its mass concentrated in the earth-centered inertial frame origin. Under this assumption, the gravitational force acting on a spacecraft, $s$, can be modeled using Newton's law of gravity unsing the notation from \cite{hystad2025}:
+\begin{equation}
+    \textbf{a}_{grav} = \left(\ddot{\textbf{r}}_{s/n}\right)_{grav} = - \frac{\mu}{||\textbf{r}_{s/n}||_2^3} \textbf{r}_{s/n} \iff \left(\ddot{\textbf{r}}_{s/n}\right)_{grav} = \nabla U, \quad \text{where } U = \mu\frac{1}{||\textbf{r}_{s/n}||_2}
+\label{eq:newton_gravity}
+\end{equation}
+Here, $\mu = GM$ is the Earth's gravitational constant, and $\nabla U$ is the gradient of the gravity potential. In accordance with the spherical assumption, the gravity potential is only dependent on the satellite's geocentric distance, implying uniform density. In actuality, the Earth's mass is unhomogeneously distributed through its volume, and centrifugal forces causes the planet to bulge outwards around the equator due to its angular velocity. These irregularities produce perturbing accelerations that gradually alter the orbital trajectories over time. 
+
+Montenbruck \& Gill explain that these deviations from spherical symmetry can be modeled by expanding the Earth's gravity potential into a spherical harmonic series representation \cite{montenbruck2000}. The resulting series expresses the geopotential as a weighted sum of spherical harmonic terms describing gravitational irregularities caused by the Earth's unhomogeneous mass distribution. Here, the spacecraft position is represented in \gls{ecef} spherical coordinates consisting of the geocentric distance $r = ||\textbf{r}^e_{s/n}||_2$, the geocentric latitude $\phi^e$, and the longitude $\lambda^e$. Using these coordinates together with the associated Legendre polynomials, the geopotential may be written in the general spherical harmonic form as
+\begin{equation}
+U(r, \phi^e, \lambda^e) = \frac{\mu}{R} \sum_{n=0}^{\infty} \sum_{m=0}^{n} \left(C_{nm}V_{nm} + S_{nm}W_{nm}\right)
+\label{eq:general_spherical_harmonic}
+\end{equation}
+where, 
+\begin{equation}
+V_{nm} = \left(\frac{R}{r}\right)^{n+1} P_{nm}(\sin\phi^e)\cos(m\lambda^e),
+\qquad
+W_{nm} = \left(\frac{R}{r}\right)^{n+1} P_{nm}(\sin\phi^e)\sin(m\lambda^e).
+\label{eq:spherical_harmonics}
+\end{equation}
+Here, $R$ denotes the Earth's radius, $P_{nm}$ are the associated Legendre polynomials, while $C_{nm}$ and $S_{nm}$ are the normalized geopotential coefficients that encode the Earth's non-uniform mass distribution. The $_{nm}$ subscript denotes the degree $n$ and order $m$, where increasing value correspond to decreasingly significant perturbation terms. The harmonic degree relates to longitudinal mass variation, while the order determines the longitudinal dependency on the harmonic term. 
+
+The reader should note that a common simplification is to assume order $m=0$ due to comparatively small variations in the Earth's gravity field along the longitude. This yields the zonal harmonic expression, where the $S_{n0}$ terms vanish, and the geopotential coefficients are commonly expressed as $J_n = -C_{n0}$. This gives the following expression derived from \cite{montenbruck2000, vallado2001fundamentals}:
+\begin{equation}
+    U(r, \phi^e) = \frac{\mu}{r} \left[ 1 - \sum_{n=2}^{4} J_n \left( \frac{R}{r} \right)^n P_n(\sin \phi^e) \right]
+\end{equation}
+The resulting zonal model captures the dominant secular perturbation effects while significantly reducing the complexity of the gravity model. Amongst the zonal coefficients, the second degree term $J_2$ dominates the non-spherical effects, as is clearly evident by the substantially larger acceleration magnitude of $J_{2,0}$ in Figure \ref{fig:orbital_perturb} compared to the other terms. The Figure also illustrates that the higher degree and order terms rapidly decrease in magnitude. However, to include the dominant lateral and longitudinal non-spherical effect, this thesis employs the general spherical harmonic formulation in Equation \ref{eq:general_spherical_harmonic}, with truncated degree and order.
+
 
     \subsection{Atmospheric drag}
 
         \subsection{NRLMSISE-00 (MSIS) Atmosphere model}
 
     \subsection{Solar radiation pressure}
+Maybe include the eclipse model here?
 
     \subsection{Third-Body Perturbations}
 
     \subsection{Relative significance in LEO}
+
+
+
 
 
 \section{Formation flying dynamics}
