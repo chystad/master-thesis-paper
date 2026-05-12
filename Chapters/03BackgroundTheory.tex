@@ -34,8 +34,8 @@ The body-fixed reference frame, $\mathcal{F}^{b}: \left\{ \mathcal{O}_b; \; \hat
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.5\textwidth]{Figures/03Theory/BODY RTN Placeholder.png}
-    \caption{[PLACEHOLDER] Illustration of the body-fixed ($\mathcal{F}^b$)and RTN ($\mathcal{F}^f$) reference frame definitions for a 1U CubeSat. Adopted from \cite{montenbruck2015gnss}.}
+    \includegraphics[width=0.5\textwidth]{Figures/03Theory/Body_RTN.png}
+    \caption{Illustration of the body-fixed ($\mathcal{F}^b$)and RTN ($\mathcal{F}^f$) reference frame definitions for a 1U CubeSat. Adopted from \cite{montenbruck2015gnss}.}
     \label{fig:body_rtn} 
 \end{figure}
 
@@ -88,25 +88,66 @@ Switching to the shadow set when $||\boldsymbol{\sigma}|| > 1$ effectively bound
 
 
 \section{Classic Orbital elements}
-The classic orbital elements are a set of six parameters that uniquely describes
+The classic orbital elements are a set of six parameters used to uniquely define the shape, size and orientation of an orbital plane, as well as the position of an orbiting body. In astrodynamics, these parameters provide a compact and intuitive representation of orbital motion, commonly used for orbital analyses and spacecraft guidance. The classic orbital elements used in this thesis are:
+% \begin{itemize}[noitemsep, topsep=0pt]
+%     \item[\parbox{0.4cm}{$a$:}] semimajor axis
+%     \item[\parbox{0.4cm}{$e$:}] eccentricity
+%     \item[\parbox{0.4cm}{$i$:}] inclination
+%     \item[\parbox{0.4cm}{$\Omega$:}] right ascension of the ascending node (RAAN)
+%     \item[\parbox{0.4cm}{$\omega$:}] argument of perigee 
+%     \item[\parbox{0.4cm}{$M$:}] mean anomaly
+% \end{itemize}
+\[
+\begin{array}{@{}l@{\quad}c@{\quad}l@{}}
 
-\begin{itemize}[noitemsep, topsep=0pt, labelsep=0.5em]
-    \item[\makebox[1.2cm][l]{$a$:}] semi-major axis
-    \item[\makebox[1.2cm][l]{$e$:}] eccentricity
-    \item[\makebox[1.2cm][l]{$i$:}] inclination
-    \item[\makebox[1.2cm][l]{$\Omega$:}] right ascension of the ascending node (RAAN)
-    \item[\makebox[1.2cm][l]{$\omega$:}] argument of perigee
-    \item[\makebox[1.2cm][l]{$M$:}] mean anomaly
-\end{itemize}
+\begin{array}{@{}r@{\;}l@{\quad}l@{}}
+a      &: & \text{semimajor axis}\\
+e      &: & \text{eccentricity}
+\end{array}
+&
+\left.\vphantom{\begin{array}{c}x\\x\end{array}}\right\}
+&
+\text{orbital plane size and shape}
+\\
+\begin{array}{@{}r@{\;}l@{\quad}l@{}}
+i      &: & \text{inclination}\\
+\Omega &: & \text{right ascension of the ascending node (RAAN)}\\
+\omega &: & \text{argument of perigee}
+\end{array}
+&
+\left.\vphantom{\begin{array}{c}x\\x\\x\end{array}}\right\}
+&
+\text{orbital plane orientation}
+\\[1em]
+\begin{array}{@{}r@{\;}l@{\quad}l@{}}
+M      &: & \text{spacecraft }
+\end{array}
+&
+\left.\vphantom{\begin{array}{c}x\end{array}}\right\}
+&
+\text{orbital body position}
+
+\end{array}
+\]
+It is important to note that the semimajor axis, and mean anomaly are in some orbital element configurations replaced with the angular momentum $h$, and the true anomaly $\theta$, respectively. In any case, these six parameters define a Keplerian orbit, and they can be grouped according to the orbital property they describe: The semimajor axis and eccentricity define the shape and size of the orbital plane, while the inclination, RAAN and argument of perigee describe the plane's orientation. Finally, the mean anomaly is used to describe the spaceborne object's position along the orbital trajectory. An illustration of the classic orbital elements is shown in Figure \ref{fig:OEs}. 
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.5\textwidth]{Figures/03Theory/OEs.png}
-    \caption{Courtesy of \cite{curtis2005orbital}}.
-    \label{fig:frames} 
-\end{figure}
+    \caption{Orbital elements relative to the \gls{eci} frame. Courtesy of \cite{curtis2005orbital}}.
+    \label{fig:OEs}
+\end{figure} 
+
+The semimajor axis is defined as half of the longest ellipse diameter, and determines the overall size of the orbit. For elliptical orbits, this parameter is directly coupled with the orbital period through Kepler's third law. The eccentricity is a measure of how much the orbital trajectory deviates from a circle. It takes values in the span between zero and one inclusive, where an eccentricity of zero corresponds to a perfectly circular orbit, and an increasing eccentricity correspond to elliptical orbits of increasing elongation. 
+
+The inclination is the intersection angle between the orbital plane and the reference plane, commonly the equatorial plane spanned by the $\hat{x}_n$ and $\hat{y}_n$ axes in \gls{eci}. This angle determines the tilt of the orbital plane, while its orientation about the $\hat{z}_n$ axis is determined by the RAAN parameter. For nonzero inclinations, the orbital trajectory intersects the reference plane at two points, the ascending and descending nodes. The ascending node is where the object travels from the Southern to the Northern Hemisphere, and RAAN is defined as the angle between this node and the $\hat{x}_n$ axis in the equatorial plane. The argument of perigee specifies the orientation of the ellipse within the orbital plane. It is defined as the angle from the ascending node to the perigee along the orbital trajectory, where perigee is a term specific to Earth satellites describing the point along the trajectory closest to Earth. Finally, the mean anomaly defines the orbiting body's position along the orbit as a function of time. It is defined as the elapsed fraction of the orbital period since the orbiting body passed the perigee \cite{curtis2005orbital, astronomicalreturns_orbitalelements}. 
 
 
+
+
+
+
+ 
 
 \section{Orbital perturbations}
 
