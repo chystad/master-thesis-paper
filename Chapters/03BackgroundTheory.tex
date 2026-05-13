@@ -37,14 +37,15 @@ Here, $\textbf{r}^n_{l/n}$ and $\textbf{v}^n_{l/n}$ are used to denote the Earth
 
 
 \subsection{Body-Fixed Frame}
-The body-fixed reference frame, $\mathcal{F}^{b}: \left\{ \mathcal{O}_b; \; \hat{\textbf{x}}_{b}, \hat{\textbf{y}}_{b}, \hat{\textbf{z}}_{b} \right\}$, is a moving reference frame that is rigidly attached to the spacecraft body. Because of this property, the body-fixed frame is used for expressing satellite attitude relative to an inertial frame, actuator torques and sensor measurements, since these quantities are naturally expressed relative to the body itself. The orientation of its axes are typically chosen to best represent the spacecraft geometry, and to coincide with the principal axes of inertia \cite{fossen2021}. Consequentially, CubeSat body axes are commonly selected to be perpendicular to its side panels. The frame origin is commonly placed at the \gls{cm} in order to simplify the rotational equations of motion, and to reduce translational-rotational coupling \cite{schaub2018analytical}. An illustration of the body frame definition for a 1U CubeSat is shown in Figure \ref{fig:body_rtn}. 
-
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.5\textwidth]{Figures/03Theory/Body_RTN.png}
     \caption{Illustration of the body-fixed ($\mathcal{F}^b$)and RTN ($\mathcal{F}^f$) reference frame definitions for a 1U CubeSat. Adopted from \cite{montenbruck2015gnss}.}
     \label{fig:body_rtn} 
 \end{figure}
+The body-fixed reference frame, $\mathcal{F}^{b}: \left\{ \mathcal{O}_b; \; \hat{\textbf{x}}_{b}, \hat{\textbf{y}}_{b}, \hat{\textbf{z}}_{b} \right\}$, is a moving reference frame that is rigidly attached to the spacecraft body. Because of this property, the body-fixed frame is used for expressing satellite attitude relative to an inertial frame, actuator torques and sensor measurements, since these quantities are naturally expressed relative to the body itself. The orientation of its axes are typically chosen to best represent the spacecraft geometry, and to coincide with the principal axes of inertia \cite{fossen2021}. Consequentially, CubeSat body axes are commonly selected to be perpendicular to its side panels. The frame origin is commonly placed at the \gls{cm} in order to simplify the rotational equations of motion, and to reduce translational-rotational coupling \cite{schaub2018analytical}. An illustration of the body frame definition for a 1U CubeSat is shown in Figure \ref{fig:body_rtn}. 
+
+
 
 % \subsection{Desired Attitude Frame}
 % $\mathcal{F}^{r}: \left\{ \mathcal{O}_f; \; \hat{\textbf{x}}_{r}, \hat{\textbf{y}}_{r}, \hat{\textbf{z}}_{r} \right\}$
@@ -151,11 +152,16 @@ The inclination is the intersection angle between the orbital plane and the refe
 
 The argument of perigee specifies the orientation of the ellipse within the orbital plane. It is defined as the angle from the ascending node to the perigee along the orbital trajectory, where perigee is a term specific to Earth satellites, describing the point along the trajectory closest to Earth. Finally, the mean anomaly defines the orbiting body's position along the orbit as a function of time. It is defined as the elapsed fraction of the orbital period since the orbiting body passed the perigee \cite{curtis2005orbital, astronomicalreturns_orbitalelements}. 
 
+\subsection{Two-Line Element (TLE)}
+Maybe include a short subsection about this?
+
 
  
 \newpage
 \section{Orbital perturbations}
 Perhaps note that I make use of the orbital perturbation review conducted in \cite{hystad2025}??
+
+This section will address each major orbital perturbation effect in decreasing order of significance for \gls{leo} satellites.
 
 \begin{figure}[H]
     \centering
@@ -164,8 +170,8 @@ Perhaps note that I make use of the orbital perturbation review conducted in \ci
     \label{fig:orbital_perturb}
 \end{figure} 
 
-
-\subsection{Spherical harmonics}
+\newpage
+\subsection{Spherical Harmonics}
 Keplerian motion assumes that the Earth can be represented as a perfectly spherical body with all its mass concentrated in the earth-centered inertial frame origin. Under this assumption, the gravitational force acting on a spacecraft, $s$, can be modeled using Newton's law of gravity unsing the notation from \cite{hystad2025}:
 \begin{equation}
     \textbf{a}_{grav} = \left(\ddot{\textbf{r}}_{s/n}\right)_{grav} = - \frac{\mu}{||\textbf{r}_{s/n}||_2^3} \textbf{r}_{s/n} \iff \left(\ddot{\textbf{r}}_{s/n}\right)_{grav} = \nabla U, \quad \text{where } U = \mu\frac{1}{||\textbf{r}_{s/n}||_2}
@@ -173,7 +179,7 @@ Keplerian motion assumes that the Earth can be represented as a perfectly spheri
 \end{equation}
 Here, $\mu = GM$ is the Earth's gravitational constant, and $\nabla U$ is the gradient of the gravity potential. In accordance with the spherical assumption, the gravity potential is only dependent on the satellite's geocentric distance, implying uniform density. In actuality, the Earth's mass is unhomogeneously distributed through its volume, and centrifugal forces causes the planet to bulge outwards around the equator due to its angular velocity. These irregularities produce perturbing accelerations that gradually alter the orbital trajectories over time. 
 
-Montenbruck \& Gill explain that these deviations from spherical symmetry can be modeled by expanding the Earth's gravity potential into a spherical harmonic series representation \cite{montenbruck2000}. The resulting series expresses the geopotential as a weighted sum of spherical harmonic terms describing gravitational irregularities caused by the Earth's unhomogeneous mass distribution. Here, the spacecraft position is represented in \gls{ecef} spherical coordinates consisting of the geocentric distance $r = ||\textbf{r}^e_{s/n}||_2$, the geocentric latitude $\phi^e$, and the longitude $\lambda^e$. Using these coordinates together with the associated Legendre polynomials, the geopotential may be written in the general spherical harmonic form as
+Montenbruck \& Gill explain that these deviations from spherical symmetry can be modeled by expanding the Earth's gravity potential into a spherical harmonic series representation \cite{montenbruck2000}. The resulting series expresses the geopotential as a weighted sum of spherical harmonic terms, describing gravitational irregularities caused by the Earth's unhomogeneous mass distribution. Here, the spacecraft position is represented in \gls{ecef} spherical coordinates consisting of the geocentric distance $r = ||\textbf{r}^e_{s/n}||_2$, the geocentric latitude $\phi^e$, and the longitude $\lambda^e$. Using these coordinates together with the associated Legendre polynomials, the geopotential may be written in the general spherical harmonic form as
 \begin{equation}
 U(r, \phi^e, \lambda^e) = \frac{\mu}{R} \sum_{n=0}^{\infty} \sum_{m=0}^{n} \left(C_{nm}V_{nm} + S_{nm}W_{nm}\right)
 \label{eq:general_spherical_harmonic}
@@ -194,11 +200,28 @@ The reader should note that a common simplification is to assume order $m=0$ due
 The resulting zonal model captures the dominant secular perturbation effects while significantly reducing the complexity of the gravity model. Amongst the zonal coefficients, the second degree term $J_2$ dominates the non-spherical effects, as is clearly evident by the substantially larger acceleration magnitude of $J_{2,0}$ in Figure \ref{fig:orbital_perturb} compared to the other terms. The Figure also illustrates that the higher degree and order terms rapidly decrease in magnitude. However, to include the dominant lateral and longitudinal non-spherical effect, this thesis employs the general spherical harmonic formulation in Equation \ref{eq:general_spherical_harmonic}, with truncated degree and order.
 
 
-    \subsection{Atmospheric drag}
+\subsection{Atmospheric Drag}
+Orbital atmospheric drag is caused by a momentum exchange between the orbiting body's surface and colliding atmospheric molecules along its trajectory. According to Montenbruck \& Gill, this effect is the dominant non-gravitational perturbation acting on a spacecraft in \gls{leo}, as is also illustrated in Figure \ref{fig:orbital_perturb}. Since the drag force acts opposite to the spacecraft's velocity, it continuously removes orbital energy, and causes a gradual reduction in orbital altitude and velocity over time \cite{vallado2001fundamentals, montenbruck2000, hystad2025}.
 
-        \subsection{NRLMSISE-00 (MSIS) Atmosphere model}
+For spacecraft operating in \gls{leo}, the interaction between the spacecraft surface and surrounding atmosphere is commonly modeled using the free-molecular flow assumption. In this regime, the atmospheric density is sufficiently low such that the inter-molecular collisions are negligible compared to the molecule-surface interaction. The drag deceleration experienced by a spacecraft $s$ can then be expressed using the classical aerodynamic formulation, as presented in \cite{montenbruck2000}
+\begin{equation}
+    \mathbf{a}_{\text{drag}}^n = \left(\ddot{\textbf{r}}^{\,n}_{s/n}\right)_{drag} = -\tfrac{1}{2} C_D \, \frac{A_D}{m} \, \rho \, v_{\text{rel}}^{2} \, \hat{\textbf{v}}_{rel}^n
+\label{eq:drag}
+\end{equation}
+where $D_D$ is the dimensionless drag coefficient, $A_D$ is the effective cross-sectional area normal to the incoming flow, $m$ is the spacecraft mass and $\rho$ is the local atmospheric density. $v_{\text{rel}}$ and $\hat{\textbf{v}}_{rel}^n$ correspond to the relative speed and velocity unit vector, respectively. It is important to note that the relative velocity differs from the inertial spacecraft velocity because it represents its velocity relative to the local atmosphere. Following Montenbruck \& Gill in \cite{montenbruck2000}, the relative velocity can therefore be approximated by assuming the atmosphere co-rotates with the Earth
+\begin{equation}
+\mathbf{v}_{rel}^n = \mathbf{v}^n_{s/n} - \boldsymbol{\omega}_{e/n}^n \times \mathbf{r}_{s/n}^n
+\end{equation}
+where $\{\textbf{r}^n_{s/n}, \textbf{v}^n_{s/n}\}$ are the spacecraft position and velocity expressed in the \gls{eci} frame, and $\boldsymbol{\omega}_{e/n}^n$ is the Earth's angular velocity vector. Amongst the parameters in the classic drag formulation, the atmospheric density $\rho$ is generally the largest source of modeling uncertainty. In this thesis, two density models will be evaluated: the NRLMSISE-00 model and the exponential density model. The exponential density model is a heavily simplified alternative, and assumes exponentially decreasing density with increasing altitude. 
+\begin{equation}
+    \rho(h) = \rho_0 \exp\!\left( -\frac{h - h_0}{H_0} \right), \qquad H_0 = \frac{\mathcal{R}T}{\mu_m g}
+\label{eq:exponential_density}
+\end{equation}
+Here, $\rho_0$ is the reference density at some geocentric reference height $h_0$, and $h$ is the spacecraft altitude above the reference height. Finally, $H_0$ is the density scale height, whose equation in \ref{eq:exponential_density} can be derived from the hydrostatic equation and gas law from thermodynamics. This model captures the approximate atmospheric decay with altitude, but fails to account for major spatial and temporal effects, such as solar activity, geomagnetic disturbances, longitudinal/lateral variations and long-term solar cycles \cite{ montenbruck2000}. The NRLMSISE-00 empirical model accounts for these spatial and temporal atmospheric variations, and has been developed using several decades of atmospheric observations and satellite measurements. 
 
-    \subsection{Solar radiation pressure}
+
+
+\subsection{Solar radiation pressure}
 Maybe include the eclipse model here?
 
     \subsection{Third-Body Perturbations}
@@ -211,6 +234,8 @@ Maybe include the eclipse model here?
 
 \section{Formation flying dynamics}
 % Check this source sent from Tommy: https://link.springer.com/article/10.1007/s40295-025-00556-w
+
+% Use this source for relative dynamics: https://www.researchgate.net/profile/Karel-Wakker/publication/272507882_Fundamentals_of_Astrodynamics/links/54e7ad0e0cf27a6de10ac2a8/Fundamentals-of-Astrodynamics.pdf 
 
 
 \section{Differential perturbation effects}
