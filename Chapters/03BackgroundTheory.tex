@@ -54,7 +54,7 @@ The body-fixed reference frame, $\mathcal{F}^{b}: \left\{ \mathcal{O}_b; \; \hat
 
 
 \section{Modified Rodrigues parameters}
-\gls{mrp}s are 3-element attitude parameterization commonly used for spacecraft attitude control. The representation can be derived from the Euler-Rodrigues symmetric parameters, better known as the unit quaternion:
+\gls{mrp}s is a 3-element attitude parameterization commonly used for spacecraft attitude control. The representation can be derived from the Euler-Rodrigues symmetric parameters, better known as the unit quaternion:
 \begin{equation}
     \textbf{q} = \begin{bmatrix}
         \boldsymbol{\epsilon} \\
@@ -203,12 +203,12 @@ The resulting zonal model captures the dominant secular perturbation effects whi
 \subsection{Atmospheric Drag}
 Orbital atmospheric drag is caused by a momentum exchange between the orbiting body's surface and colliding atmospheric molecules along its trajectory. According to Montenbruck \& Gill, this effect is the dominant non-gravitational perturbation acting on a spacecraft in \gls{leo}, as is also illustrated in Figure \ref{fig:orbital_perturb}. Since the drag force acts opposite to the spacecraft's velocity, it continuously removes orbital energy, and causes a gradual reduction in orbital altitude and velocity over time \cite{vallado2001fundamentals, montenbruck2000, hystad2025}.
 
-For spacecraft operating in \gls{leo}, the interaction between the spacecraft surface and surrounding atmosphere is commonly modeled using the free-molecular flow assumption. In this regime, the atmospheric density is sufficiently low such that the inter-molecular collisions are negligible compared to the molecule-surface interaction. The drag deceleration experienced by a spacecraft $s$ can then be expressed using the classical aerodynamic formulation, as presented in \cite{montenbruck2000}
+For spacecraft operating in \gls{leo}, the interaction between the spacecraft surface and surrounding atmosphere is commonly modeled using the free-molecular flow assumption. In this regime, the atmospheric density is sufficiently low such that the inter-molecular collisions are negligible compared to the molecule-surface interaction. The drag acceleration experienced by a spacecraft $s$ can then be expressed using the classical aerodynamic formulation, as presented in \cite{montenbruck2000}
 \begin{equation}
     \mathbf{a}_{\text{drag}}^n = \left(\ddot{\textbf{r}}^{\,n}_{s/n}\right)_{drag} = -\tfrac{1}{2} C_D \, \frac{A_D}{m} \, \rho \, v_{\text{rel}}^{2} \, \hat{\textbf{v}}_{rel}^n
 \label{eq:drag}
 \end{equation}
-where $D_D$ is the dimensionless drag coefficient, $A_D$ is the effective cross-sectional area normal to the incoming flow, $m$ is the spacecraft mass and $\rho$ is the local atmospheric density. $v_{\text{rel}}$ and $\hat{\textbf{v}}_{rel}^n$ correspond to the relative speed and velocity unit vector, respectively. It is important to note that the relative velocity differs from the inertial spacecraft velocity because it represents its velocity relative to the local atmosphere. Following Montenbruck \& Gill in \cite{montenbruck2000}, the relative velocity can therefore be approximated by assuming the atmosphere co-rotates with the Earth
+where $C_D$ is the dimensionless drag coefficient, $A_D$ is the effective cross-sectional area normal to the incoming flow, $m$ is the spacecraft mass and $\rho$ is the local atmospheric density. $v_{\text{rel}}$ denotes the relative speed, while $\hat{\textbf{v}}_{rel}^n$ is the unit vector in the direction of relative velocity. It is important to note that the relative velocity differs from the inertial spacecraft velocity because it represents its velocity relative to the local atmosphere \cite{hystad2025}. Following Montenbruck \& Gill in \cite{montenbruck2000}, the relative velocity can therefore be approximated by assuming the atmosphere co-rotates with the Earth
 \begin{equation}
 \mathbf{v}_{rel}^n = \mathbf{v}^n_{s/n} - \boldsymbol{\omega}_{e/n}^n \times \mathbf{r}_{s/n}^n
 \end{equation}
@@ -217,18 +217,30 @@ where $\{\textbf{r}^n_{s/n}, \textbf{v}^n_{s/n}\}$ are the spacecraft position a
     \rho(h) = \rho_0 \exp\!\left( -\frac{h - h_0}{H_0} \right), \qquad H_0 = \frac{\mathcal{R}T}{\mu_m g}
 \label{eq:exponential_density}
 \end{equation}
-Here, $\rho_0$ is the reference density at some geocentric reference height $h_0$, and $h$ is the spacecraft altitude above the reference height. Finally, $H_0$ is the density scale height, whose equation in \ref{eq:exponential_density} can be derived from the hydrostatic equation and gas law from thermodynamics. This model captures the approximate atmospheric decay with altitude, but fails to account for major spatial and temporal effects, such as solar activity, geomagnetic disturbances, longitudinal/lateral variations and long-term solar cycles \cite{ montenbruck2000}. The NRLMSISE-00 empirical model accounts for these spatial and temporal atmospheric variations, and has been developed using several decades of atmospheric observations and satellite measurements. 
+Here, $\rho_0$ is the reference density at some geocentric reference height $h_0$, and $h$ is the spacecraft altitude above the reference height. Finally, $H_0$ is the density scale height, whose equation in \ref{eq:exponential_density} can be derived from the hydrostatic equation and gas law from thermodynamics. This model captures the approximate atmospheric decay with altitude, but fails to account for major spatial and temporal effects, such as solar activity, geomagnetic disturbances, longitudinal/lateral variations and long-term solar cycles \cite{ montenbruck2000}. 
+
+The NRLMSISE-00 empirical model accounts for these spatial and temporal atmospheric variations, and has been developed using several decades of atmospheric observations and satellite measurements. In addition to the density, the model also estimates other atmospheric parameters, such as temperature and individual molecule densities. Because of the spatial and temporal dependency of these parameters, the empirical model requires additional inputs describing both the spacecraft environment and current atmosphere conditions. These include the spacecraft altitude, like the exponential density model, but also the geographic location, current time and different time-averaged measurements of solar activity represented through the $F_{10.7}$ solar radio flux, and the geomagnetic index $A_p$ \cite{Picone2002MSIS}. Together, these parameters allow the model to account for short- and long-term variations in the atmospheric density.
 
 
 
 \subsection{Solar radiation pressure}
 Maybe include the eclipse model here?
 
-    \subsection{Third-Body Perturbations}
+\newpage
+\subsection{Third-Body Perturbations}
+In addition to the Earth's gravitational field, Earth-orbiting spacecraft are subjected to gravitational attraction from other massive bodies within the solar system. For satellites orbiting around the Earth, the Sun and Moon are the dominant sources of third-body perturbation. Although these bodies are located far from the spacecraft compared to the Earth, their gravitational influence still produce measurable orbital perturbations, particularly for satellites operating in \gls{meo}, \gls{geo}, or highly elliptical trajectories, as presented by Figure \ref{fig:orbital_perturb} \cite{montenbruck2000, hystad2025}. 
 
-    \subsection{Relative significance in LEO}
+Third-body perturbations introduce additional gravitational accelerations that continuously vary with the relative geometry between the spacecraft, Earth and the perturbing body. Although the perturbing accelerations from the Sun and Moon are much smaller than the Earth's central gravitational attraction, Montenbruck \& Gill note that the influence become increasingly significant with orbital altitude, becoming comparable to geopotential perturbations of low degree \cite{montenbruck2000}. Because the perturbing acceleration changes direction throughout the orbit, the resulting effect manifests as gradual deviations from ideal Keplerian motion, and contributes both periodic and long-term variations in the spacecraft trajectory, which is consistent with the general three-body dynamics described by Curtis in \cite{curtis2005orbital}. 
 
-
+Following the formulation presented by Montenbruck \& Gill, the perturbing acceleration from a third massive body $B$ is obtained by subtracting the gravitational acceleration excerted by the perturbing body on the Earth from the gravitational acceleration acting on the spacecraft. Using the same notation as in \cite{hystad2025}, the perturbing acceleration expressed in the \gls{eci} frame becomes
+\begin{equation}
+    \textbf{a}^n_B = \left(\ddot{\textbf{r}}^{\,n}_{s/n}\right)_{B} = \mu_B \left( \frac{\textbf{r}_{B/n}^n - \textbf{r}_{s/n}^n}{||\textbf{r}_{B/n}^n - \textbf{r}_{s/n}^n||_2^3} - \frac{\textbf{r}_{B/n}^n}{||\textbf{r}_{B/n}^n||_2^3}\right) = \mu_B \left( \frac{\textbf{r}_{B/s}^n}{||\textbf{r}_{B/s}^n||_2^3} - \frac{\textbf{r}_{B/n}^n}{||\textbf{r}_{B/n}^n||_2^3}\right)
+\label{eq:3B}
+\end{equation}
+When multiple perturbing bodies are considered simultaneously, the total third-body acceleration is obtained by summing the individual contributions from each body. Using the major perturbing bodies for a \gls{leo} satellite, this becomes
+\begin{equation}
+    \mathbf{a}_{B,\text{tot}}^n = \mathbf{a}_{\text{Sun}}^n + \mathbf{a}_{\text{Moon}}^n
+\end{equation}
 
 
 
