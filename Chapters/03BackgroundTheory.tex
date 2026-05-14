@@ -158,7 +158,7 @@ Maybe include a short subsection about this?
 
  
 \newpage
-\section{Orbital perturbations}
+\section{Orbital Perturbations}
 Perhaps note that I make use of the orbital perturbation review conducted in \cite{hystad2025}??
 
 This section will address each major orbital perturbation effect in decreasing order of significance for \gls{leo} satellites.
@@ -224,9 +224,27 @@ The NRLMSISE-00 empirical model accounts for these spatial and temporal atmosphe
 
 
 \subsection{Solar radiation pressure}
-Maybe include the eclipse model here?
+Like atmospheric drag, \gls{srp} is a non-gravitational perturbation caused by momentum transfer between the spacecraft and incident particles. However, in the case of \gls{srp}, this transfer originates from photons rather than residual atmospheric molecules. When photons are absorbed or reflected by the spacecraft surface, they transfer their momentum to the spacecraft, generating a small force in the approximate direction away from the Sun. Because the force acts continuously over the illuminated surface area, it is referred to as a radiation pressure \cite{montenbruck2000, hystad2025}. 
 
-\newpage
+As discussed by Montenbruck \& Gill in \cite{montenbruck2000}, the radiation pressure does not vary with the geocentric altitude directly, but rather the distance from the Sun according to the inverse-square law. Because the variation in Sun-spacecraft distance is negligible compared to the Earth orbital altitude, the resulting \gls{srp} acceleration experienced by an Earth-orbiting spacecraft is approximately constant, as illustrated in Figure \ref{fig:orbital_perturb}. Although the \gls{srp} acceleration remains approximately constant with altitude, its relative significance increases at higher altitudes where atmospheric drag becomes progressively weaker, especially for spacecraft with large area-to-mass ratios. 
+
+%Finally, the effect slightly perturbs the eccentricity and perigee longitude. 
+
+For a flat spacecraft surface, the resulting \gls{srp} acceleration depends on the relative geometry between the solar radiation direction $\textbf{r}^n_{Sun/s}$, and the spacecraft surface normal $\hat{\textbf{n}}$. Using the formulation presented by Montenbruck \& Gill, the acceleration in the \gls{eci} frame can be written as
+\begin{equation}
+    \textbf{a}_{SRP}^n = \left(\ddot{\mathbf{r}}_{s/n}^{\,n}\right)_{SRP} = -P_{Sun} \, \frac{\text{AU}^2}{||\textbf{r}_{Sun/s}^{n}||_2^2} \, \frac{A_R}{m_s} \cos(\theta)\left[(1-\varepsilon) \hat{\textbf{r}}_{Sun/s}^n + 2\varepsilon \cos(\theta)\hat{\mathbf{n}}_s\right]
+\label{eq:srp_extended}
+\end{equation} % From eq (3.73) in M&G
+where $P_{Sun}$ denotes the solar radiation pressure at one astronomical unit ($AU$), the parameter $A_R/m_s$ represents the spacecraft sun-normal cross-sectional area-to-mass ratio, and $\theta$ is the angle between the incident radiation direction and $\hat{\textbf{n}}$. Finally, $\varepsilon$ denotes to the fraction of reflected incoming radiation, where $\varepsilon=0$ and $\varepsilon=1$ correspond to perfect absorption and reflection, respectively.
+
+For many orbit propagation applications, Montenbruck \& Gill further argue that the simplified assumption $\theta=0$ provides sufficient accuracy\cite{montenbruck2000}. Under this assumption, the SRP model reduces to the commonly used cannonball model
+\begin{equation}
+    \textbf{a}_{SRP}^n = \left(\ddot{\mathbf{r}}_{s/n}^{\,n}\right)_{SRP} = -P_{Sun} C_R \frac{A_R}{m_s} \, \frac{\textbf{r}_{Sun/s}^{n}}{||\textbf{r}_{Sun/s}^{n}||_2^3} \,\text{AU}^2
+\end{equation}
+where $C_R$ is the radiation pressure coefficient. This approximation models the spacecraft as an idealized spherical body with uniform reflective properties, thus simplifying the \gls{srp} model while keeping the dominant perturbation behaviour \cite{vallado2001fundamentals, hystad2025}.
+
+% Maybe include the eclipse model here?
+
 \subsection{Third-Body Perturbations}
 In addition to the Earth's gravitational field, Earth-orbiting spacecraft are subjected to gravitational attraction from other massive bodies within the solar system. For satellites orbiting around the Earth, the Sun and Moon are the dominant sources of third-body perturbation. Although these bodies are located far from the spacecraft compared to the Earth, their gravitational influence still produce measurable orbital perturbations, particularly for satellites operating in \gls{meo}, \gls{geo}, or highly elliptical trajectories, as presented by Figure \ref{fig:orbital_perturb} \cite{montenbruck2000, hystad2025}. 
 
@@ -244,13 +262,17 @@ When multiple perturbing bodies are considered simultaneously, the total third-b
 
 
 
-\section{Formation flying dynamics}
+\section{Differential Perturbations}
 % Check this source sent from Tommy: https://link.springer.com/article/10.1007/s40295-025-00556-w
 
 % Use this source for relative dynamics: https://www.researchgate.net/profile/Karel-Wakker/publication/272507882_Fundamentals_of_Astrodynamics/links/54e7ad0e0cf27a6de10ac2a8/Fundamentals-of-Astrodynamics.pdf 
 
+% Use this source for differential drag (used by other master for this purpose) https://arc.aiaa.org/doi/epdf/10.2514/1.15114 
 
-\section{Differential perturbation effects}
+
+
+
+\section{Simplified General Perturbations 4 (SGP4)}
 
 
 \section{Spacecraft subsystems}
@@ -264,11 +286,10 @@ When multiple perturbing bodies are considered simultaneously, the total third-b
     \subsection{Communication antenna}
 
 
+
 \section{GNSS-R operations}
 
     \subsection{Pointing requirements}
 
     \subsection{Formation constraints}
 
-
-\section{Simplified General Perturbations 4 (SGP4)}
