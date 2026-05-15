@@ -7,10 +7,15 @@
 \usepackage[a4paper, margin=2.5cm]{geometry}
 \setcounter{tocdepth}{2} %table of contents number depth for subsections (2 = x.x.x)
 \setcounter{secnumdepth}{4} %numbering depth for headers for subsections in the text(4 = x.x.x.x)
+\usepackage{tocloft}
+% Reduce vertical spacing in ToC
+\setlength{\cftbeforechapskip}{1pt}
+\setlength{\cftbeforesecskip}{0pt}
+\setlength{\cftbeforesubsecskip}{0pt}
 \usepackage[acronym,toc]{glossaries} % Glossary for abbreviations/acronyms
 \makeglossaries
 \loadglsentries{acronyms}
-\usepackage[notbib]{tocbibind} % puts Contents, LoF, LoT in TOC, but not bibliography
+% \usepackage[notbib]{tocbibind} % puts Contents, LoF, LoT in TOC, but not bibliography
 \usepackage{url} %to include urls
 \usepackage{import}     % Enable importing of sections
 \usepackage{listings} %include this if you want to include code in the thesis
@@ -32,6 +37,25 @@
 \counterwithin{table}{section} %change counter for tables within sections
 \usepackage{color, xcolor} %edit e.g. text colors
 \newcommand{\HRule}{\rule{\linewidth}{0.5mm}}   % Ruler
+
+% Use custom front-matter chapter titles instead of automatic titles
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd{\tableofcontents}
+  {\chapter*{\contentsname}}
+  {}
+  {}{}
+
+\patchcmd{\listoffigures}
+  {\chapter*{\listfigurename}}
+  {}
+  {}{}
+
+\patchcmd{\listoftables}
+  {\chapter*{\listtablename}}
+  {}
+  {}{}
+\makeatother
 
 \usepackage[backend = biber,
             style = numeric,
