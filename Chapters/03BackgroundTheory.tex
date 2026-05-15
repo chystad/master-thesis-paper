@@ -169,13 +169,14 @@ D.A. Vallado defines orbital perturbations as deviations from the ideal Kepleria
 \end{figure} 
 
 \newpage
-\subsection{Spherical Harmonics}
-Keplerian motion assumes that the Earth can be represented as a perfectly spherical body with all its mass concentrated in the earth-centered inertial frame origin. Under this assumption, the gravitational force acting on a spacecraft, $s$, can be modeled using Newton's law of gravity unsing the notation from \cite{hystad2025}:
+\subsection{Earth's Oblateness}
+\label{sec:oblateness}
+Keplerian motion assumes that the Earth can be represented as a perfectly spherical body with all its mass concentrated in the earth-centered inertial frame origin. Under this assumption, the gravitational force acting on a spacecraft, $s$, can be modeled using Newton's law of gravity
 \begin{equation}
     \textbf{a}_{grav} = \left(\ddot{\textbf{r}}_{s/n}\right)_{grav} = - \frac{\mu}{||\textbf{r}_{s/n}||_2^3} \textbf{r}_{s/n} \iff \left(\ddot{\textbf{r}}_{s/n}\right)_{grav} = \nabla U, \quad \text{where } U = \mu\frac{1}{||\textbf{r}_{s/n}||_2}
 \label{eq:newton_gravity}
 \end{equation}
-Here, $\mu = GM$ is the Earth's gravitational constant, and $\nabla U$ is the gradient of the gravity potential. In accordance with the spherical assumption, the gravity potential is only dependent on the satellite's geocentric distance, implying uniform density. In actuality, the Earth's mass is unhomogeneously distributed through its volume, and centrifugal forces causes the planet to bulge outwards around the equator due to its angular velocity. These irregularities produce perturbing accelerations that gradually alter the orbital trajectories over time. 
+Using the notation from \cite{hystad2025}, $\mu = GM$ is the Earth's gravitational constant, and $\nabla U$ is the gradient of the gravity potential. In accordance with the spherical assumption, the gravity potential is only dependent on the satellite's geocentric distance, implying uniform density. In actuality, the Earth's mass is unhomogeneously distributed through its volume, and centrifugal forces causes the planet to bulge outwards around the equator due to its angular velocity. These irregularities produce perturbing accelerations that gradually alter the orbital trajectories over time. 
 
 Montenbruck \& Gill explain that these deviations from spherical symmetry can be modeled by expanding the Earth's gravity potential into a spherical harmonic series representation \cite{montenbruck2000}. The resulting series expresses the geopotential as a weighted sum of spherical harmonic terms, describing gravitational irregularities caused by the Earth's unhomogeneous mass distribution. Here, the spacecraft position is represented in \gls{ecef} spherical coordinates consisting of the geocentric distance $r = ||\textbf{r}^e_{s/n}||_2$, the geocentric latitude $\phi^e$, and the longitude $\lambda^e$. Using these coordinates together with the associated Legendre polynomials, the geopotential may be written in the general spherical harmonic form as
 \begin{equation}
@@ -260,7 +261,7 @@ individual contributions from each body. Using the major perturbing bodies for a
 \end{equation}
 
 
-\section{Differential Perturbations in Formation Flying}
+\section{Differential Perturbations in Formation-Flying}
 Alfriend et al. refers to the generally agreed upon definition of spacecraft formation flying in \cite{alfriend2010} as: "The tracking or maintenance of a desired relative separation, orientation or
 position between or among spacecraft". It then follows that differential perturbations describe the relative effect of environmental accelerations acting on two satellites in formation, that cause the formation to naturally drift away from its desired geometry over time. The difference in experienced accelerations by the two spacecraft in formation can arise because the spacecraft occupy slightly different obits, positions, velocities and attitudes, or because they have different physical attributes. In formation-flying, even small prolonged differences in experienced acceleration can accumulate over many orbital periods to gradually change the radial, along- or cross-track separation. Differential perturbations therefore motivate the need for formation-control strategies to preserve the desired formation geometry within mission constraints. Since stronger natural drift generally requires more frequent or larger corrective measures, differential perturbations also become direct drivers for formation maintenance fuel consumption, and thus, also mission lifetime \cite{montenbruck2000, alfriend2010}. The following subsections will therefore summarize the most important differential perturbation effects for \gls{leo} orbiting formations.
 
@@ -303,11 +304,25 @@ Other differential orbital elements still contribute to natural relative motion,
 
 
 \subsection{Differential $J_2$ Perturbations}
-% Explain differential nodal regression and apsidal rotation caused by slightly different orbital elements.
-
 % "A difference in the semimajor axis, eccentricity or inclination of the satellites in a formation can cause a difference in the secular rates of the two objects, resulting in secular drift. This is in contrast to the spherical Earth problem, in which only a semimajor axis difference can cause secular drift, and only in the along-track direction. Note that only e2, not e, appears in the secular rate equations. Thus, it is the difference in e2 that causes the secular drift. This means that for nearcircular orbits, the effect of a change in the eccentricity will be much smaller than the effect of a comparable change in inclination. However, for highly eccentric orbits, such as the NASA MMS mission discussed in Section 1.7, the effect of a change in eccentricity can be comparable to the effect of a change in inclination. The differential secular effects are obtained by a Taylor series expansion about the chief’s orbit; for an inclination change they are" \cite{alfriend2010}
 
 % The attractive solutions of the CW or Tschauner–Hempel–Lawden equations derived in Chapter 5, obtained under the assumption of a spherical Earth, get disturbed in the presence of gravitational perturbations, as shown in Chapter 7. In particular, differences in the mean semimajor axis, eccentricity and inclination cause along-track, radial, and cross-track drift. In addition, perigee rotation causes in-plane and cross-track frequencies to no longer be equal. This means, depending on the desired formation, that control may be required to maintain the formation \cite{alfriend2010}
+As presented in Section \ref{sec:oblateness}, $J_2$ is the second degree, zeroth order zonal coefficient in the spherical harmonic representation of the Earth's gravity field. The coefficient represents the dominant term associated with the Earth's oblateness, and the zonal model of the same degree and order is therefore commonly known as the $J_2$ perturbation model. In a formation-flying context, the differential $J_2$ perturbation refers to the difference between the $J_2$-induced accelerations acting on the two spacecraft, and is one of the most important causes of secular formation drift in \gls{leo}. 
+
+The $J_2$ perturbing acceleration causes a slow precession of the orbit, seen primarily as precession of the orbital plane and a rotation in the argument of perigee. Alfriend et al. gives the corresponding per-satellite secular rates for \gls{raan} and the argument of perigee in \cite{alfriend2010}, which can be expanded to the following expression \cite{hajovsky2007}
+\begin{align}
+\label{eq:RAAN_rate}
+\dot{\Omega} &=
+-\frac{3 \bar{n} J_2 R^2}{2 a^2 \left(1 - e^2\right)^{1/8}}\cos i \\[1em]
+\dot{\omega} &=
+-\frac{3 \bar{n} J_2 R^2}{2 a^2 \left(1 - e^2\right)^{1/8}}
+\left(\frac{5}{2}\sin^2 i - 2\right)
+\label{eq:arg_perigee_rate}
+\end{align}
+where $\bar{n}$ is the mean motion, $R$ is the Earth radius, and $a$, $e$ and $i$ are the satellite semimajor axis, eccentricity and inclination, respectively. Note that these per-satellite equations can be expressed as a function of each differential orbital elements by Taylor series expansion about the leader orbit, which has been derived for differential inclination in \cite{alfriend2010}. Examining Equations \ref{eq:RAAN_rate} and \ref{eq:arg_perigee_rate} shows that a difference in either semimajor axis, eccentricity or inclination between the satellites in a formation can cause $J_2$-induced secular rates, resulting in secular drift. This effect will manifest in the \gls{rtn} frame as radial, cross- and along-track drift, depending on which secular rates differ. Because both secular rates are inversely proportional to $(1-e^2)$ a difference in eccentricity will cause much smaller secular rate than a corresponding difference in inclination for near-circular orbits where $e \approx 0$ \cite{alfriend2010}.
+
+% Alfriend et al. also emphasize that neglecting secular J2 effects can cause unnecessary fuel use, since a controller may interpret J2-induced drift as an ordinary semimajor-axis error and repeatedly correct for it. In one example, they show that a 1 km out-of-plane relative motion in a 7000 km, 70 degree circular orbit produces approximately 19 m of along-track drift and 7.5 m of cross-track drift per orbit due to differential J2 effects.
+
 
 \subsection{Differential Atmospheric Drag}
 % Explain different drag accelerations, ballistic coefficient, projected area, attitude dependency, semimajor-axis decay, and along-track drift.
