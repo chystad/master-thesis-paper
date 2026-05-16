@@ -152,9 +152,6 @@ The inclination is the intersection angle between the orbital plane and the refe
 
 The argument of perigee specifies the orientation of the ellipse within the orbital plane. It is defined as the angle from the ascending node to the perigee along the orbital trajectory, where perigee is a term specific to Earth satellites, describing the point along the trajectory closest to Earth. Finally, the mean anomaly defines the orbiting body's position along the orbit as a function of time. It is defined as the elapsed fraction of the orbital period since the orbiting body passed the perigee \cite{curtis2005orbital, astronomicalreturns_orbitalelements}. 
 
-\subsection{Two-Line Element (TLE)}
-Maybe include a short subsection about this?
-
 
  
 \newpage
@@ -200,14 +197,15 @@ The resulting zonal model captures the dominant long-term perturbation effects w
 
 
 \subsection{Atmospheric Drag}
+\label{sec:atmospheric_drag}
 Orbital atmospheric drag is caused by a momentum exchange between the orbiting body's surface and colliding atmospheric molecules along its trajectory. According to Montenbruck \& Gill, this effect is the dominant non-gravitational perturbation acting on a spacecraft in \gls{leo}, as is also illustrated in Figure \ref{fig:orbital_perturb}. Since the drag force acts opposite to the spacecraft's velocity, it continuously removes orbital energy, and causes a gradual reduction in orbital altitude and velocity over time \cite{vallado2001fundamentals, montenbruck2000, hystad2025}.
 
 For spacecraft operating in \gls{leo}, the interaction between the spacecraft surface and surrounding atmosphere is commonly modeled using the free-molecular flow assumption. In this regime, the atmospheric density is sufficiently low such that the inter-molecular collisions are negligible compared to the molecule-surface interaction. The drag acceleration experienced by a spacecraft $s$ can then be expressed using the classical aerodynamic formulation, as presented in \cite{montenbruck2000}
 \begin{equation}
-    \mathbf{a}_{\text{drag}}^n = \left(\ddot{\textbf{r}}^{\,n}_{s/n}\right)_{drag} = -\tfrac{1}{2} C_D \, \frac{A_D}{m} \, \rho \, v_{\text{rel}}^{2} \, \hat{\textbf{v}}_{rel}^n
+    \mathbf{a}_{\text{D}}^n = \left(\ddot{\textbf{r}}^{\,n}_{s/n}\right)_{D} = -\tfrac{1}{2} C_D \, \frac{A_D}{m_s} \, \rho \, v_{\text{rel}}^{2} \, \hat{\textbf{v}}_{rel}^n
 \label{eq:drag}
 \end{equation}
-where $C_D$ is the dimensionless drag coefficient, $A_D$ is the effective cross-sectional area normal to the incoming flow, $m$ is the spacecraft mass and $\rho$ is the local atmospheric density. $v_{\text{rel}}$ denotes the relative speed, while $\hat{\textbf{v}}_{rel}^n$ is the unit vector in the direction of relative velocity. It is important to note that the relative velocity differs from the inertial spacecraft velocity because it represents its velocity relative to the local atmosphere \cite{hystad2025}. Following Montenbruck \& Gill in \cite{montenbruck2000}, the relative velocity can therefore be approximated by assuming the atmosphere co-rotates with the Earth
+where $C_D$ is the dimensionless drag coefficient, $A_D$ is the effective cross-sectional area normal to the incoming flow, $m_s$ is the spacecraft mass and $\rho$ is the local atmospheric density. $v_{\text{rel}}$ denotes the relative speed, while $\hat{\textbf{v}}_{rel}^n$ is the unit vector in the direction of relative velocity. It is important to note that the relative velocity differs from the inertial spacecraft velocity because it represents its velocity relative to the local atmosphere \cite{hystad2025}. Following Montenbruck \& Gill in \cite{montenbruck2000}, the relative velocity can therefore be approximated by assuming the atmosphere co-rotates with the Earth
 \begin{equation}
 \mathbf{v}_{rel}^n = \mathbf{v}^n_{s/n} - \boldsymbol{\omega}_{e/n}^n \times \mathbf{r}_{s/n}^n
 \end{equation}
@@ -231,14 +229,14 @@ As discussed by Montenbruck \& Gill in \cite{montenbruck2000}, the radiation pre
 
 For a flat spacecraft surface, the resulting \gls{srp} acceleration depends on the relative geometry between the solar radiation direction $\textbf{r}^n_{Sun/s}$, and the spacecraft surface normal $\hat{\textbf{n}}$. Using the formulation presented by Montenbruck \& Gill, the acceleration in the \gls{eci} frame can be written as
 \begin{equation}
-    \textbf{a}_{SRP}^n = \left(\ddot{\mathbf{r}}_{s/n}^{\,n}\right)_{SRP} = -P_{Sun} \, \frac{\text{AU}^2}{||\textbf{r}_{Sun/s}^{n}||_2^2} \, \frac{A_R}{m_s} \cos(\theta)\left[(1-\varepsilon) \hat{\textbf{r}}_{Sun/s}^n + 2\varepsilon \cos(\theta)\hat{\mathbf{n}}_s\right]
+    \textbf{a}_{R}^n = \left(\ddot{\mathbf{r}}_{s/n}^{\,n}\right)_{R} = -P_{Sun} \, \frac{\text{AU}^2}{||\textbf{r}_{Sun/s}^{n}||_2^2} \, \frac{A_R}{m_s} \cos(\theta)\left[(1-\varepsilon) \hat{\textbf{r}}_{Sun/s}^n + 2\varepsilon \cos(\theta)\hat{\mathbf{n}}_s\right]
 \label{eq:srp_extended}
 \end{equation} % From eq (3.73) in M&G
 where $P_{Sun}$ denotes the solar radiation pressure at one astronomical unit ($AU$), the parameter $A_R/m_s$ represents the spacecraft sun-normal cross-sectional area-to-mass ratio, and $\theta$ is the angle between the incident radiation direction and $\hat{\textbf{n}}$. Finally, $\varepsilon$ denotes to the fraction of reflected incoming radiation, where $\varepsilon=0$ and $\varepsilon=1$ correspond to perfect absorption and reflection, respectively.
 
 For many orbit propagation applications, Montenbruck \& Gill further argue that the simplified assumption $\theta=0$ provides sufficient accuracy\cite{montenbruck2000}. Under this assumption, the SRP model reduces to the commonly used cannonball model
 \begin{equation}
-    \textbf{a}_{SRP}^n = \left(\ddot{\mathbf{r}}_{s/n}^{\,n}\right)_{SRP} = -P_{Sun} C_R \frac{A_R}{m_s} \, \frac{\textbf{r}_{Sun/s}^{n}}{||\textbf{r}_{Sun/s}^{n}||_2^3} \,\text{AU}^2
+    \textbf{a}_{R}^n = \left(\ddot{\mathbf{r}}_{s/n}^{\,n}\right)_{R} = -P_{Sun} C_R \frac{A_R}{m_s} \, \frac{\textbf{r}_{Sun/s}^{n}}{||\textbf{r}_{Sun/s}^{n}||_2^3} \,\text{AU}^2
 \end{equation}
 where $C_R$ is the radiation pressure coefficient. This approximation models the spacecraft as an idealized spherical body with uniform reflective properties, thus simplifying the \gls{srp} model while keeping the dominant perturbation behaviour \cite{vallado2001fundamentals, hystad2025}.
 
@@ -325,27 +323,58 @@ where $\bar{n}$ is the mean motion, $R$ is the Earth radius, and $a$, $e$ and $i
 
 
 \subsection{Differential Atmospheric Drag}
-% Explain different drag accelerations, ballistic coefficient, projected area, attitude dependency, semimajor-axis decay, and along-track drift.
+The atmospheric drag acceleration acting on a single spacecraft was introduced in Section \ref{sec:atmospheric_drag}. For formation-flying, however, the relative effect of drag is determined by the difference between the drag accelerations acting on each spacecraft. D'Amico \& Montenbruck explain in \cite{damico2006proximity}, that atmospheric density variations can be neglected for close formations with sub-kilometer separation. Under this approximation, the main source of differential atmospheric drag is not a difference in local atmosphere, but a difference in the spacecraft ballistic coefficients. The ballistic coefficient is defined as 
+
+\begin{equation}
+    b = C_D \frac{A_D}{m_s}
+\end{equation}
+\newpage
+where $C_D$, $A_D$ and $m_s$ are the drag coefficient, flow-normal cross-sectional area and spacecraft mass from equation \ref{eq:drag}. If the leader and follower spacecraft have ballistic coefficients $b_L$ and $b_F$, the relative ballistic coefficient difference can be written as $\varepsilon = (b_F - b_L)/b_L $. The resulting relative along-track drift over a time duration $\Delta t$ with a constant relative ballistic coefficient difference is given in \cite{damico2006proximity}
+\begin{equation}
+    \Delta r_{\hat{T}} = \frac{1}{2} \varepsilon ||\textbf{a}_{D}||_2 \cdot \Delta t^2 
+\end{equation}
+where $||\textbf{a}_{D}||_2$ denotes the drag acceleration magnitude of the leader spacecraft. This expression shows that small ballistic coefficient differences can accumulate into substantial along-track drift if the difference is persistent throughout significant time. Finally, it is important to note that the ballistic coefficient is attitude dependent though the flow-normal cross-sectional area, which makes relative spacecraft attitude an important driver for relative along-track drift and subsequent fuel consumption \cite{alfriend2010, damico2006proximity}. 
+
+% The entire "Differential drag" section in D'Armico & Montenbruck is gold for this section \cite{damico2006proximity}
 
 
-\section{Simplified General Perturbations 4 (SGP4)}
+\section{GNSS-R Mission Concepts}
+% the spacecraft operational conditions required to enable future cooperative GNSS-R observations 
+
+\subsection{Remote Sensing Principles}
+% Explain GNSS-R at a high level abstraction
+% Define basic bistatic radar
+% Explain reflected vs directed signals
+% explain why geometry matters 
+
+\subsection{Cooperative GNSS-R Measurements}
+% Multi-satellite cooperation concepts
+% required formation
 
 
-\section{Spacecraft subsystems}
-
-    \subsection{Reaction Wheels}
-
-    \subsection{Cold gas thrusters}
-
-    \subsection{Solar panels}
-
-    \subsection{Communication antenna}
+\subsection{Operational Constraints}
+% Opportunity Logic
+% Formation geometry tolerances
+% Attitude constraints (antenna pointing, Earth-visibility, GNSS visibility)
+% Power constraints (observation power consumtion, attitude maintenance costs, battery dependence)
 
 
 
-\section{GNSS-R operations}
 
-    \subsection{Pointing requirements}
+% \section{Simplified General Perturbations 4 (SGP4)}
+% \subsection{Two-Line Element (TLE)}
+% Maybe include a short subsection about this?
 
-    \subsection{Formation constraints}
+
+% \section{Spacecraft subsystems}
+
+%     \subsection{Reaction Wheels}
+
+%     \subsection{Cold gas thrusters}
+
+%     \subsection{Solar panels}
+
+
+
+
 
