@@ -341,11 +341,21 @@ where $||\textbf{a}_{D}||_2$ denotes the drag acceleration magnitude of the lead
 \section{GNSS-R Mission Concepts}
 % the spacecraft operational conditions required to enable future cooperative GNSS-R observations 
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{Figures/03Theory/gnss-r.png}
+    \caption{Illustration of the GNSS-R measurement principle. Courtesy of \cite{esa_gnssr_2013}}.
+    \label{fig:gnssr} 
+\end{figure}
+
 \subsection{Remote Sensing Principles}
 % Explain GNSS-R at a high level abstraction
 % Define basic bistatic radar
 % Explain reflected vs directed signals
 % explain why geometry matters 
+\gls{gnssr} is a passive remote sensing technique that uses reflected \gls{gnss} signals as signals of opportunity. As shown in Figure \ref{fig:gnssr}, \gls{gnssr} forms a bistatic radar configuration where the \gls{gnss} satellite acts as a non-cooperative transmitter, while the observing spacecraft carries the receiver. Zavorotny et al. describes this concept in \cite{zavorotny2014tutorial} as \gls{gnss} bistatic radar of opportunity, there the broadcasted \gls{gnss} signals illuminate the Earth's surface, and the receiver processes the scattered signal to infer various surface properties.
+
+
 
 \subsection{Cooperative GNSS-R Measurements}
 % Multi-satellite cooperation concepts
