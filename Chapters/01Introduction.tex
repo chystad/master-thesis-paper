@@ -1,26 +1,169 @@
-https://www.itk.ntnu.no/emner/masteroppgave
+% https://www.itk.ntnu.no/emner/masteroppgave
 
 
-\section{Motivation}
-% This source "Recent Advances on Jamming and Spoofing Detection in GNSS" (saved pdf) by Rados et al. explains the what jamming/spoofing is in detail
+% \section{Motivation}
+% % This source "Recent Advances on Jamming and Spoofing Detection in GNSS" (saved pdf) by Rados et al. explains the what jamming/spoofing is in detail
 
 
-This has to be included in the report to make it clear to the sensors what has been done:
+% This has to be included in the report to make it clear to the sensors what has been done:
+% \begin{itemize}
+%     \item Information, software and equipment available/used
+%     \item What help has been received during the work
+%     \item The use of AI. The AI-declaration schema MUST be inserted on the first page after the title page
+% \end{itemize}
+
+% \subsection{FNs sustainability goals}
+
+% \subsection{Background and motivation}
+
+% \section{Take-aways from the specialization project}
+
+% \subsection{Research problem}
+
+% \subsection{Research objectives}
+
+% \subsection{Research questions}
+
+
+
+\section{Background \& Motivation}  
+
+% gnss as a signal of oppertunity due to the global GNSS coverage
+\gls{gnss} have become deeply embedded into our modern infrastructure with multiple constellations, such as GPS, GLONASS, Galileo and BeiDou, ensuring that four satellites are observable from the surface at any given time, thus providing worldwide coverage \cite{nasa_earthdata_gnss}. The sheer number of operational satellites that broadcast \gls{gnss} signals makes it one of the most powerful signals of opportunity for remote sensing, enabling monitoring without the need for onboard transmitters.
+% Provide source for the final claim
+
+% Launches has become cheaper, making it possible for smaller research gropus to implement space-based systems
+At the same time, the space sector has recently undergone rapid changes. Launch costs have fallen significantly due to government outsourcing of launch providers to private companies, and the competitive environment it produced. This is clearly shown in figure \ref{fig:launch_cost}, where the per-kilogram launch cost has hit an all-time low with the deployment of SpaceX rockets \textit{Falcon9} and \textit{Falcon Heavy} \cite{jones2018launch_cost}. As a result, it has become increasingly feasible for universities, research groups and smaller nations to deploy space-based systems dedicated to leveraging \gls{gnss} signals for remote sensing applications. 
+
+% Jamming and spoofing has increased recently, making it more valuable to locate the sources
+In parallel with this growth, there has also been an increase in the frequency of reported intentional \gls{gnss} interference to disrupt aviation operations. The interference can be divided into separate categories characterized by their difference in method and effect: \textit{Jamming} refers to the relative high-power emission of \gls{rf} noise to block \gls{gnss} signals, while \textit{spoofing} is the transmission of signals that resemble those from real satellites, misleading the \gls{gnss} receiver to think it has a different position \cite{ffi_factsheet_2024}. The \gls{ffi} states that: "In Norway's northernmost county of Finnmark, close to the Russian border, loss of \gls{gnss} signals due to jamming occurs nearly daily. [\dots] The number of disruptions has increased significantly since Russia's invasion of Ukraine in 2022." \cite{ffi_jamming_2024}. Data from \textit{gpsjam.org} suggest that similar disruptions have been reported across Eastern Europe, the Middle East, and the Arctic \cite{gpsjam_2025}. These events highlight a broader geopolitical trend: \gls{gnss} interference is becoming more common. This places increased strategic value on systems that can detect and localize jamming and spoofing events.
+
+% gnss-r as a promising technique for jamming/spoofing detection, and connection to SmallSat Lab
+\gls{gnssr} offers a promising technique for addressing these challenges. According to Jin and Komjathy \cite{jin2010gnss-R}, Hall and Cordey \cite{hall_cordey_1988} were the first to propose that GNSS L-band reflections could be exploited in a bistatic radar configuration to retrieve ocean surface properties, laying the foundation for modern \gls{gnssr} techniques. Recent theory suggest that the same bistatic configuration can be used for surveillance of the \gls{gnss} spectrum, where multiple \gls{gnssr} satellites in formation can detect and localize sources of jamming and spoofing. This emerging use-case is one of the central research goals of NTNU SmallSat Lab's \gls{gnssr} project, which aim to develop methods for this process \cite{ntnu_smallsat_gnssr_2025}. The project currently investigates this concept through its \gls{gnssr} satellite mission study, exploring formations geometries, orbit configurations and system designs that would enable robust detection of \gls{gnss} interference sources and ships. 
+% Might move the mentioning of SmallSat Lab to after the motication
+
+% why gnss-r is dependent on accurate orbital propagation
+Accurate knowledge of spacecraft position and velocity is essential for the performance of any \gls{gnssr} system. In such systems, regardless of application, the reflected \gls{gnss} signal is interpreted by comparing its time delay and Doppler shift relative to the direct signal. This process is highly sensitive to the specular reflection point's geolocation, which is given by the geometric relationship between the \gls{gnss} transmitter, the reflecting surface and the receiver. Even small errors in the satellite's propagated state shifts the estimated specular point by kilometers. Such errors can lead to misinterpretations of the delay-Doppler maps, for instance if the predicted specular point is over ocean when the true specular point occurs over land \cite{gleason2020cygnss}. 
+
+In real missions, the satellite orbit and relative geometry within satellite formations will naturally drift over time due to orbital perturbations. During mission design, simulation tools are used to predict the satellites motion. If the simulation does not accurately model the relevant perturbations, its predicted state evolution will diverge from physically realistic behavior, eventually yielding incorrect specular point locations and misleading conclusions about the performance of the GNSS-R system. Furthermore, inaccuracies in position and velocity directly translates to uncertainty in later analyses, like coverage analysis, or formation-keeping delta-V estimation. For these reasons, a high-fidelity propagator is necessary to ensure realistic and reliable evaluations of the \gls{gnssr} system performance.
+
+\begin{comment}
+    * The wider context of why GNSS-R has become an attractive technology
+        - The increasing use of satellite constellations in earth observation and RF sensing
+        - Trends in small satellites and CubeSats
+        - (Consider expanding on why high-fidelity simulations are important for these missions)
+        - Why GNSS-R is emerging as a technique with significant potential
+    
+    * Narrow down to NTNU SmallSatLab's GNSS-R project. The specialization project's relation to it
+
+    * Why formation geometry is important for GNSS-R performance
+        - Especially important for expected ISL bitrate and the GNSS-R measurement resolution 
+
+    * An explanation of why simulation accuracy matters:
+        - More accurate estimations of energy required to maintain formations
+        - Higher accuracy GNSS-R coverage, pointing and constellation estimations
+
+    * Describe the currently used GNSS-R orbital simulation framework, and state explicitly that its accuracy is unverified for satellite formation-drift studies
+        - Specify propagation method, what it models, what it lacks and why that is problematic for GNSS-R mission planning
+
+    * Tie to the need for a more in-depth comparison
+        - Expand on the potential consequences of unverified accuracy. 
+
+[Note to self]
+- Make sure the formation geometry importance leads into the simulation accuracy importance. The flow should be:
+    1. GNSS-R performance depends on specific formation geometry
+    2. Formation geometry evolves due to orbital perturbations
+    3. Therefore, high-fidelity simulation is required to estimate drift and formation control needs. 
+
+- Don't slam the current implementation too hard. Use claims from Skyfield to back up its SGP4 accuracy
+\end{comment}
+
+
+\section{Problem Definition}
+
+% Insert Github Cite instead of '???', maybe
+A system simulator has already been developed to support the development of SmallSat Lab's \gls{gnssr} project (cite???). The tool currently allows area coverage estimation and a detection probability analysis of a stationary maritime target, and is intended to be extended for ocean surveillance and \gls{gnss} \gls{rfi} detection in the future. As explored in the previous section, these analyses rely on accurately propagating both \gls{gnss} and \gls{gnssr} satellites to minimize their uncertainties. Currently, the simulator uses the \gls{sgp4} propagator through the Skyfield Python library for this purpose.  
+
+The \gls{sgp4} propagator has long been the industry standard for orbit prediction, and has subsequently been the subject of thorough evaluation. Several studies document that the propagator can exhibit decreasing accuracy over longer time-horizons, particularly for formation-flight or precision geometry applications \cite{aida2013sgp4_accuracy}. This raises concerns about whether the current SGP4-based implementation is sufficiently accurate for GNSS-R studies, which are highly sensitive to orbital state errors.
+
+\subsection{Research Questions}
+
+This motivates a systematic verification of the Skyfield-\gls{sgp4} implementation by comparing its long-term predictions against a propagator with higher modeling fidelity. Therefore, this specialization project will support the SmallSat Lab \gls{gnssr} mission by developing such a propagator within the Basilisk simulation framework, which natively supports detailed perturbation models and allows for controlled comparisons with Skyfield-\gls{sgp4}. The study uses this capability to evaluate the differences between the propagators and evaluate their implications for \gls{gnssr} mission analysis. As a result, the project is guided by three research questions:
 \begin{itemize}
-    \item Information, software and equipment available/used
-    \item What help has been received during the work
-    \item The use of AI. The AI-declaration schema MUST be inserted on the first page after the title page
-\end{itemize}
+    \item a
+ \end{itemize}
+ % Alternatively: How do differences in simulated translational states affect downstream orbital and formation analyses
+ % Alternatively: 1. How accurate are Skyfield SGP4 orbital predictions over longer time horizons?
+ Answering these questions will support the project's goal of guaranteeing the reliability and accuracy of orbital propagation tools used for \gls{gnssr} small-satellite formation studies in future mission design.
 
-\subsection{FNs sustainability goals}
+\begin{comment}
+    * Describe the already implemented propagator for gnss-r analyses
 
-\subsection{Background and motivation}
+    * Define the core problem: How do different orbital propagation methods and perturbation effects influence satellite formations over time? 
 
-\section{Take-aways from the specialization project}
+    * Problem statement
+    
+    * Research question
+        - Numerical precision of same-configuration simulations:   
+            What is the numerical difference between the two simulation frameworks with the exact same simulation configuration? (same disturbances modelled, same integration time, same everything.)
+        - Extended perturbation effects:   
+            How does including additional orbital perturbations effect the numerical difference between the two simulation frameworks over time?
+        - Computational performance:   
+            How does the computational time differ between the simulation frameworks?
 
-\subsection{Research problem}
+    * Sub-tasks (I don't feel like this section is really necessary)
+        - Model orbital disturbance effects
 
-\subsection{Research objectives}
+        - Implement the two simulation frameworks 
+\end{comment}
 
-\subsection{Research questions}
+
+\section{Overall Method}
+\begin{comment}
+    * This needs to be filled out when I have more information, but from chat:
+
+        * Introduce methodological approach: deterministic numerical simulation, model-by-model isolation, etc. Examples that COULD fit:
+            - "comparative simulation study"
+            - "Controlled scenario with fixed ICs"
+            - "Pairwise comparison under identical perturbation models"
+
+        * State clearly that both simulators will be initialized identically
+
+        * Describe the experiment design
+
+    * Describe the tools used for simulator design, and result verification
+\end{comment}
+
+
+\section{Scope \& Limitations}
+This specialization project focuses on evaluating the long-term orbital propagation accuracy of two distinct simulation frameworks, Skyfield-\gls{sgp4} and a high-fidelity Basilisk propagator, in the context of \gls{gnssr} formation-flying missions. To ensure a controlled and way defined comparison, the project's scope has been limited to a set of simulation configurations and perturbation models.
+
+\subsection{Simulation Configuration Scope}
+The analysis covers a relatively long time-horizon, ranging from several days up to one week, in order to adequately capture the frameworks' divergence over a mission-relevant time span. The simulated formation consists of two satellites flying in \gls{leo} in a leader-follower configuration. Both are initialized on the same orbital plane with nominally constant along-track separation and with the same initial conditions to guarantee same-case comparisons. 
+
+
+\subsection{Limitations}
+% Add the fact that formation or relative satellite dynamics is not included. The project only evaluates the natural drift of satellites, and how that changes the satellite formation geometry
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Several aspects of GNSS-R mission analysis lie outside the scope of this specialization project.
+First, no attitude dynamics are modeled. The satellites are assumed to maintain a fixed nadir-oriented attitude or otherwise idealized pointing, which removes attitude-orbit coupling and optical or RF pointing constraints from consideration.
+
+Second, the project includes no GNSS-R signal modeling or bistatic radar simulation. The study evaluates orbital geometry only; signal processing elements such as delay-Doppler map generation, specular-point reflectivity, link budget modeling, or interference detection algorithms fall beyond the project's objectives.
+
+Third, no active formation-keeping control is implemented. The satellites follow purely ballistic trajectories under the applied perturbations. As such, the delta-V analysis is limited to estimating how often and how strongly formation drift would need to be corrected, rather than simulating actual guidance, navigation, and control (GNC) actions.
+
+Finally, conclusions drawn from this study are limited to the tested scenarios. The orbital regimes, perturbation models, and formation geometry considered here may not generalize to all LEO missions, nor to GNSS-R concepts employing different formation layouts, attitude profiles, or operational constraints.
+
+These limitations naturally define the boundary between the present specialization project and a potential master's thesis. While this project focuses on verifying orbital propagation fidelity, a master's thesis could extend the analysis by incorporating full attitude modeling, GNSS-R signal simulation, operational formation-keeping strategies, and end-to-end detection performance. Such expansions would build upon the validated propagation models developed here, enabling a more comprehensive assessment of GNSS-R formation-flying missions.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\section{Report Structure}
+
+Following is a brief overview of chapters in this report, and what each of them cover.
+\begin{comment}
+    * Brief overview of what each chapter contains
+
+    * This will be populated thoroughly when the sections are written...
+\end{comment}
 
