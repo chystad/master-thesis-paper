@@ -86,7 +86,8 @@ A system simulator has already been developed to support the development of Smal
 
 The \gls{sgp4} propagator has long been the industry standard for orbit prediction, and has subsequently been the subject of thorough evaluation. Several studies document that the propagator can exhibit decreasing accuracy over longer time-horizons, particularly for formation-flight or precision geometry applications \cite{aida2013sgp4_accuracy}. This raises concerns about whether the current SGP4-based implementation is sufficiently accurate for GNSS-R studies, which are highly sensitive to orbital state errors.
 
-\subsection{Research Questions}
+\subsection{Research Objectives}
+% NB TODO The term "research objectives has been used in 04Shared.tex
 
 This motivates a systematic verification of the Skyfield-\gls{sgp4} implementation by comparing its long-term predictions against a propagator with higher modeling fidelity. Therefore, this specialization project will support the SmallSat Lab \gls{gnssr} mission by developing such a propagator within the Basilisk simulation framework, which natively supports detailed perturbation models and allows for controlled comparisons with Skyfield-\gls{sgp4}. The study uses this capability to evaluate the differences between the propagators and evaluate their implications for \gls{gnssr} mission analysis. As a result, the project is guided by three research questions:
 \begin{itemize}
