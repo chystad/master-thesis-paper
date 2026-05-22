@@ -14,7 +14,7 @@
     \label{fig:simple_formfly_flow} 
 \end{figure}
 
-The high-level execution flow of the GNSS-R Formation Flight Simulator is shown in Figure \ref{fig:simple_formfly_flow}. The simulator is organized into five main program blocks: initialization of the Monte Carlo simulation environment, resolution of the current simulation run configuration, initialization of the formation flight simulator, execution of the formation flight simulator, and evaluation of whether additional Monte Carlo runs remain. These blocks can be divided into two main parts, separated by the vertical dashed line in the detailed flowchart in Figure \ref{fig:formfly_flow}. The left part acts as a simulation run orchestrator, where the Monte Carlo environment is configured, and run-specific configuration files are prepared. The right part represents the iterative execution of individual simulation runs, where each run is initialized, executed, and written to file before the next queued run is started. As in the Comparative Propagation Simulator architecture presented in Section \ref{sec:propagator_architecture}, the detailed flowchart is divided into vertically stacked layers representing input files, internal object instances, program blocks, transferred output objects, and generated output files. However, unlike the Comparative Propagation Simulator, the GNSS-R Formation Flight Simulator does not include a separate Skyfield propagation module, but is built entirely around Basilisk numerical simulation.
+The high-level execution flow of the GNSS-R Formation Flight Simulator is shown in Figure \ref{fig:simple_formfly_flow}. The simulator is organized into five main program blocks: initialization of the \gls{mc} simulation environment, resolution of the current simulation run configuration, initialization of the formation flight simulator, execution of the formation flight simulator, and evaluation of whether additional \gls{mc} runs remain. These blocks can be divided into two main parts, separated by the vertical dashed line in the detailed flowchart in Figure \ref{fig:formfly_flow}. The left part acts as a simulation run orchestrator, where the \gls{mc} environment is configured, and run-specific configuration files are prepared. The right part represents the iterative execution of individual simulation runs, where each run is initialized, executed, and written to file before the next queued run is started. As in the Comparative Propagation Simulator architecture presented in Section \ref{sec:propagator_architecture}, the detailed flowchart is divided into vertically stacked layers representing input files, internal object instances, program blocks, transferred output objects, and generated output files. However, unlike the Comparative Propagation Simulator, the GNSS-R Formation Flight Simulator does not include a separate Skyfield propagation module, but is built entirely around Basilisk numerical simulation.
 
 \begin{figure}[H]
     \centering
@@ -24,10 +24,14 @@ The high-level execution flow of the GNSS-R Formation Flight Simulator is shown 
 \end{figure}
 
 \subsection{Initialization of the Monte Carlo Environment}
-The first program block initializes the Monte Carlo simulation environment from the user-defined configuration file \texttt{monte\_carlo.yaml}. In this thesis, Monte Carlo execution is assumed to be enabled for all simulation cases, such that the simulator is structured around a queue of formation-flight simulation runs rather than a single isolated run. The Monte Carlo configuration defines the number of queued runs and the run-specific parameter variations used to generate override configuration files. If $n$ simulation runs are queued, $n-1$ override files are generated to allow variations in selected scenario parameters between otherwise identical simulations. Finally, the validated Monte Carlo settings are collected into a global Monte Carlo configuration instance, which is passed to the iterative part of the simulator and determines how the queued formation-flight simulations are executed.
+The first program block initializes the \gls{mc} simulation environment from the user-defined configuration file \texttt{monte\_carlo.yaml}, and is considered the simulation run orchestrator. In this thesis, \gls{mc} execution is assumed to be enabled for all simulation cases, such that the simulator is structured around a queue of formation-flight simulation runs rather than a single isolated run. The \gls{mc} configuration defines the number of queued runs and the run-specific parameter variations used to generate override configuration files. If $n$ simulation runs are queued, $n-1$ override files are generated. Finally, the validated \gls{mc} settings are collected into a global \gls{mc} configuration instance, which is passed to the iterative part of the simulator and determines how the queued formation-flight simulations are executed.
 
 
 \subsection{Current Run Configuration Resolution}
+The next program block resolves the configuration for the current simulation run. This step is similar to the configuration initialization used in the Comparative Propagation Simulator, described in Section \ref{sec:propagator_init}, but is extended to support iterative \gls{mc} execution. For the first simulation run, the configuration is defined directly by the default scenario in \texttt{base.yaml}. For all subsequent runs, the corresponding override file \texttt{run\_k.yaml} is loaded and used to replace selected parameters in \texttt{base.yaml}, where $k$ denotes the current simulation run index. This allows each queued run to modify a limited set of scenario parameters while preserving the remaining default configuration. Once the current run configuration has been resolved, all parameters are validated and written to a timestamped configuration snapshot. As in the Comparative Propagation Simulator, this snapshot provides traceability by allowing each generated output data set to be linked to the exact parameter values used to produce it. Finally, the validated parameters are collected into a run-specific \texttt{Config} instance, which is passed to the formation flight simulator initialization block.
+
+
+\subsection{}
 
 
 
@@ -52,7 +56,11 @@ This section should explain the high-level flow of the gnss-r formation flight s
 
 * 3rd paragraph (Current run configuration resolution)
     - Explains how the "Resolve current simulation run configuration" program block works:
-    - 
+    - This is very similar to the initialization of the simulation environment program block described in Section \ref{sec:propagator_init}. The only substantial difference is that the iterative runs require resolving a combination of parameters from default.yaml, and run_k.yaml
+    - This is the first step of this program block. For the very first simulation run, only the configuration parameters from \texttt{default.yaml} are used, but in every other following runs (k != 0), the parameters in run_k.yaml override the corresponding parameters in base.yaml. 
+    - Then all resolved config parameters are validated, before a snapshot of the simulation configuration is exported. As mentioned before, this is important for traceability because it allows checking what parameters were used to generate an output data set at a later time. 
+    - Finally, the validated parameters are  collected into a Config instance 
+
 
 * 4th paragraph
     - Explains how the current run Basilisk GNSS-R formation flight simulator is initialized and run.
