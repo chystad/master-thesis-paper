@@ -1,6 +1,6 @@
 \section{Propagation Validation Methodology}
 \begin{comment}
-
+The purpose of using a sequential TLE series is to reduce the accumulation of SGP4 prediction error that would occur if a single TLE were propagated over the full simulation interval. Since each TLE is derived from recent tracking observations, selecting the TLE closest to each simulation time provides a more observation-informed reference trajectory. The Skyfield output should therefore not be interpreted as an independent high-fidelity truth model, but as an updated SGP4-based reference against which the Basilisk propagation can be compared.
 \end{comment}
 
 
