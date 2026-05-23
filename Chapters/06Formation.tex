@@ -1,3 +1,4 @@
+TODO Insert a short introduction here
 \begin{comment}
 * Declare some sort or terminology when referring to each simulation run inside Monte Carlo:
     - One Monte Carlo (MC) run corresponds to multiple gnss-r formation flying simulations, or simply multiple simulation runs. 
@@ -93,61 +94,93 @@ For later paragraphs: (avoid for now)
 
 \section{Electronic Power System}
 Power management is one of the key operational constraints for autonomous remote sensing satellite missions, since the available battery charge determines which operational modes can be safely executed. In the GNSS-R Formation Flight Simulator, the battery state therefore influences the spacecraft guidance logic by constraining transitions between internal pointing modes, which is described in Section \ref{sec:guidance_logic}. This section, however, focuses on how electrical power generation, storage and consumption are modeled for each spacecraft in the formation. Since these quantities depend directly on the assumed spacecraft hardware, the \gls{eps} model assumes the spacecraft component configuration presented in Section \ref{sec:spacecraft_config}.
-\begin{comment}
-1st paragraph:
-* Motivate the implementation of an \gls{eps} by explaining that power management is one of the key operational constraints for autonomous remote sensing satellite missions because the remaining battery charge will influence the available actions the satellite can take. This logic is described in further detail in Section \ref{sec:guidance_logic}.
-* This section, however, will focus on how the electrical generation, storage and consumption is modeled for the GNSS-R formation flight simulator. 
-* Note that the parameters of this system is entirely dependent on specific spacecraft configuration. This section assumes the spacecraft component configuration presented in Section \ref{sec:spacecraft_config} 
 
-\end{comment}
+
 
 \subsection{EPS Model Overview}
-
-The \gls{eps} model is implemented to track the high-level electrical power flow for each spacecraft. Its purpose is to estimate the remaining battery energy during the mission, rather than to model detailed electrical bus dynamics. The battery state is updated from the instantaneous balance between generated and consumed power, expressed as
-\begin{equation}
-    \dot{W}_{storage} = P_{generated} - P_{consumed},
-\end{equation}
-where $P_{generated}$ is the total generated electrical power, $P_{consumed}$ is the total power drawn by spacecraft subsystems, and $W_{storage}$ is the stored battery energy. The net power $\dot{W}_{storage}$ is integrated over time by the Basilisk battery model to estimate the battery state throughout the simulation.
+The \gls{eps} model is implemented to track the high-level electrical power flow for each spacecraft. Its purpose is to estimate the remaining battery energy during the mission, rather than to model detailed electrical bus dynamics. An overview of the per-spacecraft \gls{eps} structure is shown in Figure \ref{fig:eps}. Here, the green module represents power sources, red and yellow modules represent constant and variable power sinks, and the blue module represents battery energy storage. The power management module at the center distributes power between all connected modules, but does not contribute to the net power itself. The individual power generation, storage, and consumption models are described in the following subsections.
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{Figures/04Method/EPS overview.png}
     \caption{Overview of the per-spacecraft \gls{eps}}.
     \label{fig:eps} 
 \end{figure}
-An overview of the per-spacecraft \gls{eps} structure is shown in Figure \ref{fig:eps}. Here, \textbf{green} modules represent power sources, \textbf{red} and \textbf{yellow} modules represent constant and variable power sinks, and the \textbf{blue} module represents battery energy storage. The power management module at the center distributes power between all connected modules, but does not contribute to the net power itself. The individual power generation, storage, and consumption models are described in the following subsections.
-
-
-\begin{comment}
-* Start by stating that the \gls{eps} model to track the high-level power flows within the system, with a sole purpose of providing an estimate of battery level at any given time. 
-* To serve this goal, the \gls{eps} models the change in stored battery power using this relatively simple equation:
-
-\begin{equation}
-    \dot{W}_{storage} = P_{generated} - P_{consumed}
-\end{equation}
-
-* where $P_generated$ and $P_consumed$ is the instentanious power generated and consumed at any given time. $\dot{W}_storage$ denotes the change in stored battery power, which is integrated using Euler's forward method to provide the battery level. 
-
-* Insert figure showing an overview of the per-spacecraft \gls{gls}}
-
-* Reference Figure \ref{fig_eps} when very quickly describing the overall \gls{eps} structure. 
-    - At the center is the "power management" module, which is responsible for distributing the power to components based on demand
-    - The \textbf{RED} module denote components that constantly draw power and are never turned off
-    - the \textbf{YELLOW} modules represent components that can be activated/deactivated depending on the current satellite operational mode. This fact is also made clear by the switch symbol along these modules. 
-    - the \textbf{BLUE} module represents the storage device
-    - the \textbf{GREEN} module represents the modules that generate power
-* These power modules will be closer examined in the coming subsections. 
-\end{comment}
-
 
 
 
 
 
 \subsection{Power Generation \& Storage}
+Electrical power generation is modeled using the Basilisk solar panel module, where each panel computes its generated power according to the simple solar panel formulation from Wertz and Larson in \cite{wertz1991}:
+\begin{equation}
+    W_{\mathrm{sp}} = W_{\mathrm{base}} C_{\mathrm{eclipse}} C_{\mathrm{panel}} 
+    (\hat{\mathbf{n}} \cdot \hat{\mathbf{s}}) A_{\mathrm{panel}},
+\end{equation}
+where $W_{\mathrm{sp}}$ is the per-panel generated electrical power, $W_{\mathrm{base}}$ is the incident solar power per unit area, $C_{\mathrm{eclipse}}$ is the eclipse or shadow factor, $C_{\mathrm{panel}}$ is the solar panel conversion efficiency, $A_{\mathrm{panel}}$ is the panel area, $\hat{\mathbf{n}}$ is the panel normal vector, and $\hat{\mathbf{s}}$ is the Sun direction vector. The generated power is proportional to the cosine of the angle between $\hat{\mathbf{n}}$ and $\hat{\mathbf{s}}$ through their dot product, which makes the panel output attitude dependant. 
+
+The generated power from all solar panel modules is accumulated by the battery model. The battery energy rate of change is given by the instantaneous balance between total generated and consumed power,
+\begin{equation}
+    \dot{E}_{\mathrm{storage}} = W_{\mathrm{generated}} - W_{\mathrm{consumed}}
+    \label{eq:eps_balance}
+\end{equation}
+where $W_{\mathrm{generated}}$ is the total electrical power produced by solar panels, $W_{\mathrm{consumed}}$ is the total power drawn by spacecraft subsystems, and $E_{\mathrm{storage}}$ is the stored battery energy. The net power $\dot{E}_{\mathrm{storage}}$ is integrated over time by the Basilisk battery model to estimate the battery energy level throughout the simulation.
+
+
+
 
 \subsection{Power Consumption}
+\begin{comment}
+This subsection should cover the following power consumption models:
+* The on-board computer (OBC) module is approximated with a constant power draw
 
-\subsection{Assumptions \& Limitations}
+\end{comment}
+
+The \gls{obc} is modeled as a constant power sink. This represents the baseline electrical load required to keep the spacecraft operational, independent of attitude, illumination conditions, or operational mode. The constant power draw $C_{\mathrm{OBC}}$ is therefore always included in the total consumed power.
+\begin{equation}
+    W_{\mathrm{OBC}} = C_{\mathrm{OBC}}
+\end{equation}
+
+
+The payload power consumption is modeled as a mode-dependent power sink. When the spacecraft is performing data capture, the payload is assumed to draw the constant power $C_{\mathrm{payload}}$. Outside this mode, the payload is treated as inactive and does not contribute to the power consumption.
+\begin{equation}
+    W_{\mathrm{payload}} = \begin{cases}
+        C_{\mathrm{payload}} & \text{during data capture}\\
+        0 \quad & \text{otherwise}
+    \end{cases} 
+\end{equation}
+
+
+% (from: https://avslab.github.io/basilisk/Documentation/simulation/power/ReactionWheelPower/ReactionWheelPower.html#_CPPv418ReactionWheelPower if we disable the power generation capability of the wheels.):
+The reaction wheel power consumption is modeled using the Basilisk reaction wheel power module presented in \cite{basiliskRWpower}. The expression accounts for a constant baseline power draw $W_{\mathrm{base}}$ and an additional term associated with wheel actuation. The actuation-dependent part scales with the mechanical power required by the wheel $W_{\mathrm{mech}}$, which depends on the commanded wheel torque and wheel speed, and is corrected by the assumed conversion efficiency $\eta_{e2m}$.
+\begin{equation}
+W_{\mathrm{RW}} = \begin{cases}
+    W_{\mathrm{base}} + \dfrac{W_{\mathrm{mech}}}{\eta_{e2m}}, & W_{\mathrm{mech}} > 0 \\[6pt]
+    W_{\mathrm{base}}, & W_{\mathrm{mech}} < 0
+    \end{cases}   
+\end{equation}
+
+
+The propulsion system power consumption is modeled using three discrete draw states. During propellant heating, the propulsion system draws a constant heater power to prepare the system for maneuver execution. During an active thrust maneuver, the power draw is set to the maneuver power level, representing the electrical load associated with firing the propulsion system. Outside heating and maneuver execution, the propulsion system remains in an idle state with a lower constant standby consumption.
+\begin{equation}
+    W_{prop} = \begin{cases}
+        C_{prop\_heating} & \text{during propellant heating}\\
+        C_{prop\_thrusting} & \text{during thrust}\\
+        C_{prop_idle} \quad & \text{otherwise}
+    \end{cases} 
+\end{equation}
+
+
+The communication system is modeled as a mode-dependent power sink. During communication mode, the transmitter and associated communication hardware are assumed to draw the constant power $C_{\mathrm{comms}}$. When the spacecraft is not communicating with a ground station, this contribution is excluded from the total consumed power.
+\begin{equation}
+    W_{comms} = \begin{cases}
+        C_{comms} & \text{during communication}\\
+        0 \quad & \text{otherwise}
+    \end{cases} 
+\end{equation}
+
+
+Finally, The total consumed power $W_{\mathrm{consumed}}$ used in Equation \ref{eq:eps_balance} is obtained by summing the active constant and mode-dependent power sinks at each simulation time.
+
 
 
 
@@ -168,6 +201,10 @@ An overview of the per-spacecraft \gls{eps} structure is shown in Figure \ref{fi
 
 \section{Simulator inputs}
 
+
+
+
+REMEMBER TO UPDATE THIS FUGRE WITH CORRECT PRIORITIES AND NEW POWER MODULES
 \begin{figure}[htbp]
     \small
     \dirtree{%
