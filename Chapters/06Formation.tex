@@ -2,7 +2,9 @@
 * Declare some sort or terminology when referring to each simulation run inside Monte Carlo:
     - One Monte Carlo (MC) run corresponds to multiple gnss-r formation flying simulations, or simply multiple simulation runs. 
     - Simulator is used to refer to the entire thing, which is the same as saying one MC run. 
+* Declare definition of environmental, dynamics, fsw, model
 \end{comment}
+
 
 
 \section{Simulation Architecture}
@@ -14,7 +16,7 @@
     \label{fig:simple_formfly_flow} 
 \end{figure}
 
-The high-level execution flow of the GNSS-R Formation Flight Simulator is shown in Figure \ref{fig:simple_formfly_flow}. The simulator is organized into five main program blocks: initialization of the \gls{mc} simulation environment, resolution of the current simulation run configuration, initialization of the formation flight simulator, execution of the formation flight simulator, and evaluation of whether additional \gls{mc} runs remain. These blocks can be divided into two main parts, separated by the vertical dashed line in the detailed flowchart in Figure \ref{fig:formfly_flow}. The left part acts as a simulation run orchestrator, where the \gls{mc} environment is configured, and run-specific configuration files are prepared. The right part represents the iterative execution of individual simulation runs, where each run is initialized, executed, and written to file before the next queued run is started. As in the Comparative Propagation Simulator architecture presented in Section \ref{sec:propagator_architecture}, the detailed flowchart is divided into vertically stacked layers representing input files, internal object instances, program blocks, transferred output objects, and generated output files. However, unlike the Comparative Propagation Simulator, the GNSS-R Formation Flight Simulator does not include a separate Skyfield propagation module, but is built entirely around Basilisk numerical simulation.
+The high-level execution flow of the GNSS-R Formation Flight Simulator is shown in Figure \ref{fig:simple_formfly_flow}. The simulator is organized into five main program blocks: initialization of the \gls{mc} simulation environment, resolution of the current simulation run configuration, initialization of the formation flight simulator, execution of the formation flight simulator, and evaluation of whether additional \gls{mc} runs remain. These blocks can be divided into two main parts, separated by the vertical dashed line in the detailed flowchart in Figure \ref{fig:formfly_flow}. The left part acts as a simulation run orchestrator, where the \gls{mc} environment is configured, and all run-specific configuration files are prepared. The right part represents the iterative execution of individual simulation runs, where each run is initialized, executed, and written to file before the next queued run is started. As in the Comparative Propagation Simulator architecture presented in Section \ref{sec:propagator_architecture}, the detailed flowchart is divided into vertically stacked layers representing input files, internal object instances, program blocks, transferred output objects, and generated output files. However, unlike the Comparative Propagation Simulator, the GNSS-R Formation Flight Simulator does not include a separate Skyfield propagation module, but is built entirely upon the Basilisk framework.
 
 \begin{figure}[H]
     \centering
@@ -23,15 +25,16 @@ The high-level execution flow of the GNSS-R Formation Flight Simulator is shown 
     \label{fig:formfly_flow} 
 \end{figure}
 
-\subsection{Initialization of the Monte Carlo Environment}
+\subsection{Monte Carlo Environment Initialization Flow}
 The first program block initializes the \gls{mc} simulation environment from the user-defined configuration file \texttt{monte\_carlo.yaml}, and is considered the simulation run orchestrator. In this thesis, \gls{mc} execution is assumed to be enabled for all simulation cases, such that the simulator is structured around a queue of formation-flight simulation runs rather than a single isolated run. The \gls{mc} configuration defines the number of queued runs and the run-specific parameter variations used to generate override configuration files. If $n$ simulation runs are queued, $n-1$ override files are generated. Finally, the validated \gls{mc} settings are collected into a global \gls{mc} configuration instance, which is passed to the iterative part of the simulator and determines how the queued formation-flight simulations are executed.
 
 
-\subsection{Current Run Configuration Resolution}
+\subsection{Current Run Configuration Resolution Flow}
 The next program block resolves the configuration for the current simulation run. This step is similar to the configuration initialization used in the Comparative Propagation Simulator, described in Section \ref{sec:propagator_init}, but is extended to support iterative \gls{mc} execution. For the first simulation run, the configuration is defined directly by the default scenario in \texttt{base.yaml}. For all subsequent runs, the corresponding override file \texttt{run\_k.yaml} is loaded and used to replace selected parameters in \texttt{base.yaml}, where $k$ denotes the current simulation run index. This allows each queued run to modify a limited set of scenario parameters while preserving the remaining default configuration. Once the current run configuration has been resolved, all parameters are validated and written to a timestamped configuration snapshot. As in the Comparative Propagation Simulator, this snapshot provides traceability by allowing each generated output data set to be linked to the exact parameter values used to produce it. Finally, the validated parameters are collected into a run-specific \texttt{Config} instance, which is passed to the formation flight simulator initialization block.
 
 
-\subsection{}
+\subsection{Single Formation Flight Initialization \& Execution Flow}
+The resolved run configuration is then used to initialize and execute one complete Basilisk GNSS-R formation flight simulation. At a high level, this program block follows almost the same structure as the Basilisk propagation flow described in Section \ref{sec:basilisk_propagator_flow}, but extends it with two additional model clusters: flight software and recorder flushing. The simulation models are also distributed across separate Basilisk processes rather than being scheduled on a single shared process. Environmental models are scheduled on \texttt{EnvironmentProcess}, each spacecraft is assigned its own \texttt{DynamicsProcess\_i} and \texttt{FswProcess\_i} for its dynamical spacecraft components and \gls{gnc} system, and the data flushing model is scheduled on \texttt{RecorderFlusherProcess}. A comprehensive overview of the process-task-model hierarchical structure for this simulator is shown in Figure \ref{fig:formfly_process_hierarchy}, which illustrates how the different models are distributed across all processes. Once initialization is complete, the Basilisk simulation is executed for the configured duration, and periodically write selected simulation data to file to clear data buffers. The resulting total per-spacecraft output contains various time series and mission-level data used in the later lifetime analysis.
 
 
 
@@ -63,9 +66,17 @@ This section should explain the high-level flow of the gnss-r formation flight s
 
 
 * 4th paragraph
-    - Explains how the current run Basilisk GNSS-R formation flight simulator is initialized and run.
-    - state that this high-level flow is very similar to "Basilisk Propagator Flow" presented in Section \ref{sec:basilisk_propagator_flow}
-
+    - Explains how the current run Basilisk GNSS-R formation flight simulator is initialized and run. In other words, explain both "Initializae formation flight simulator" and "run formation simulator"
+    - state that this high-level flow is very similar to "Basilisk Propagator Flow" presented in Section \ref{sec:basilisk_propagator_flow} with only a few notable differences: 
+        * The simulation is now initialized with an additional model cluster: the flight software, and the recorder flusher model. 
+        * model clusters were previously scheduled on a single process. Now the environmental models, dynamics models, flight software and recorder flusher are all scheduled on separate processes (EnvironmentProcess, DynamicsProcess_i, FswProcess_i and RecorderFlusherProcess, respectively). This structural change was implemented to increase the update rate flexibility, which ultimately increases the simulator efficiency because it enables slower update rates for modules with slow dynamics. It also just increases the overall simulator structure because it bundles similar models together. 
+    - Here comes the explanation of the sequential steps in the initialization process. I must say that I am very unsure weather I should come with examples of which models are contained within "Dynamics models", or if this is outside the scope of this section. Please advise. 
+        - The simulation initialization starts by setting up the simulation time and stable containers.
+        - Then the environmental models are built, and scheduled on the EnvironmentProcess. This simulator uses the same environmental models as the comparative propagation simulator, such as all the gravity bodies, eclipse model and atmosphere model 
+        - After this, the dynamics models and flight software is built for each spacecraft. The dynamics models include the Basilisk spacecraft object, its perturbation effectors, actuators, solar panels, and more. The flight software includes the pointing and formation GNC system. 
+        - Finally in the initialization program block, the recorder flusher is created, which is responsible for clearing the data collection buffers, and writing parts of the simulation data to file. This is necessary to prevent memory overload because of the comparatively large data volume and long time horizon relative to the propagation simulator.  
+        -After the initialization is complete, the single GNSS-R formation flight simulation is run. 
+        
 
 For later paragraphs: (avoid for now)
     Should be compared to the propagator simulator because this is an expansion/re-structured variant
@@ -81,9 +92,63 @@ For later paragraphs: (avoid for now)
 
 
 \section{Electronic Power System}
+Power management is one of the key operational constraints for autonomous remote sensing satellite missions, since the available battery charge determines which operational modes can be safely executed. In the GNSS-R Formation Flight Simulator, the battery state therefore influences the spacecraft guidance logic by constraining transitions between internal pointing modes, which is described in Section \ref{sec:guidance_logic}. This section, however, focuses on how electrical power generation, storage and consumption are modeled for each spacecraft in the formation. Since these quantities depend directly on the assumed spacecraft hardware, the \gls{eps} model assumes the spacecraft component configuration presented in Section \ref{sec:spacecraft_config}.
 \begin{comment}
-Consumers and generators of electricity. How these effect battery, and how battery thresholds are defined. 
+1st paragraph:
+* Motivate the implementation of an \gls{eps} by explaining that power management is one of the key operational constraints for autonomous remote sensing satellite missions because the remaining battery charge will influence the available actions the satellite can take. This logic is described in further detail in Section \ref{sec:guidance_logic}.
+* This section, however, will focus on how the electrical generation, storage and consumption is modeled for the GNSS-R formation flight simulator. 
+* Note that the parameters of this system is entirely dependent on specific spacecraft configuration. This section assumes the spacecraft component configuration presented in Section \ref{sec:spacecraft_config} 
+
 \end{comment}
+
+\subsection{EPS Model Overview}
+
+The \gls{eps} model is implemented to track the high-level electrical power flow for each spacecraft. Its purpose is to estimate the remaining battery energy during the mission, rather than to model detailed electrical bus dynamics. The battery state is updated from the instantaneous balance between generated and consumed power, expressed as
+\begin{equation}
+    \dot{W}_{storage} = P_{generated} - P_{consumed},
+\end{equation}
+where $P_{generated}$ is the total generated electrical power, $P_{consumed}$ is the total power drawn by spacecraft subsystems, and $W_{storage}$ is the stored battery energy. The net power $\dot{W}_{storage}$ is integrated over time by the Basilisk battery model to estimate the battery state throughout the simulation.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{Figures/04Method/EPS overview.png}
+    \caption{Overview of the per-spacecraft \gls{eps}}.
+    \label{fig:eps} 
+\end{figure}
+An overview of the per-spacecraft \gls{eps} structure is shown in Figure \ref{fig:eps}. Here, \textbf{green} modules represent power sources, \textbf{red} and \textbf{yellow} modules represent constant and variable power sinks, and the \textbf{blue} module represents battery energy storage. The power management module at the center distributes power between all connected modules, but does not contribute to the net power itself. The individual power generation, storage, and consumption models are described in the following subsections.
+
+
+\begin{comment}
+* Start by stating that the \gls{eps} model to track the high-level power flows within the system, with a sole purpose of providing an estimate of battery level at any given time. 
+* To serve this goal, the \gls{eps} models the change in stored battery power using this relatively simple equation:
+
+\begin{equation}
+    \dot{W}_{storage} = P_{generated} - P_{consumed}
+\end{equation}
+
+* where $P_generated$ and $P_consumed$ is the instentanious power generated and consumed at any given time. $\dot{W}_storage$ denotes the change in stored battery power, which is integrated using Euler's forward method to provide the battery level. 
+
+* Insert figure showing an overview of the per-spacecraft \gls{gls}}
+
+* Reference Figure \ref{fig_eps} when very quickly describing the overall \gls{eps} structure. 
+    - At the center is the "power management" module, which is responsible for distributing the power to components based on demand
+    - The \textbf{RED} module denote components that constantly draw power and are never turned off
+    - the \textbf{YELLOW} modules represent components that can be activated/deactivated depending on the current satellite operational mode. This fact is also made clear by the switch symbol along these modules. 
+    - the \textbf{BLUE} module represents the storage device
+    - the \textbf{GREEN} module represents the modules that generate power
+* These power modules will be closer examined in the coming subsections. 
+\end{comment}
+
+
+
+
+
+
+\subsection{Power Generation \& Storage}
+
+\subsection{Power Consumption}
+
+\subsection{Assumptions \& Limitations}
+
 
 
 \section{Flight Software}
@@ -94,9 +159,8 @@ Consumers and generators of electricity. How these effect battery, and how batte
 * Formation control 
 \end{comment}
 
-\subsection{Software Architecture}
-
 \subsection{Pointing Guidance Logic}
+\label{sec:guidance_logic}
 
 \subsection{MRP Feedback Pointing Controller}
 
@@ -128,26 +192,15 @@ Consumers and generators of electricity. How these effect battery, and how batte
     .4 battery [20].
     .4 obcPowerSink [20].
     .4 rwPower(s) [20].
-    .4 thrusterStateRecorder [10].
-    .4 fuelTankStateRecorder [10].
-    .4 rwStateRecorder(s) [10].
-    .4 rwStateRecorder(s) [10].
-    .4 batteryStateRecorder [10].
-    .4 obcPowerSinkRecorder [10].
-    .4 solarPanelPowerRecorders(s) [10].
+    .4 recorders [10].
     .2 FswProcess\_\textless sat\_idx\textgreater.
     .3 FswTask\_\textless sat\_idx\textgreater.
     .4 scheduler [20].
-    .4 navTransRecorder [10].
-    .4 navAttRecorder [10].
-    .4 attRefRecorder [10].
-    .4 attErrRecorder [10].
-    .4 cmdTorqueRecorder [10].
-    .4 rwMotorTorqueRecorder [10].
+    .4 recorders [10].
     .2 RecorderFlusherProcess.
     .3 RecorderFlusherTask [20].
     .4 recorderFlusher [20].
     }
     \caption{Hierarchical process-task-model structure of the GNSS-R formation flight Basilisk simulator. The number in square brackets denote the model priority, where higher priority models are updated first. Same-priority tasks are orderly updated from the top-down within a task. ''\textit{<sat\_idx>}'' represent per-spacecraft processes and tasks.}
-    \label{fig:basilisk_simulator_hierarchy}
+    \label{fig:formfly_process_hierarchy}
 \end{figure}

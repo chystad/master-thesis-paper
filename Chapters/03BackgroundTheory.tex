@@ -368,6 +368,77 @@ where $||\textbf{a}_{D}||_2$ denotes the drag acceleration magnitude of the lead
 % Attitude constraints (antenna pointing, Earth-visibility, GNSS visibility)
 % Power constraints (observation power consumtion, attitude maintenance costs, battery dependence)
 
+% \section{Simulation Frameworks}
+\section{Basilisk Process-Task-Model Hierarchy}
+
+Basilisk simulations are constructed from a hierarchy of processes, tasks and models. A model is the lowest-level simulation object, and represents an individual computational component, such as a spacecraft dynamics model, environmental effector, guidance module, controller, actuator model or data recorder. In this thesis, models are grouped according to their functional role. Environmental models describe the spatial conditions, such as gravity bodies, atmospheric density, eclipse conditions and ground-station access. Dynamics models describe the physical spacecraft and its interacting forces and subsystems, including translational and attitude dynamics, perturbation effectors and actuators. Flight software models describe onboard \gls{gnc} algorithms.
+\begin{figure}[htbp]
+    \small
+    \dirtree{%
+    .1 Generic Basilisk Simulator.
+    .2 [1] EnvironmentProcess.
+    .3 [--] EnvironmentTask (1Hz).
+    .4 [10] spiceModel.
+    .4 [20] atmosphereModel.
+    .2 [2] DynamicsProcess.
+    .3 [1] PerturbationTask (5Hz).
+    .4 [20] spacecraftModel.
+    .4 [20] dragEffector.
+    .3 [2] SensorTask (20Hz).
+    .4 [20] imuModel.
+    }
+    \caption{Hierarchical process-task-model structure of a generic Basilisk simulator. The square brackets denote the assigned object priority, and respective task update rates are displayed in the parentheses}
+    \label{fig:general_process_hierarchy}
+\end{figure}
+
+Models are scheduled for execution by assigning them to tasks, where each task has a specified update rate. Tasks are in turn assigned to processes, which provide a higher-level grouping of related tasks. An illustration of a process-task-model hierarchical structure for a generic Basilisk simulator is shown in Figure \ref{fig:general_process_hierarchy}. The execution order is determined by the assigned priority, where higher-order objects are executed first. Same-priority objects or object without a specified priority are updated according to their initialization order. Using these rules, the execution order of the generic Basilisk simulator would thus be:
+
+\begin{equation*}
+    \small
+    \texttt{imuModel}
+    \rightarrow
+    \texttt{spacecraftModel}
+    \rightarrow 
+    \texttt{dragEffector} 
+    \rightarrow 
+    \texttt{atmosphereModel} 
+    \rightarrow
+    \texttt{spiceModel}
+\end{equation*}
+
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=0.7\textwidth]{Figures/03Theory/generic process-task-model structure.png}
+%     \caption{On the left: Hierarchical process-task-model structure of a generic Basilisk simulator. The square brackets denote the assigned object priority, and respective task update rates are displayed in the parentheses. On the right: Resulting execution order}.
+%     \label{fig:generic_process_hierarchy} 
+% \end{figure}
+
+
+
+\begin{comment}
+The following should be included in this section:
+
+1st paragraph:
+* Very briefly, some short information about the Basilisk framework
+    - It is an astrodynamics simulation framework that has been developed to enable rapid creation of spacecraft simulations using pre-built modules (sorce: https://hanspeterschaub.info/basilisk/Learn/bskPrinciples/bskPrinciples-0.html)
+* State that a Basilisk simulation built using a process-task-model hierarchy
+* Define a model: A "model" is a very loosely defined term, but is used in the thesis to denote any dynamical model, hardware component, or otherwise small system. Examples from (source: https://avslab.github.io/basilisk/Learn/bskPrinciples/bskPrinciples-1.html) include the spacecraft, sensor, guidance system and atmosphere model (amongst others)
+    - In this thesis, models are categorized depending on their role ("role" is probably not the right word here) (also, "in this thesis" might be too implementation-specific. If so, consider phrasing it like "a common categorization is ..."):
+        * environment models: These include models describing the spatial volume around the spacecraft like surrounding massive bodies and their gravitational field, atmosphere model, etc.
+        * Dynamics models: These include models of all external or internal influences on the spacecraft. Some examples are drag, thrusters, solar panels and batteries. Solar panels and batteries seem like weird additions to this category, but they are included because they influence the spacecraft internal state, even though it doesn't directly influence its translational or rotational states. 
+        * Flight software models: All \gls{gnc} models
+
+\end{comment}
+
+
+
+\begin{comment}
+2nd paragraph:
+* Explain that tasks and processes are containers used to schedule and execute the models during a Basilisk simulation run. 
+* Tasks are groups of models, while processes are groups of tasks. All models within a task is updated at the same rate 
+* Refer to Figure \ref{fig:general_process_hierarchy} as an example of a generic process-task-model hierarchy. 
+* Explain that a priority can be assigned to a process, model or task to assign an execution order. Higher order priority objects are executed first. If two objects have the same priority, they will be executed in the initialization order.
+\end{comment}
 
 
 
