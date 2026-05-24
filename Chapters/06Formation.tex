@@ -5,6 +5,7 @@ TODO: Replace the architecture figures with one that uses "Queued runs complete?
     - One Monte Carlo (MC) run corresponds to multiple gnss-r formation flying simulations, or simply multiple simulation runs. 
     - Simulator is used to refer to the entire thing, which is the same as saying one MC run. 
 * Declare definition of environmental, dynamics, fsw, model
+* State exactly what spacecraft components are assumed to be included, and direct to another Section for actual component parameters
 \end{comment}
 
 
@@ -93,8 +94,92 @@ For later paragraphs: (avoid for now)
 
 
 
+\section{Autonomous Mission Operational Modes}
+\label{sec:operational_mode_logic}
+The GNSS-R Formation Flight Simulator implements the mission-level operational constraints through a rule-based operational mode switching logic. This logic determines which high-level activity each spacecraft should perform at a given time, and thereby replaces a predefined operations timeline with autonomous decision-making based on the simulated spacecraft state and environment. This is important because the feasibility of GNSS-R observations, communication sessions, charging periods, and formation-maintenance maneuvers depends on time-varying conditions such as battery state, illumination, ground-station visibility, and maneuver requests. By evaluating these conditions during simulation execution, each spacecraft can adapt its operational mode to the current mission state, providing a more realistic representation of autonomous small-satellite operations than a fixed sequence of scheduled activities. The following subsections will present how each operational mode is defined, how each mode effect the instantaneous mission objective, and finally, the logic governing the transitions between operational modes.
+
+\subsection{Mode Definitions}
+The simulator uses eight operational modes, each representing a distinct mission-related spacecraft activity. A summary of the modes, their enabled power-consuming modules, and their associated pointing objectives is provided in Figure \ref{tab:operational_mode_overview}. In \textit{coast} mode, the spacecraft remains in a nominal idle state while keeping the reaction wheels enabled to maintain a Sun-oriented attitude, even when the Earth occludes the Sun. The \textit{charge} mode similarly prioritizes Sun-pointing, but is used specifically to increase the stored battery energy. In \textit{capture} and \textit{cooperative capture} mode, the payload is activated, and the spacecraft is oriented for GNSS-R observation. This entails pointing the \gls{gnssr} receiver directly down towards the Earth's surface (nadir-direction), and the \gls{gnss} receiver in the opposite direction (zenith-direction) toward the \gls{gnss} constellation. In \textit{communication} mode, the communication system is enabled and the spacecraft points toward a visible ground station. The \textit{burn transit} and \textit{burn} modes support formation-maintenance maneuvers by orienting the spacecraft thrust axis toward the desired maneuver direction. The former enables propulsion-system heating, while the latter represents active thrusting. Finally, \textit{emergency} mode disables all nonessential loads except the onboard computer and battery heater, and does not impose an active pointing objective. A more detailed definition of each power-consuming module is described in Section \ref{sec:eps}, while the pointing modes are described in Section \ref{sec:pointing_guidance}.
+
+\newcommand{\datarowheight}{\rule[-0.8em]{0pt}{3.2em}}
+\begin{table}[htbp]
+    \centering
+    \caption{Overview of operational modes and corresponding active variable power modules and pointing objectives.}
+    \begin{tabular}{llll}
+        \toprule
+        \makecell[l]{Operational\\mode} &
+        \makecell[l]{Additional variable\\power modules} &
+        \makecell[l]{Primary\\objective} &
+        \makecell[l]{Secondary\\objective} \\
+        \midrule
+        Coast & -- & Sun-pointing & Minimum drag \\
+        Charge & -- & Sun-pointing & Minimum drag \\
+        Capture & Payload & Data capture & Sun-pointing \\
+        Cooperative capture & Payload & Data capture & Sun-pointing \\
+        Comms & Communication system & Communication & Sun-pointing \\
+        Burn transit & Propulsion heating & Burn-pointing & Sun-pointing \\
+        Burn & Propulsion thrusting & Burn-pointing & Sun-pointing \\
+        Emergency & -- & Safe mode & -- \\
+        \bottomrule
+    \end{tabular}
+
+    \vspace{0.5em}
+    \footnotesize
+    Reaction wheels are active in all nominal modes and are omitted from the module column for readability. The constant power modules: OBC and Battery pack heater are active for all modes
+\label{tab:operational_mode_overview} 
+\end{table}
+
+
+\subsection{Mode Switching Logic}
+The mode switching logic is built around a set of logical parameters, here referred to as switching parameters, which determine whether transitions between operational modes are feasible. These parameters are divided into three groups depending on what part of the simulation state they depend on. The first group consists of environmental switching parameters, which are determined by spatial or illumination conditions. The parameter \texttt{canCap} indicates whether scientific data capture is feasible. In a full GNSS-R mission simulator, this would require a \gls{gnss} satellite to be within the \gls{gnss} receiver field of view and the corresponding specular reflection point to be within the \gls{gnssr} receiver field of view. Since GNSS satellite constellations are not modeled in this simulator, data capture is assumed to be geometrically feasible whenever it is requested. The parameter \texttt{canCom} is true when at least one ground station has direct line of sight to the spacecraft, and its elevation angle is greater than $10^\circ$ above the horizon. Finally, \texttt{canChar} indicates whether charging is possible, which requires the spacecraft to be fully or partially illuminated by the Sun. 
+
+The second group consists of battery switching parameters, which determine whether the remaining battery energy is sufficient to permit different operations. In this group, \texttt{capBat} and \texttt{comBat} indicate whether the battery level is high enough to allow science capture and communication, respectively, while \texttt{critBat} and \texttt{exitCriticalBat}, define entry into and recovery from critically low battery operation. The third group consists of operational state parameters, which depend on the internal mission state rather than directly on the external environment or battery level. These include \texttt{maxNoCom}, which becomes true if the time since the previous communication session exceeds a specified threshold, \texttt{burnRequested}, which indicates that a formation-maintenance maneuver is required, \texttt{burnAttitudeReached}, which indicates that the spacecraft is sufficiently aligned with the requested burn attitude, and \texttt{canCoopCap}, which enables cooperative capture when another spacecraft has entered capture mode.
+
+\begin{comment}
+1st paragraph (Describe decision inputs, or rather, inputs that influence the mode switching logic)
+* Start the paragraph by stating that the mode switching logic is built around different logical parameters, called "switching parameters"  that determine the feasibility of transitions between operational modes
+* The switching parameters can be divided into three different groups depending on their dependencies:
+    * The environmental group (they are determined by spatial considerations):
+        - canCap: scientific data capture is feasible if a \gls{gnss} satellite is within the \gls{gnss} receiver field of view, and if its specular reflection point is within the \gls{gnss-r} receiver field of view. However, because positions \gls{gnss} satellite constellations are not included in this simulator, it assumes that data capture is always possible. 
+        - canCom: communicate with a ground station is feasible if the spacecraft and evaluated ground station is within direct line of sight, and the spacecraft is at least 10 degrees above the horizon from the ground station's POV
+        - canChar: spacecraft charging is feasible if the spacecraft is fully or partially illuminated by the Sun
+    * The battery group (they are determined by the remaining battery energy)
+        - capBat: The spacecraft is allowed to capture scientific data if the remaining battery level is above a certain threshold
+        - comBat: the spacecraft is allowed to start communication if the remaining battery level is above a certain threshold
+        - critBat: the battery level is defined as critical if the level drops below a certain threshold
+        - exitCriticalBat: the battery can only be considered to be at a non-critical level again once it has been charged above a certain level
+    * The *something group* (please come with name suggestion)
+        - maxNoCom: True if the duration since exiting COMMS last time exceeds a max threshold
+        - burnRequested: True if the thrusters are required to run more than XXX seconds to maintain formation
+        - burnAttitudeReached: True if attitude is close enough to requested burn attitude
+        - canCoopCap: True if another spacecraft has entered capture mode
+
+
+
+2nd paragraph (Present the conditions to trigger transitions between operational modes)
+
+\end{comment}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Figures/04Method/mode switching logic flow.png}
+    \caption{Mode switching logic flow diagram to visualize mode transitions. In cases where multiple feasible transitions from a mode exist, see the mode switching priority table in Table \ref{tab:mode_priority}}
+    \label{tab:mode_flow} 
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Figures/04Method/mode switching logic priority table.png}
+    \caption{Mode switching priority table}
+    \label{tab:mode_priority} 
+\end{figure}
+
+
+
+
 \section{Electronic Power System (EPS)} 
-Power management is one of the key operational constraints for autonomous remote sensing satellite missions, since the available battery charge determines which operational modes can be safely executed. In the GNSS-R Formation Flight Simulator, the battery state therefore influences the spacecraft guidance logic by constraining transitions between internal pointing modes, which is described in Section \ref{sec:operational_mode_logic}. This section, however, focuses on how electrical power generation, storage and consumption are modeled for each spacecraft in the formation. Since these quantities depend directly on the assumed spacecraft hardware, the \gls{eps} model assumes the spacecraft component configuration presented in Section \ref{sec:spacecraft_config}.
+\label{sec:eps}
+Power management is one of the key operational constraints for autonomous remote sensing satellite missions, since the available battery charge determines which operational modes can be safely executed. In the GNSS-R Formation Flight Simulator, the battery state therefore influences the spacecraft guidance logic by constraining transitions between internal operational modes, which is described in Section \ref{sec:operational_mode_logic}. This section, however, focuses on how electrical power generation, storage and consumption are modeled for each spacecraft in the formation. Since these quantities depend directly on the assumed spacecraft hardware, the \gls{eps} model assumes the spacecraft component configuration presented in Section \ref{sec:spacecraft_config}.
 
 
 
@@ -146,11 +231,10 @@ The \gls{obc} is modeled as a constant power sink. This represents the baseline 
 \end{equation}
 
 
-The battery heater is modeled as an averaged constant power sink. Since no battery temperature sensor or thermal model is implemented, the heater duty cycle is approximated by assuming that the battery heater is active for one quarter of each orbital period. Under this assumption, the heating contribution to the total consumed power is modeled as
+The battery heater is modeled as an averaged constant power sink. Since no battery temperature sensor or thermal model is implemented, the heater duty cycle is roughly approximated by assuming that the battery heater is active for one quarter of each orbital period. Under this assumption, the heating contribution to the total consumed power is modeled using the nominal active heater power, $C_{\mathrm{bat,heating}}$
 \begin{equation}
     W_{\mathrm{bat,heating}} = \frac{1}{4} C_{\mathrm{bat,heating}},
 \end{equation}
-where \(C_{\mathrm{bat,heating}}\) is the nominal heater power when active. This approximation captures the average energy cost of battery heating without resolving temperature-dependent heater switching.
 
 
 The payload power consumption is modeled as a mode-dependent power sink. When the spacecraft is performing data capture, the payload is assumed to draw the constant power $C_{\mathrm{payload}}$. Outside this mode, the payload is treated as inactive and does not contribute to the power consumption.
@@ -184,61 +268,35 @@ The propulsion system power consumption is modeled using three discrete draw sta
 
 The communication system is modeled as a mode-dependent power sink. During communication mode, the transmitter and associated communication hardware are assumed to draw the constant power $C_{\mathrm{comms}}$. When the spacecraft is not communicating with a ground station, this contribution is excluded from the total consumed power.
 \begin{equation}
-    W_{comms} = \begin{cases}
-        C_{comms} & \text{during communication}\\
+    W_{\mathrm{comms}} = \begin{cases}
+        C_{\mathrm{comms}} & \text{during communication}\\
         0 \quad & \text{otherwise}
     \end{cases} 
 \end{equation}
 
 
-Finally, The total consumed power $W_{\mathrm{consumed}}$ used in Equation \ref{eq:eps_balance} is obtained by summing the active constant and mode-dependent power sinks at each simulation time.
+Finally, The total consumed power $W_{\mathrm{consumed}}$ used in Equation \ref{eq:eps_balance} is obtained by summing the active constant and mode-dependent power sinks at each simulation time. A comprehensive overview of when each power-consuming module is enabled is shown in Table \ref{tab:operational_mode_overview}. 
 
 
 
 
-\section{Flight Software}
-\begin{comment}
-* Overall structure, how is it all connected and run during execution
-* Guidance pointing logic w. all states and mode transitions
-* MRP feedback pointing controller 
-* Formation control 
-* Clarify that this section will present a high-level understandig of the different flight software modules, but omit the message wiring required by the Basilisk framework. 
-\end{comment}
+% \section{Flight Software}
+% \begin{comment}
+% * Overall structure, how is it all connected and run during execution
+% * Guidance pointing logic w. all states and mode transitions
+% * MRP feedback pointing controller 
+% * Formation control 
+% * Clarify that this section will present a high-level understandig of the different flight software modules, but omit the message wiring required by the Basilisk framework. 
+% \end{comment}
 
 
-\subsection{Operational Mode Switching Logic}
-\label{sec:operational_mode_logic}
-The GNSS-R Formation Flight Simulator implements the mission-level operational constraints through a rule-based operational mode switching logic. This logic determines which high-level activity each spacecraft should perform at a given time, and thereby replaces a predefined operations timeline with autonomous decision-making based on the simulated spacecraft state and environment. This is important because the feasibility of GNSS-R observations, communication sessions, charging periods, and formation-maintenance maneuvers depends on time-varying conditions such as battery state, illumination, ground-station visibility, and maneuver requests. By evaluating these conditions during simulation execution, each spacecraft can adapt its operational mode to the current mission state, providing a more realistic representation of autonomous small-satellite operations than a fixed sequence of scheduled activities.
 
 
-\begin{comment}
-1st paragraph (Describe the purpose of the mode switching logic)
-* Explain that the actual implementation of the GNSS-R operational constraints can be attributed to the operational mode switching logic, which will be explained in this section
-* Its purpose is to make the mission simulation autonomous, rather than having them follow a pre-defined timeline. This increases adaptability and realism
-
-
-2nd paragraph (Describe each operational mode + coupling to other subsystems)
-
-* coast
-    - 
-* communication
-* charge
-* capture
-* cooperative capture
-* burn transit
-* burn
-* emergency
-
-
-3rd paragraph (Describe decision inputs, or rather, inputs that influence the mode switching logic)
-
-
-4th paragraph (Present the conditions to trigger transitions between operational modes)
-
-\end{comment}
+\section{Guidance Navigation \& Control (GNC) System}
 
 
 \subsection{Pointing Guidance System}
+\label{sec:pointing_guidance}
 \begin{comment}
 This subsection will describe the attitude reference generation as a function of operational mode
 \end{comment}
@@ -277,7 +335,7 @@ where the remaining feedforward term is only present when known compensation tor
 
 
 
-\subsection{Formation Controller}
+\subsection{Formation-Keeping Controller}
 As described in Section \ref{sec:diff_perturb}, the absence of corrective maneuvers causes the relative geometry to drift away from the desired formation. Formation control is therefore required in the GNSS-R Formation Flight Simulator because the scientific mission concept depends on maintaining a prescribed leader-follower geometry over time. In this thesis, this is achieved using the Basilisk \texttt{spacecraftReconfig} module, which is an extended version of the spacecraft formation reconfiguration model described in \cite{schaub2018analytical} to account for the under-actuated control problem with only one static thrust vector. The control objective is formulated in terms of the orbital element difference between the two spacecraft, as introduced in Section \ref{sec:natural_rel_drift}. With $\boldsymbol{\alpha}_L$ and ${\boldsymbol{\alpha}_F}_i$ denoting the leader and follower $i$ orbital element vectors, respectively, the formation-relative orbital element difference is written as
 \begin{equation}
     \Delta \boldsymbol{\alpha} = {\boldsymbol{\alpha}_F}_i - \boldsymbol{\alpha}_L = \begin{bmatrix}
