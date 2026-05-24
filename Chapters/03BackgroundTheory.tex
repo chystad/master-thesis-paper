@@ -152,6 +152,15 @@ The inclination is the intersection angle between the orbital plane and the refe
 
 The argument of perigee specifies the orientation of the ellipse within the orbital plane. It is defined as the angle from the ascending node to the perigee along the orbital trajectory, where perigee is a term specific to Earth satellites, describing the point along the trajectory closest to Earth. Finally, the mean anomaly defines the orbiting body's position along the orbit as a function of time. It is defined as the elapsed fraction of the orbital period since the orbiting body passed the perigee \cite{curtis2005orbital, astronomicalreturns_orbitalelements}. 
 
+\begin{comment}
+WRITE A SMALL PARAGRAPH ABOUT THIS!!
+
+e ≈ 0  →  argument of periapsis ω poorly defined
+i ≈ 0  →  RAAN Ω poorly defined
+e ≈ 0 and i ≈ 0  →  both Ω and ω become poorly defined
+\end{comment}
+
+
 
  
 \newpage
@@ -260,8 +269,8 @@ individual contributions from each body. Using the major perturbing bodies for a
 
 
 \section{Differential Perturbations in Formation-Flying}
-Alfriend et al. refers to the generally agreed upon definition of spacecraft formation flying in \cite{alfriend2010} as: "The tracking or maintenance of a desired relative separation, orientation or
-position between or among spacecraft". It then follows that differential perturbations describe the relative effect of environmental accelerations acting on two satellites in formation, that cause the formation to naturally drift away from its desired geometry over time. The difference in experienced accelerations by the two spacecraft in formation can arise because the spacecraft occupy slightly different obits, positions, velocities and attitudes, or because they have different physical attributes. In formation-flying, even small prolonged differences in experienced acceleration can accumulate over many orbital periods to gradually change the radial, along- or cross-track separation. Differential perturbations therefore motivate the need for formation-control strategies to preserve the desired formation geometry within mission constraints. Since stronger natural drift generally requires more frequent or larger corrective measures, differential perturbations also become direct drivers for formation maintenance fuel consumption, and thus, also mission lifetime \cite{montenbruck2000, alfriend2010}. The following subsections will therefore summarize the most important differential perturbation effects for \gls{leo} orbiting formations.
+\label{sec:diff_perturb}
+Alfriend et al. refers to the generally agreed upon definition of spacecraft formation flying in \cite{alfriend2010} as: "The tracking or maintenance of a desired relative separation, orientation or position between or among spacecraft". It then follows that differential perturbations describe the relative effect of environmental accelerations acting on two satellites in formation, that cause the formation to naturally drift away from its desired geometry over time. The difference in experienced accelerations by the two spacecraft in formation can arise because the spacecraft occupy slightly different obits, positions, velocities and attitudes, or because they have different physical attributes. In formation-flying, even small prolonged differences in experienced acceleration can accumulate over many orbital periods to gradually change the radial, along- or cross-track separation. Differential perturbations therefore motivate the need for formation-control strategies to preserve the desired formation geometry within mission constraints. Since stronger natural drift generally requires more frequent or larger corrective measures, differential perturbations also become direct drivers for formation maintenance fuel consumption, and thus, also mission lifetime \cite{montenbruck2000, alfriend2010}. The following subsections will therefore summarize the most important differential perturbation effects for \gls{leo} orbiting formations.
 
 % Important to note difference between periodic motion and secular drift
 
@@ -283,6 +292,7 @@ Use the following sources:
 \end{comment}
 
 \subsection{Natural Relative Drift Under Ideal Two-Body Motion}
+\label{sec:natural_rel_drift}
 % Explain mean-motion drift, eccentricity differences, inclination differences, and RTN manifestation.
 
 % Hammerl and Schaub writes in \cite{schaub2026} "A difference in the semi-major axis of the two spacecraft results in drift motion in the along-track direction. In the most complex case for drift motion, the relative orbit is a spiral motion about the along-track direction"
@@ -292,7 +302,7 @@ Use the following sources:
 For a leader-follower spacecraft pair, the relative orbit can be described by the difference between their respective classic orbital elements. If the leader has orbital elements $\boldsymbol{\alpha}_L$, and the follower has $\boldsymbol{\alpha}_F$, the differential orbital elements can be expressed as
 \begin{equation}
     \Delta \boldsymbol{\alpha} = \boldsymbol{\alpha}_F - \boldsymbol{\alpha}_L = \begin{bmatrix}
-        \Delta a & \Delta e & \Delta i & \Delta \Omega & \Delta \omega & \Delta M_0
+        \delta a & \delta e & \delta i & \delta \Omega & \delta \omega & \delta M_0
     \end{bmatrix}^T
 \end{equation}
 where the components represent the differences in semimajor axis, eccentricity, inclination, \gls{raan}, argument of perigee and mean anomaly at a chosen epoch, respectively. Under the ideal two-body assumption, where the Earth is modeled as a spherical body and all perturbing forces from Section \ref{sec:orbital_perturb} are neglected, the only form of secular formation drift is caused by a difference in the semimajor axis. This is stated by Alfriend et al. in \cite{alfriend2010}, who explain that the drift only manifest in the along-track direction, resulting in continuous differential mean anomaly growth. This interpretation is also consistent with Hammerl \& Schaub, who show that the relative radial offset must be zero for bounded relative motion in \cite{schaub2026}.
@@ -339,6 +349,7 @@ where $||\textbf{a}_{D}||_2$ denotes the drag acceleration magnitude of the lead
 
 
 \section{GNSS-R Mission Concepts}
+\label{sec:gnssr_mission_concepts}
 % the spacecraft operational conditions required to enable future cooperative GNSS-R observations 
 
 \begin{figure}[H]

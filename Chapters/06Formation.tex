@@ -1,4 +1,5 @@
 TODO Insert a short introduction here
+TODO: Replace the architecture figures with one that uses "Queued runs complete?" check
 \begin{comment}
 * Declare some sort or terminology when referring to each simulation run inside Monte Carlo:
     - One Monte Carlo (MC) run corresponds to multiple gnss-r formation flying simulations, or simply multiple simulation runs. 
@@ -92,13 +93,13 @@ For later paragraphs: (avoid for now)
 
 
 
-\section{Electronic Power System}
-Power management is one of the key operational constraints for autonomous remote sensing satellite missions, since the available battery charge determines which operational modes can be safely executed. In the GNSS-R Formation Flight Simulator, the battery state therefore influences the spacecraft guidance logic by constraining transitions between internal pointing modes, which is described in Section \ref{sec:guidance_logic}. This section, however, focuses on how electrical power generation, storage and consumption are modeled for each spacecraft in the formation. Since these quantities depend directly on the assumed spacecraft hardware, the \gls{eps} model assumes the spacecraft component configuration presented in Section \ref{sec:spacecraft_config}.
+\section{Electronic Power System (EPS)} 
+Power management is one of the key operational constraints for autonomous remote sensing satellite missions, since the available battery charge determines which operational modes can be safely executed. In the GNSS-R Formation Flight Simulator, the battery state therefore influences the spacecraft guidance logic by constraining transitions between internal pointing modes, which is described in Section \ref{sec:operational_mode_logic}. This section, however, focuses on how electrical power generation, storage and consumption are modeled for each spacecraft in the formation. Since these quantities depend directly on the assumed spacecraft hardware, the \gls{eps} model assumes the spacecraft component configuration presented in Section \ref{sec:spacecraft_config}.
 
 
 
 \subsection{EPS Model Overview}
-The \gls{eps} model is implemented to track the high-level electrical power flow for each spacecraft. Its purpose is to estimate the remaining battery energy during the mission, rather than to model detailed electrical bus dynamics. An overview of the per-spacecraft \gls{eps} structure is shown in Figure \ref{fig:eps}. Here, the green module represents power sources, red and yellow modules represent constant and variable power sinks, and the blue module represents battery energy storage. The power management module at the center distributes power between all connected modules, but does not contribute to the net power itself. The individual power generation, storage, and consumption models are described in the following subsections.
+The \gls{eps} model is implemented to track the high-level electrical power flow for each spacecraft. Its purpose is to estimate the remaining battery energy during the mission, rather than to model detailed electrical bus dynamics. An overview of the per-spacecraft \gls{eps} structure is shown in Figure \ref{fig:eps}. Here, the green module represents power sources, red and yellow modules represent constant and variable power sinks, and the blue module represents battery energy storage. The power management module at the center represents the physical power distribution component included in the spacecraft configuration, but is not modeled with internal distribution logic, and does not contribute to the net power itself. The individual power generation, storage, and consumption models are described in the following subsections.
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{Figures/04Method/EPS overview.png}
@@ -116,7 +117,7 @@ Electrical power generation is modeled using the Basilisk solar panel module, wh
     W_{\mathrm{sp}} = W_{\mathrm{base}} C_{\mathrm{eclipse}} C_{\mathrm{panel}} 
     (\hat{\mathbf{n}} \cdot \hat{\mathbf{s}}) A_{\mathrm{panel}},
 \end{equation}
-where $W_{\mathrm{sp}}$ is the per-panel generated electrical power, $W_{\mathrm{base}}$ is the incident solar power per unit area, $C_{\mathrm{eclipse}}$ is the eclipse or shadow factor, $C_{\mathrm{panel}}$ is the solar panel conversion efficiency, $A_{\mathrm{panel}}$ is the panel area, $\hat{\mathbf{n}}$ is the panel normal vector, and $\hat{\mathbf{s}}$ is the Sun direction vector. The generated power is proportional to the cosine of the angle between $\hat{\mathbf{n}}$ and $\hat{\mathbf{s}}$ through their dot product, which makes the panel output attitude dependant. 
+Here, $W_{\mathrm{sp}}$ is the per-panel generated electrical power, $W_{\mathrm{base}}$ is the incident solar power per unit area, $C_{\mathrm{eclipse}}$ is the eclipse or shadow factor, $C_{\mathrm{panel}}$ is the solar panel conversion efficiency, $A_{\mathrm{panel}}$ is the panel area, $\hat{\mathbf{n}}$ is the panel normal vector, and $\hat{\mathbf{s}}$ is the Sun direction vector. The generated power is proportional to the cosine of the angle between $\hat{\mathbf{n}}$ and $\hat{\mathbf{s}}$ through their dot product, which makes the panel output attitude dependant. 
 
 The generated power from all solar panel modules is accumulated by the battery model. The battery energy rate of change is given by the instantaneous balance between total generated and consumed power,
 \begin{equation}
@@ -130,15 +131,26 @@ where $W_{\mathrm{generated}}$ is the total electrical power produced by solar p
 
 \subsection{Power Consumption}
 \begin{comment}
-This subsection should cover the following power consumption models:
-* The on-board computer (OBC) module is approximated with a constant power draw
+TODO: Add a single paragraph for the heater consumption. Because I haven't implemented a battery temperature sensor, make an assumption that the battery heater will be on 1/4 of the orbital period. Using this assumption, the heating power consumption can be model as a constant power draw:
+\begin{equation}
+    W_\mathrm{bat,heating} = 1/4 C_\mathrm{bat,heating}
+\end{equation}
+
 
 \end{comment}
+
 
 The \gls{obc} is modeled as a constant power sink. This represents the baseline electrical load required to keep the spacecraft operational, independent of attitude, illumination conditions, or operational mode. The constant power draw $C_{\mathrm{OBC}}$ is therefore always included in the total consumed power.
 \begin{equation}
     W_{\mathrm{OBC}} = C_{\mathrm{OBC}}
 \end{equation}
+
+
+The battery heater is modeled as an averaged constant power sink. Since no battery temperature sensor or thermal model is implemented, the heater duty cycle is approximated by assuming that the battery heater is active for one quarter of each orbital period. Under this assumption, the heating contribution to the total consumed power is modeled as
+\begin{equation}
+    W_{\mathrm{bat,heating}} = \frac{1}{4} C_{\mathrm{bat,heating}},
+\end{equation}
+where \(C_{\mathrm{bat,heating}}\) is the nominal heater power when active. This approximation captures the average energy cost of battery heating without resolving temperature-dependent heater switching.
 
 
 The payload power consumption is modeled as a mode-dependent power sink. When the spacecraft is performing data capture, the payload is assumed to draw the constant power $C_{\mathrm{payload}}$. Outside this mode, the payload is treated as inactive and does not contribute to the power consumption.
@@ -155,17 +167,17 @@ The reaction wheel power consumption is modeled using the Basilisk reaction whee
 \begin{equation}
 W_{\mathrm{RW}} = \begin{cases}
     W_{\mathrm{base}} + \dfrac{W_{\mathrm{mech}}}{\eta_{e2m}}, & W_{\mathrm{mech}} > 0 \\[6pt]
-    W_{\mathrm{base}}, & W_{\mathrm{mech}} < 0
+    W_{\mathrm{base}}, & W_{\mathrm{mech}} \leq 0
     \end{cases}   
 \end{equation}
 
 
 The propulsion system power consumption is modeled using three discrete draw states. During propellant heating, the propulsion system draws a constant heater power to prepare the system for maneuver execution. During an active thrust maneuver, the power draw is set to the maneuver power level, representing the electrical load associated with firing the propulsion system. Outside heating and maneuver execution, the propulsion system remains in an idle state with a lower constant standby consumption.
 \begin{equation}
-    W_{prop} = \begin{cases}
-        C_{prop\_heating} & \text{during propellant heating}\\
-        C_{prop\_thrusting} & \text{during thrust}\\
-        C_{prop_idle} \quad & \text{otherwise}
+    W_{\mathrm{prop}} = \begin{cases}
+        C_{\mathrm{prop,heating}} & \text{during propellant heating}\\
+        C_{\mathrm{prop,thrusting}} & \text{during thrust}\\
+        C_{\mathrm{prop,idle}} \quad & \text{otherwise}
     \end{cases} 
 \end{equation}
 
@@ -190,14 +202,112 @@ Finally, The total consumed power $W_{\mathrm{consumed}}$ used in Equation \ref{
 * Guidance pointing logic w. all states and mode transitions
 * MRP feedback pointing controller 
 * Formation control 
+* Clarify that this section will present a high-level understandig of the different flight software modules, but omit the message wiring required by the Basilisk framework. 
 \end{comment}
 
-\subsection{Pointing Guidance Logic}
-\label{sec:guidance_logic}
+
+\subsection{Operational Mode Switching Logic}
+\label{sec:operational_mode_logic}
+The GNSS-R Formation Flight Simulator implements the mission-level operational constraints through a rule-based operational mode switching logic. This logic determines which high-level activity each spacecraft should perform at a given time, and thereby replaces a predefined operations timeline with autonomous decision-making based on the simulated spacecraft state and environment. This is important because the feasibility of GNSS-R observations, communication sessions, charging periods, and formation-maintenance maneuvers depends on time-varying conditions such as battery state, illumination, ground-station visibility, and maneuver requests. By evaluating these conditions during simulation execution, each spacecraft can adapt its operational mode to the current mission state, providing a more realistic representation of autonomous small-satellite operations than a fixed sequence of scheduled activities.
+
+
+\begin{comment}
+1st paragraph (Describe the purpose of the mode switching logic)
+* Explain that the actual implementation of the GNSS-R operational constraints can be attributed to the operational mode switching logic, which will be explained in this section
+* Its purpose is to make the mission simulation autonomous, rather than having them follow a pre-defined timeline. This increases adaptability and realism
+
+
+2nd paragraph (Describe each operational mode + coupling to other subsystems)
+
+* coast
+    - 
+* communication
+* charge
+* capture
+* cooperative capture
+* burn transit
+* burn
+* emergency
+
+
+3rd paragraph (Describe decision inputs, or rather, inputs that influence the mode switching logic)
+
+
+4th paragraph (Present the conditions to trigger transitions between operational modes)
+
+\end{comment}
+
+
+\subsection{Pointing Guidance System}
+\begin{comment}
+This subsection will describe the attitude reference generation as a function of operational mode
+\end{comment}
+
+
 
 \subsection{MRP Feedback Pointing Controller}
+Each spacecraft must be able to track the attitude reference generated by the pointing guidance system for the active operational mode. This is achieved using Basilisk's \texttt{mrpFeedback} module, which implements a nonlinear attitude feedback controller based on the \gls{mrp} attitude and body frame angular-rate tracking error. The commanded body torque is computed using the control law presented in \cite{mrpFeedback}
+\begin{equation}
+\begin{split}
+    \mathbf{L}^b = &-K\boldsymbol{\sigma_{e}} - [P]\boldsymbol{\omega_e} - [P][K_I]\mathbf{z_e} - [I_{RW}]\left(-\dot{\boldsymbol{\omega}}_{R/n} + [\tilde{\boldsymbol{\omega}}]\boldsymbol{\omega}_{R/n}\right)\\ 
+    &- \mathbf{L_{ff}} + \left([\tilde{\boldsymbol{\omega}}_{R/n}] + [K_I\mathbf{z}]\right)\left([I_{RW}]\boldsymbol{\omega_{b/n}} + [G_s]\mathbf{h}_s\right)
+\end{split}
+\label{eq:full_pointing_control_law}
+\end{equation}
+In this expression, $\mathbf{L}^{b}$ is the requested control torque expressed in the spacecraft body frame, $\boldsymbol{\sigma}_{e}$ is the \gls{mrp} attitude tracking error, and $\boldsymbol{\omega}_{e}$ is the body-frame angular-rate tracking error. The controller gains are given by the proportional gain $K$, the rate-feedback gain matrix $[P]$, and the integral gain matrix $[K_I]$, while $\mathbf{z}_{e}$ denotes the integral error state. The matrix $[I_{RW}]$ represents the spacecraft inertia including the reaction-wheel contribution, $\boldsymbol{\omega}_{R/n}$ is the angular velocity of the reference frame relative to the inertial frame, and $\boldsymbol{\omega}_{b/n}$ is the spacecraft body angular velocity relative to the inertial frame. The reaction-wheel geometry matrix $[G_s]$ maps the wheel angular momentum vector $\mathbf{h}_s$ into the body frame. Finally, $\mathbf{L}_{\mathrm{ff}}$ represents the feedforward compensation torque, which account for known external torques such as modeled disturbance torques, and reaction-wheel gyroscopic effects.
+
+In the simulator implementation, the integral feedback is disabled by setting $[K_I]=0$. In addition, the pointing guidance system only defines the reference attitude, while the reference-frame angular velocity and angular acceleration are set to zero. This gives $\boldsymbol{\omega}_{R/n}=\mathbf{0}$ and $\dot{\boldsymbol{\omega}}_{R/n}=\mathbf{0}$, which removes the reference-motion feedforward terms from Equation~\ref{eq:full_pointing_control_law}. The implemented attitude controller can therefore be written as the simplified PD-type feedback law
+\begin{equation}
+    \mathbf{L}^b = -K\boldsymbol{\sigma_{e}} - [P]\boldsymbol{\omega_e} - \mathbf{L}_{\mathrm{ff}},
+    \label{eq:simplified_pointing_control_law}
+\end{equation}
+where the remaining feedforward term is only present when known compensation torques are supplied. Under the assumptions stated in the Basilisk module documentation, the tracking control law can be shown to be asymptotically stable using the provided Lyapunov candidate function.
+\begin{comment}
+1st paragraph:
+* Motivate the implementation of this controller by explaining that each spacecraft must be able to track different pointing objectives depending on the active operational mode.
+* Do not give any concrete examples, this subsection will be purely focused on explaining how the MRP feedback controller works
+* Introduce the Basilisk mrpFeedback module as the implemented attitude control system. 
+* Explain that this feedback control scheme is a nonlinear controller, and present the full control law presented in: https://avslab.github.io/basilisk/Documentation/fswAlgorithms/attControl/mrpFeedback/mrpFeedback.html
+* Explain the different symbols. Explicitly state that L_ff is a feedforward compensation term for known external torques, including RW gyroscopic effect and modeled environmental torques. 
+* Explain that the simulator implementation has been configured such that the integral feedback is disabled and the pointing guidance system assumes that the reference frame is stationary relative to the inertial frame (omega_R/n = 0). This means that the control law in Equation \ref{eq:full_pointing_control_law} can be simplified to a PD controller
+* insert eq:simplified_pointing_control_law here
+* Finally, point out that it can be shown that the controller is Asymptotically stable (AS) using the Lyapunov candidate function given in the Basilisk source.
+* insert lyapunov candidate function here
+\end{comment}
+
+
 
 \subsection{Formation Controller}
+As described in Section \ref{sec:diff_perturb}, the absence of corrective maneuvers causes the relative geometry to drift away from the desired formation. Formation control is therefore required in the GNSS-R Formation Flight Simulator because the scientific mission concept depends on maintaining a prescribed leader-follower geometry over time. In this thesis, this is achieved using the Basilisk \texttt{spacecraftReconfig} module, which is an extended version of the spacecraft formation reconfiguration model described in \cite{schaub2018analytical} to account for the under-actuated control problem with only one static thrust vector. The control objective is formulated in terms of the orbital element difference between the two spacecraft, as introduced in Section \ref{sec:natural_rel_drift}. With $\boldsymbol{\alpha}_L$ and ${\boldsymbol{\alpha}_F}_i$ denoting the leader and follower $i$ orbital element vectors, respectively, the formation-relative orbital element difference is written as
+\begin{equation}
+    \Delta \boldsymbol{\alpha} = {\boldsymbol{\alpha}_F}_i - \boldsymbol{\alpha}_L = \begin{bmatrix}
+        \delta a & \delta e & \delta i & \delta \Omega & \delta \omega & \delta M_0
+    \end{bmatrix}^T .
+    \label{eq:formation_oe_diff}
+\end{equation}
+Using this notation, the control objective can be written as
+% \begin{equation}
+%     {\boldsymbol{\alpha}_F}_i(t) - \boldsymbol{\alpha}_L(t) = \Delta\boldsymbol{\alpha}_R(t), \qquad  t \rightarrow \infty
+% \end{equation}
+\begin{equation}
+    \Delta\boldsymbol{\alpha}(t) = \Delta\boldsymbol{\alpha}_R,
+    \qquad t \rightarrow \infty .
+\end{equation}
+The \texttt{spacecraftReconfig} module achieves this objective by computing a sequence of impulsive maneuvers that drive the current orbital element difference toward the desired target difference $\Delta\boldsymbol{\alpha}_R$ within approximately one orbital period \cite{spacecraftReconfig}. The module should therefore be interpreted as an orbital element-based maneuver scheduler rather than a continuous Cartesian relative-motion controller. As will be described in further detail in Section \ref{sec:spacecraft_config}, the simulated spacecraft is configured with a single body-fixed thruster. Therefore, the module also computes an attitude reference to align the body thrust direction with the desired impulse direction before the maneuver is executed. In the simulator, the resulting maneuver request is passed through the operational mode logic before the thruster is commanded, such that formation-control burns remain coupled to attitude pointing, fuel availability, propulsion-system state, and battery constraints.
+
+The module also introduces several assumptions and limitations that constrain how the spacecraft orbits and components are configured, and influence how the results should be interpreted. First, the method is formulated using classical orbital elements, and is therefore not applicable to near-circular or near-equatorial orbits where these elements become poorly defined. Second, the reconfiguration strategy is based on impulsive maneuver planning, while the Basilisk implementation approximates each impulse using steady thrust over a finite time interval. This results in non-optimal orbital reconfigurations, especially for weaker thrust-to-weight ratio configurations. Thus, the maneuver fuel consumption should therefore be interpreted as a mission-level approximation of the formation-maintenance cost rather than an exact optimal maneuver solution.
+
+\begin{comment}
+1st paragraph (merging your proposed 1st and 2nd paragraphs):
+* Motivate the inclusion of a formation control module by stating that it is an absolute necessity because it enables fuel expenditure to obtain and maintain relative GNSS-R formation geometry (something like that)
+* State that the Basilisk moduele spacecraftReconfig is the implemented simulator formation control algorithm. 
+* Explain this module's control objective: achieving a desired leader-follower orbital element difference 
+* Reiterate the orbital element difference definition  presented in Section \ref{sec:natural_rel_drift} between a leader and follower spacecraft
+    - insert equation \ref{eq:formation_oe_diff} here
+
+
+2nd paragraph (This paragraph should explain how the formation control actually works, how is the control objective achieved)
+\end{comment}
 
 \section{Simulator inputs}
 
