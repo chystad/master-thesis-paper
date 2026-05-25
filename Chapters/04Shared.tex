@@ -14,11 +14,53 @@ Introduction to the chapter should contain the following:
 % NB TODO: "research objectives" is used here. Is this the term that will be used???
 To address the research objectives of this thesis, two distinct simulators were developed. The first simulator, referred to as the Comparative Propagation Simulator, is used to evaluate the long time translational prediction accuracy of the Basilisk numerical propagator by comparing its propagated spacecraft states against a Skyfield SGP4 baseline. The second simulator, referred to as the GNSS-R Formation Flight Simulator, extends the Basilisk-based simulation framework to model the autonomous operation of a dual-satellite GNSS-R formation mission subject to realistic operational constraints, with particular emphasis on formation-keeping fuel consumption and mission lifetime estimation. 
 
-Although the two simulators differ in purpose and implementation complexity, they share the same Basilisk spacecraft configuration, orbital environment models, and numerical integration setup. This chapter therefore presents the shared physical and numerical foundation in more detail. This common configuration is used to ensure that the propagation behavior assessed in the Comparative Propagation Simulator is directly transferable to the GNSS-R Formation Flight Simulator. However, it is important to note that the shared models presented in this chapter only apply to the Basilisk-based parts of the simulation framework. The Skyfield SGP4 propagation used in the comparative analysis is instead determined by the TLE data and the SGP4 model, and is therefore not configured using the same spacecraft, environmental perturbation, or numerical integration models.
+Although the two simulators differ in purpose and implementation complexity, they share the same Basilisk spacecraft configuration, orbital environment models, and numerical integration setup. This chapter therefore presents the shared physical and numerical foundation in more detail. This common configuration is used to ensure that the propagation behavior assessed in the Comparative Propagation Simulator is directly transferable to the GNSS-R Formation Flight Simulator. However, it is important to note that the shared models presented in this chapter only apply to the Basilisk-based parts of the simulation framework. The Skyfield SGP4 propagation used in the comparative analysis is instead determined by the TLE data and the SGP4 model, and is therefore not configured using the same spacecraft or numerical integration method.
 
 
 \section{Shared Spacecraft Configuration}
 \label{sec:spacecraft_config}
+\begin{comment}
+* Mention that all spacecraft in any of the simulators are exact replicas 
+\end{comment}
+
+
+
+\subsection{Spacecraft Platform}
+\begin{comment}
+* 6U satellite without tuna-can
+* Drag coefficient = 2.2 based on the Montenbruck \& Gill crude estimate range of 2.1-2.3 sf
+* Body frame definition
+\end{comment}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.4\textwidth]{Figures/04Method/Body frame 2.png}
+    \caption{6U spacecraft body frame definition used for both simulators. Adopted from \cite{orbitalSystems6UCubeSat}}
+    \label{fig:body_def} 
+\end{figure}
+
+\subsection{Component Selection Method}
+\begin{comment}
+* How set of general components were selected based on gnss-r mission requirements
+* How specific hardware was selected within satellite platform constraints and mission requirements 
+(An example of a distinction between the two points is: in the first point, we decide that we need a general thruster, while in the secon point we perform a trade-off to see that we need a cold gas thruster AND find hardware that fit. However, do not mention any actual hardware, but point to table in appendix with all hardware parameter details)
+\end{comment}
+
+
+\subsection{Component Mounting Configuration}
+\begin{comment}
+* Describe where all components are mounted, and why this is the case
+\end{comment}
+
+
+\subsection{Mass Budget \& Inertia Estimate}
+\begin{comment}
+* Using the components found, create a mass budget
+* Assume uniform density to compute an inertia estimate
+\end{comment}
+
+
+
 
 \begin{comment}
 
@@ -58,19 +100,14 @@ I don't know how to structure this section yet, but here's what I want to be inc
 Also state that all EPS, ADCS and propulsion subsystem dynamics are disabled for the comparative propagator.
 \end{comment}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.4\textwidth]{Figures/04Method/Body frame def.png}
-    \caption{6U spacecraft body frame definition used for both simulators. Courtesy of \cite{nanoavionics6U}}
-    \label{fig:body_def} 
-\end{figure}
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=0.4\textwidth]{Figures/04Method/Body frame def.png}
+%     \caption{6U spacecraft body frame definition used for both simulators. Courtesy of \cite{nanoavionics6U}}
+%     \label{fig:body_def} 
+% \end{figure}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.4\textwidth]{Figures/04Method/Body frame 2.png}
-    \caption{6U spacecraft body frame definition used for both simulators. Adopted from \cite{orbitalSystems6UCubeSat}}
-    \label{fig:body_def} 
-\end{figure}
+
 
 
 % \section{(Not a priority) Shared Orbital Environment Models and Perturbation Effectors}
@@ -101,6 +138,6 @@ State the numerical integrator configuration:
 \end{comment}
 The dynamics in both Basilisk-based simulators are propagated using the same numerical integration configuration. This choice is based on the numerical sensitivity analysis conducted in the specialization project \cite{hystad2025}, where several Basilisk integration settings were compared for the same orbital propagation scenario. The results showed that the low-step-size RK4 configurations and the variable-step RKF45 and RKF78 integrators converged toward the same Earth-relative and Formation-relative solutions. In contrast, fixed-step RK4 configurations with step sizes larger than 5 seconds produced more visible deviations. The study therefore concluded that numerical integration uncertainty was insignificant compared to the differences introduced by orbital perturbation selection over a 96-hour time span.
 
-Although these results suggest that several numerical integration configurations would be sufficient for the translational propagation problem alone, the simulators developed in this thesis impose stricter requirements on the numerical setup. In the Comparative Propagation Simulator, the inclusion of the NRLMSISE-00 atmosphere model introduces atmospheric density variations that are not present in the simpler propagation configurations considered previously. In the GNSS-R Formation Flight Simulator, the same orbital propagation is further coupled to fast attitude dynamics, actuator models, power generation, and autonomous mode switching. These additional models introduce faster dynamics, making it necessary to choose a conservative integration configuration that remains robust across both simulators.
+Although these results suggest that several of the tested numerical integration configurations would be sufficient for the translational propagation problem alone, the simulators developed in this thesis impose stricter requirements on the numerical setup. In the Comparative Propagation Simulator, the inclusion of the NRLMSISE-00 atmosphere model introduces atmospheric density variations that are not present in the simpler propagation configurations considered previously. In the GNSS-R Formation Flight Simulator, the same orbital propagation is further coupled to fast attitude dynamics, actuator models, power generation, and autonomous mode switching. These additional models introduce faster dynamics, making it necessary to choose a conservative integration configuration that remains robust across both simulators.
 
 Based on these considerations, both Basilisk-based simulators use the RKF78 variable-step integrator with a maximum step size of 0.5 seconds. A variable-step integrator is selected because it provides high accuracy during dynamically demanding parts of the simulation, such as attitude transitions and formation-keeping maneuvers, while allowing longer internal step sizes during less dynamic coasting or idle periods. This adaptivity is important for reducing computational cost over the long simulation horizons considered in this thesis. The RKF78 method is chosen because a high-precision integration method is desirable when propagating spacecraft trajectories over long time intervals, and because formation-control performance depends directly on accurate relative positioning between the leader and follower satellites. This justifies the increased computational cost per integration step. Finally, the maximum step size is limited to 0.5 seconds as a numerical safeguard against instability in the reaction wheel actuator dynamics used in the GNSS-R Formation Flight Simulator. Although this constraint is only required for the full formation-flight simulator, the same maximum step size is also used in the Comparative Propagation Simulator to ensure that results from the two simulators remain directly comparable.

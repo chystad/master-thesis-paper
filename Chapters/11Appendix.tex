@@ -41,9 +41,10 @@ All simulator code and LaTeX-files used in the thesis provided by the GitHub rep
 
 
 \clearpage
-\section*{Simulator Basilisk Process-Task-Model Structure}
+\section*{C - Simulator Basilisk Process-Task-Model Structure}
+\addcontentsline{toc}{chapter}{\protect\numberline{}C - Simulator Basilisk Process-Task-Model Structure} 
 
-\subsection*{Comparative Propagation Simulator}
+\subsection*{\hl{Comparative Propagation Simulator}}
 % Todo
 
 \subsection*{GNSS-R Formation Flight Simulator}
@@ -83,6 +84,179 @@ All simulator code and LaTeX-files used in the thesis provided by the GitHub rep
     \caption{\hl{TODO: Update and verify after simulator update. Hierarchical process-task-model structure of the GNSS-R formation flight Basilisk simulator. The number in square brackets denote the model priority, where higher priority models are updated first. Same-priority tasks are orderly updated from the top-down within a task. ``\textit{<sat\_idx>}'' represents per-spacecraft processes and tasks.}}
     \label{fig:formfly_process_hierarchy}
 \end{figure}
+
+
+\clearpage
+\section*{\hl{D - Spacecraft Component Parameters}}
+\addcontentsline{toc}{chapter}{\protect\numberline{}\hl{D - Spacecraft Component Parameters}}
+
+\newcommand{\tcell}[1]{\begin{tabular}[t]{@{}l@{}}#1\end{tabular}}
+\begingroup
+\small
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+
+\begin{xltabular}{1.08\textwidth}{
+    |>{\raggedright\arraybackslash}p{3.0cm}
+    |>{\raggedright\arraybackslash}p{1.3cm}
+    |>{\raggedright\arraybackslash}p{2.0cm}
+    |>{\raggedright\arraybackslash}X
+    |>{\raggedright\arraybackslash}p{3.0cm}|
+}
+    \caption{Overview of spacecraft components and relevant parameters.}
+    \label{tab:spacecraft_component_overview} \\
+
+    \hline
+    \rowcolor{blue!15}
+    \textbf{\tcell{Component}} &
+    \textbf{\tcell{Mass\\$[\mathrm{g}]$}} &
+    \textbf{\tcell{Power\\consumption}} &
+    \textbf{\tcell{Important parameters}} &
+    \textbf{\tcell{Based on}} \\
+    \hline
+    \endfirsthead
+
+    \hline
+    \rowcolor{blue!15}
+    \textbf{\tcell{Component}} &
+    \textbf{\tcell{Mass\\$[\mathrm{g}]$}} &
+    \textbf{\tcell{Power\\consumption}} &
+    \textbf{\tcell{Important parameters}} &
+    \textbf{\tcell{Based on}} \\
+    \hline
+    \endhead
+
+    \hline
+    \multicolumn{5}{r}{\textit{Continued on next page}} \\
+    \endfoot
+
+    \hline
+    \endlastfoot
+
+    Frame (Structural) &
+    665 &
+    -- &
+    \begin{itemize}[leftmargin=*, nosep, topsep=0pt, partopsep=0pt]
+        \item Dim. [mm]: $226.3 \times 340.5 \times 100.0$
+    \end{itemize} &
+    GomSpace NanoStructure 6U \\
+    \hline
+
+    Power distribution (EPS) &
+    80 &
+    -- &
+    \begin{itemize}[leftmargin=*, nosep, topsep=0pt, partopsep=0pt]
+        \item Dim. [mm]: $90 \times 96 \times 19.8$
+        \item Only support one single connected battery
+    \end{itemize} &
+    GomSpace NanoPower dock + 1ACU + 1PCU \\
+    \hline
+
+    Battery (EPS) &
+    500 &
+    \tcell{6 W\\(Heater)} &
+    \begin{itemize}[leftmargin=*, nosep, topsep=0pt, partopsep=0pt]
+        \item Dim. [mm]: $93 \times 86 \times 41$
+        \item 100 Wh, with 86 Wh in desired operating range
+        \item 3500 mAh, with 3000 mAh in desired operating range
+    \end{itemize} &
+    NanoPower BPX 100 Wh \\
+    \hline
+
+    Solar panels BIG (EPS) &
+    392 &
+    \tcell{19.2 W\\(Max)} &
+    \begin{itemize}[leftmargin=*, nosep, topsep=0pt, partopsep=0pt]
+        \item Dim. [mm]: $200 \times 300$
+        \item 30\% efficiency
+    \end{itemize} &
+    EnduroSat 6U solar panel \\
+    \hline
+
+    Solar panels SMALL (EPS) &
+    $2 \times 147$ &
+    \tcell{8.4 W\\(Max)} &
+    \begin{itemize}[leftmargin=*, nosep, topsep=0pt, partopsep=0pt]
+        \item Dim. [mm]: $100 \times 300$
+        \item 30\% efficiency
+    \end{itemize} &
+    EnduroSat 3U solar panel \\
+    \hline
+
+    RWs (AOCS) &
+    $4 \times 144$ &
+    \tcell{0.336 W\\(avg. at\\2000 rpm)\\[0.3em]7.2 W\\(Max)} &
+    \begin{itemize}[leftmargin=*, nosep, topsep=0pt, partopsep=0pt]
+        \item Dim. [mm]: $46 \times 46 \times 24$
+        \item 16.2 mNms at 6 krpm
+        \item 10,000 rpm max
+        \item 7 mNm max torque
+        \item 4 in pyramid configuration
+    \end{itemize} &
+    CubeSpace CW0162 \\
+    \hline
+
+    Propulsion system (AOCS) &
+    \tcell{1430\\dry\\[0.3em]2065\\wet} &
+    \tcell{$<1$ W\\(idle)\\[0.3em]20 W\\(warmup)\\[0.3em]4.3 W\\(operating)} &
+    \begin{itemize}[leftmargin=*, nosep, topsep=0pt, partopsep=0pt]
+        \item Dim. [mm]: $99.8 \times 92.8 \times 143.5$
+        \item Hybrid Micro Propulsion System (MiPS)
+        \item 1 100 mN green monopropellant thruster
+        \item 4 25 mN cold gas thrusters
+        \item 783 Ns total impulse
+        \item $\sim$133 Isp
+    \end{itemize} &
+    VACCO ArgoMoon propulsion system \\
+    \hline
+
+    OBC &
+    240 &
+    \tcell{2 W\\(idle)} &
+    \begin{itemize}[leftmargin=*, nosep, topsep=0pt, partopsep=0pt]
+        \item Dim. [mm]: $95 \times 95 \times 24.2$
+    \end{itemize} &
+    GomSpace NanoMind HP MK3 \\
+    \hline
+
+    Radio antenna (Comms) &
+    2.2 &
+    \tcell{4 W\\(max)} &
+    \begin{itemize}[leftmargin=*, nosep, topsep=0pt, partopsep=0pt]
+        \item Dim. [mm]: $24 \times 24 \times 5.6$
+        \item Single X-band patch
+        \item $74^\circ$ half power beamwidth
+        \item 6 dBi gain
+        \item Up to 4 W
+    \end{itemize} &
+    EnduroSat X-band patch antenna \\
+    \hline
+
+    Zenith GNSS antenna (Payload) &
+    114 &
+    \hl{idk} &
+    \begin{itemize}[leftmargin=*, nosep, topsep=0pt, partopsep=0pt]
+        \item Dim. [mm]: $70 \times 70 \times 10$
+        \item L1+L2
+        \item 100--105 deg HPBW
+        \item 3.3--4.0 dBi gain
+        \item RHCP
+        \item Passive
+    \end{itemize} &
+    GNSS patch antenna L1+L2 \\
+    \hline
+
+    Nadir GNSS-R antenna (Payload) &
+    \hl{idk} &
+    \hl{idk} &
+    \begin{itemize}[leftmargin=*, nosep, topsep=0pt, partopsep=0pt]
+        \item 12 dBi gain
+        \item $3 \times 2$ microstrip patch array
+    \end{itemize} &
+    -- \\
+
+\end{xltabular}
+\endgroup
 
 % \clearpage
 % \section*{C - Numerical Values}
