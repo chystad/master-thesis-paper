@@ -1,30 +1,46 @@
-TODO Insert a short introduction here
-TODO: Replace the architecture figures with one that uses "Queued runs complete?" check
+The GNSS-R Formation Flight Simulator is developed to estimate the operational lifetime of a realistic dual-satellite GNSS-R formation-flying mission. While the Comparative Propagation Simulator establishes confidence in the Basilisk translational propagation environment, the formation flight simulator extends this environment into a closed-loop mission simulation where orbital motion, attitude dynamics, power availability, actuator usage, and autonomous operational decisions are evaluated together. The following sections describe the simulator architecture and the implemented modules that enable mission lifetime analysis. These include an operational mode switching logic that selects spacecraft activities based on environmental, temporal, and battery constraints, an \gls{eps} model that tracks power generation, storage, and consumption, and the \gls{gnc} functionality required for pointing and formation maintenance. The latter includes a pointing guidance system for generating attitude references from the active operational mode, an \gls{mrp} feedback pointing controller for attitude tracking, and a formation controller for obtaining and maintaining the desired leader-follower geometry.
+
+The implemented mission logic, \gls{eps} and \gls{gnc} depend on the spacecraft components available to each satellite. This chapter therefore assumes that each spacecraft is equipped with a propulsion system consisting of a propellant tank and thruster, a three-axis controllable \gls{rw} configuration, an \gls{obc}, solar panels, a battery pack with a built-in heating element, a power distribution module, a radio communication antenna, and a payload consisting of a high-gain \gls{gnssr} receiver and a lower-gain \gls{gnss} receiver. These components are introduced here only to clarify the subsystem models referenced throughout the chapter, while their exact hardware values and mounting configuration are described later in Section \ref{sec:spacecraft_config}. Finally, throughout this chapter, the term simulator refers to one complete \gls{mc} campaign, consisting of multiple \gls{gnssr} formation-flight simulation runs. Each simulation run corresponds to one complete Basilisk execution with a resolved set of configuration parameters.
 \begin{comment}
-* Declare some sort or terminology when referring to each simulation run inside Monte Carlo:
-    - One Monte Carlo (MC) run corresponds to multiple gnss-r formation flying simulations, or simply multiple simulation runs. 
+1st paragraph
+* Motivate the need for the GNSS-R formation flight simulator in order to estimate mission lifetime of a realistic mission 
+* State that the following sections will cover the simulator architecture, and its most important implemented modules that enable the lifetime analysis of a realistic GNSS-R formation flight mission. 
+* Very briefly explain each enabling module:
+    - Autonomous selection of operational mode based on environmental, temporal and battery constraints
+    - Electroninc power system
+    - GNC, which includes a pointing guidance system for generating the desired attitude as a function of the active operational mode, \gls{mrp} feedback pointing controller for achieving the desired attitued and a formation-keeping controller to obtain and maintain the desired formation geometry 
+
+2nd paragraph
+* Explain that these enabling modules are dependent on the components included on the spacecraft. This section therefore assumes that the spacecraft has the following components:
+    - A propulsion system consisting of a propellant tank and thruster
+    - A three-axis controllable \gls{rw} configuration 
+    - An \gls{obc}
+    - Solar panels
+    - Battery pack with a built-in heating element
+    - A Power distribution module
+    - Radio communications antenna
+    - A payload consisting of a high-gain \gls{gnssr} receiver and a lower-gain \gls{gnss} receiver
+* However, the exact component parameters and mounting configuration is described in Section \ref{sec:spacecraft_config}.
+* Declare some terminology used in this section
+    - One Monte Carlo (MC) run corresponds to multiple \gls{gnssr} formation flying simulations, or simply, multiple simulation runs. 
     - Simulator is used to refer to the entire thing, which is the same as saying one MC run. 
-* Declare definition of environmental, dynamics, fsw, model
-* State exactly what spacecraft components are assumed to be included, and direct to another Section for actual component parameters
+
 \end{comment}
 
 
 
 \section{Simulation Architecture}
-
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{Figures/04Method/Abstracted formation flight simulator.png}
     \caption{Simplified GNSS-R formation flight simulator flow diagram}.
     \label{fig:simple_formfly_flow} 
-\end{figure}
-
+\end{figure} \vspace{-10.0pt}
 The high-level execution flow of the GNSS-R Formation Flight Simulator is shown in Figure \ref{fig:simple_formfly_flow}. The simulator is organized into five main program blocks: initialization of the \gls{mc} simulation environment, resolution of the current simulation run configuration, initialization of the formation flight simulator, execution of the formation flight simulator, and evaluation of whether additional \gls{mc} runs remain. These blocks can be divided into two main parts, separated by the vertical dashed line in the detailed flowchart in Figure \ref{fig:formfly_flow}. The left part acts as a simulation run orchestrator, where the \gls{mc} environment is configured, and all run-specific configuration files are prepared. The right part represents the iterative execution of individual simulation runs, where each run is initialized, executed, and written to file before the next queued run is started. As in the Comparative Propagation Simulator architecture presented in Section \ref{sec:propagator_architecture}, the detailed flowchart is divided into vertically stacked layers representing input files, internal object instances, program blocks, transferred output objects, and generated output files. However, unlike the Comparative Propagation Simulator, the GNSS-R Formation Flight Simulator does not include a separate Skyfield propagation module, but is built entirely upon the Basilisk framework.
-
 \begin{figure}[H]
     \centering
     \includegraphics[width=1.0\textwidth]{Figures/04Method/Formation Flight Simulator.png}
-    \caption{Detailed GNSS-R formation flight simulator flow diagram}.
+    \caption{Detailed GNSS-R formation flight simulator flow diagram. A full-size version of this diagram is shown in the Appendix Figure \ref{fig:full_size_formfly_flow}}.
     \label{fig:formfly_flow} 
 \end{figure}
 
@@ -119,7 +135,7 @@ The simulator uses eight operational modes, each representing a distinct mission
         Comms & Communication system & Communication & Sun-pointing \\
         Burn transit & Propulsion heating & Burn-pointing & Sun-pointing \\
         Burn & Propulsion thrusting & Burn-pointing & Sun-pointing \\
-        Emergency & -- & Safe mode & -- \\
+        Emergency & -- & -- & -- \\
         \bottomrule
     \end{tabular}
 
@@ -133,48 +149,97 @@ The simulator uses eight operational modes, each representing a distinct mission
 \subsection{Mode Switching Logic}
 The mode switching logic is built around a set of logical parameters, here referred to as switching parameters, which determine whether transitions between operational modes are feasible. These parameters are divided into three groups depending on what part of the simulation state they depend on. The first group consists of environmental switching parameters, which are determined by spatial or illumination conditions. The parameter \texttt{canCap} indicates whether scientific data capture is feasible. In a full GNSS-R mission simulator, this would require a \gls{gnss} satellite to be within the \gls{gnss} receiver field of view and the corresponding specular reflection point to be within the \gls{gnssr} receiver field of view. Since GNSS satellite constellations are not modeled in this simulator, data capture is assumed to be geometrically feasible whenever it is requested. The parameter \texttt{canCom} is true when at least one ground station has direct line of sight to the spacecraft, and its elevation angle is greater than $10^\circ$ above the horizon. Finally, \texttt{canChar} indicates whether charging is possible, which requires the spacecraft to be fully or partially illuminated by the Sun. 
 
-The second group consists of battery switching parameters, which determine whether the remaining battery energy is sufficient to permit different operations. In this group, \texttt{capBat} and \texttt{comBat} indicate whether the battery level is high enough to allow science capture and communication, respectively, while \texttt{critBat} and \texttt{exitCriticalBat}, define entry into and recovery from critically low battery operation. The third group consists of operational state parameters, which depend on the internal mission state rather than directly on the external environment or battery level. These include \texttt{maxNoCom}, which becomes true if the time since the previous communication session exceeds a specified threshold, \texttt{burnRequested}, which indicates that a formation-maintenance maneuver is required, \texttt{burnAttitudeReached}, which indicates that the spacecraft is sufficiently aligned with the requested burn attitude, and \texttt{canCoopCap}, which enables cooperative capture when another spacecraft has entered capture mode.
-
-\begin{comment}
-1st paragraph (Describe decision inputs, or rather, inputs that influence the mode switching logic)
-* Start the paragraph by stating that the mode switching logic is built around different logical parameters, called "switching parameters"  that determine the feasibility of transitions between operational modes
-* The switching parameters can be divided into three different groups depending on their dependencies:
-    * The environmental group (they are determined by spatial considerations):
-        - canCap: scientific data capture is feasible if a \gls{gnss} satellite is within the \gls{gnss} receiver field of view, and if its specular reflection point is within the \gls{gnss-r} receiver field of view. However, because positions \gls{gnss} satellite constellations are not included in this simulator, it assumes that data capture is always possible. 
-        - canCom: communicate with a ground station is feasible if the spacecraft and evaluated ground station is within direct line of sight, and the spacecraft is at least 10 degrees above the horizon from the ground station's POV
-        - canChar: spacecraft charging is feasible if the spacecraft is fully or partially illuminated by the Sun
-    * The battery group (they are determined by the remaining battery energy)
-        - capBat: The spacecraft is allowed to capture scientific data if the remaining battery level is above a certain threshold
-        - comBat: the spacecraft is allowed to start communication if the remaining battery level is above a certain threshold
-        - critBat: the battery level is defined as critical if the level drops below a certain threshold
-        - exitCriticalBat: the battery can only be considered to be at a non-critical level again once it has been charged above a certain level
-    * The *something group* (please come with name suggestion)
-        - maxNoCom: True if the duration since exiting COMMS last time exceeds a max threshold
-        - burnRequested: True if the thrusters are required to run more than XXX seconds to maintain formation
-        - burnAttitudeReached: True if attitude is close enough to requested burn attitude
-        - canCoopCap: True if another spacecraft has entered capture mode
-
-
-
-2nd paragraph (Present the conditions to trigger transitions between operational modes)
-
-\end{comment}
+The second group consists of battery switching parameters, which determine whether the remaining battery energy is sufficient to permit different operations. In this group, \texttt{capBat} and \texttt{comBat} indicate whether the battery level is high enough to allow science capture and communication, respectively, while \texttt{critBat} and \texttt{exitCriticalBat}, define entry into and recovery from critically low battery operation. The third group consists of operational state parameters, which depend on the internal mission state rather than directly on the external environment or battery level. These include \texttt{maxNoCom}, which becomes true if the time since the previous communication session exceeds a specified threshold, \texttt{burnRequested}, which indicates that a formation-maintenance maneuver is required and \texttt{burnAttitudeReached}, which indicates that the spacecraft is sufficiently aligned with the requested burn attitude. Finally, \texttt{capPossible} and \texttt{comPossible} are introduced to simplify switching logic visualization. The prior is a combination of \texttt{canCap} and \texttt{capBat}, and is true whenever both switching parameters are true. Similarly, the latter is true whenever its components, \texttt{canCom} and \texttt{comBat} are true.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{Figures/04Method/mode switching logic flow.png}
-    \caption{Mode switching logic flow diagram to visualize mode transitions. In cases where multiple feasible transitions from a mode exist, see the mode switching priority table in Table \ref{tab:mode_priority}}
-    \label{tab:mode_flow} 
+    \includegraphics[width=0.7\textwidth]{Figures/04Method/mode switching logic flow.png}
+    \caption{Mode switching logic flow diagram to visualize mode transitions. In cases where multiple feasible transitions from a mode exist, see the mode switching priority tables in Table \ref{tab:normal_mode_priority} and \ref{tab:override_mode_priority} for normal operation and overrides, respectively}
+    \label{fig:mode_flow} 
 \end{figure}
 
-\begin{figure}[H]
+
+The resulting mode switching transition flow is illustrated in Figure \ref{fig:mode_flow}. The left part of the diagram contains the nominal operational modes: coast, capture, communication and charge. These modes represent ordinary mission operation, where the spacecraft attempts to perform science observations, communicate with a ground station, charge the battery, or remain in a low-activity coast mode, depending on the currently feasible transitions. The labelled arrows indicate the switching parameters required for each transition. If none of the higher-priority nominal transitions are feasible, the spacecraft returns to or remains in coast mode. The right part of the diagram contains the override modes, which can interrupt the nominal operation logic. A critically low battery state triggers emergency mode, while a formation-maintenance request triggers burn transit, followed by burn once the required thrust-pointing attitude has been reached. After the emergency condition has cleared or the burn has completed, the logic returns to the nominal operation sequence. 
+
+\begin{table}[htbp]
     \centering
-    \includegraphics[width=0.8\textwidth]{Figures/04Method/mode switching logic priority table.png}
-    \caption{Mode switching priority table}
-    \label{tab:mode_priority} 
-\end{figure}
+    \caption{Override operation mode priority used when an override condition is active. The priority list is designed to resolve cases where multiple feasible mode transitions exist}
+    \begin{tabular}{cll}
+        \toprule
+        Priority &
+        Condition &
+        \makecell[l]{Selected mode} \\
+        \midrule
+        1 &
+        \makecell[l]{\texttt{critBat} or\\[-0.3em]
+            (\texttt{Emergency} and not\\[-0.3em]\texttt{exitEmergencyFlag})} &
+        Emergency \\[0.4em]
+
+        2 &
+        \makecell[l]{\texttt{burnRequested} and not\\[-0.3em]\texttt{burnAttitudeReached}} &
+        Burn transit \\[0.4em]
+
+        3 &
+        \makecell[l]{\texttt{burnRequested} and\\[-0.3em]\texttt{burnAttitudeReached}} &
+        Burn \\[0.4em]
+
+        4 &
+        \makecell[l]{not \texttt{critBat} and\\[-0.3em]not \texttt{burnRequested}} &
+        \makecell[l]{Use normal operation priority} \\
+        \bottomrule
+    \end{tabular}
+
+    \vspace{0.5em}
+    \footnotesize
+    Override conditions are evaluated before the normal operation mode priority logic. Emergency mode has the highest priority, followed by formation-maintenance burn modes.
+    \label{tab:override_mode_priority}
+\end{table}
 
 
+\begin{table}[htbp]
+    \centering
+    \caption{Normal operation mode priority used when neither emergency nor burn override is active. The priority list is designed to resolve cases where multiple feasible mode transitions exist}
+    \begin{tabular}{c@{\hspace{1.2em}}l@{\hspace{1.2em}}l@{\hspace{1.2em}}l@{\hspace{1.2em}}l}
+        \toprule
+        Priority &
+        \makecell[l]{Condition when\\not \texttt{maxNoCom}} &
+        \makecell[l]{Selected\\mode} &
+        \makecell[l]{Condition when\\\texttt{maxNoCom}} &
+        \makecell[l]{Selected\\mode} \\
+        \midrule
+        1 &
+        \texttt{capPossible} &
+        Capture &
+        \texttt{comPossible} &
+        Comms \\
+
+        2 &
+        \texttt{comPossible} &
+        Comms &
+        \texttt{capPossible} &
+        Capture \\
+
+        3 &
+        \texttt{canChar} &
+        Charge &
+        \texttt{canChar} &
+        Charge \\
+
+        Fallback &
+        -- &
+        Coast &
+        -- &
+        Coast \\
+        \bottomrule
+    \end{tabular}
+
+    \vspace{0.5em}
+    \footnotesize
+    The selected mode is assigned by evaluating the listed conditions from highest to lowest priority. The priority between capture and communication depends on whether the maximum allowed time without communication has been exceeded.
+    \label{tab:normal_mode_priority}
+\end{table}
+
+Although Figure \ref{fig:mode_flow} shows the allowed transitions between operational modes and the switching parameters associated with each transition, it does not by itself define which mode is selected when several transitions are feasible at the same time. This ambiguity is resolved using the mode priority tables. If the battery has reached a critically low level or a formation-maintenance burn has been requested, the switching logic follows the override mode priority in Table \ref{tab:override_mode_priority}. These override modes are evaluated before all nominal operations, ensuring that emergency battery protection and maneuver execution take precedence over capture, communication, charging and coasting. If neither emergency nor burn override conditions are active, the selected mode is instead determined by the normal operation mode priority in Table \ref{tab:normal_mode_priority}. In this case, the priority order depends on whether the maximum allowed time without communication has been exceeded, such that communication is prioritized over capture when \texttt{maxNoCom} is true.
 
 
 \section{Electronic Power System (EPS)} 
@@ -182,7 +247,7 @@ The second group consists of battery switching parameters, which determine wheth
 Power management is one of the key operational constraints for autonomous remote sensing satellite missions, since the available battery charge determines which operational modes can be safely executed. In the GNSS-R Formation Flight Simulator, the battery state therefore influences the spacecraft guidance logic by constraining transitions between internal operational modes, which is described in Section \ref{sec:operational_mode_logic}. This section, however, focuses on how electrical power generation, storage and consumption are modeled for each spacecraft in the formation. Since these quantities depend directly on the assumed spacecraft hardware, the \gls{eps} model assumes the spacecraft component configuration presented in Section \ref{sec:spacecraft_config}.
 
 
-
+\clearpage
 \subsection{EPS Model Overview}
 The \gls{eps} model is implemented to track the high-level electrical power flow for each spacecraft. Its purpose is to estimate the remaining battery energy during the mission, rather than to model detailed electrical bus dynamics. An overview of the per-spacecraft \gls{eps} structure is shown in Figure \ref{fig:eps}. Here, the green module represents power sources, red and yellow modules represent constant and variable power sinks, and the blue module represents battery energy storage. The power management module at the center represents the physical power distribution component included in the spacecraft configuration, but is not modeled with internal distribution logic, and does not contribute to the net power itself. The individual power generation, storage, and consumption models are described in the following subsections.
 \begin{figure}[H]
@@ -202,7 +267,7 @@ Electrical power generation is modeled using the Basilisk solar panel module, wh
     W_{\mathrm{sp}} = W_{\mathrm{base}} C_{\mathrm{eclipse}} C_{\mathrm{panel}} 
     (\hat{\mathbf{n}} \cdot \hat{\mathbf{s}}) A_{\mathrm{panel}},
 \end{equation}
-Here, $W_{\mathrm{sp}}$ is the per-panel generated electrical power, $W_{\mathrm{base}}$ is the incident solar power per unit area, $C_{\mathrm{eclipse}}$ is the eclipse or shadow factor, $C_{\mathrm{panel}}$ is the solar panel conversion efficiency, $A_{\mathrm{panel}}$ is the panel area, $\hat{\mathbf{n}}$ is the panel normal vector, and $\hat{\mathbf{s}}$ is the Sun direction vector. The generated power is proportional to the cosine of the angle between $\hat{\mathbf{n}}$ and $\hat{\mathbf{s}}$ through their dot product, which makes the panel output attitude dependant. 
+Here, $W_{\mathrm{sp}}$ is the per-panel generated electrical power, $W_{\mathrm{base}}$ is the incident solar power per unit area, $C_{\mathrm{eclipse}}$ is the eclipse or shadow factor, $C_{\mathrm{panel}}$ is the solar panel conversion efficiency, $A_{\mathrm{panel}}$ is the panel area, $\hat{\mathbf{n}}$ is the panel normal vector, and $\hat{\mathbf{s}}$ is the Sun direction vector. The generated power is proportional to the cosine of the angle between $\hat{\mathbf{n}}$ and $\hat{\mathbf{s}}$ through their dot product, which makes the panel output attitude dependant. In implementation, panel output is set to zero when the Sun is behind the panel or when the spacecraft is in eclipse.
 
 The generated power from all solar panel modules is accumulated by the battery model. The battery energy rate of change is given by the instantaneous balance between total generated and consumed power,
 \begin{equation}
@@ -293,17 +358,38 @@ Finally, The total consumed power $W_{\mathrm{consumed}}$ used in Equation \ref{
 
 
 \section{Guidance Navigation \& Control (GNC) System}
+The \gls{gnc} system provides the flight software functionality required to translate operational mode decisions into spacecraft motion. In the simulator, this includes generating attitude references for the active operational mode, tracking these references using a reaction-wheel-based \gls{mrp} feedback controller, and scheduling formation-maintenance maneuvers when the leader-follower geometry drifts from the desired configuration. The following subsections describe these three functions at a high level, focusing on their role in the closed-loop mission simulation rather than the detailed Basilisk message connections used to implement them.
 
 
 \subsection{Pointing Guidance System}
 \label{sec:pointing_guidance}
-\begin{comment}
-This subsection will describe the attitude reference generation as a function of operational mode
-\end{comment}
+The pointing guidance system maps the active operational mode to the desired attitude tracked by the attitude controller. This mapping is necessary because the operational modes in Table \ref{tab:operational_mode_overview} impose different mission-critical pointing objectives. In Sun-pointing modes, the spacecraft is oriented to expose the largest possible solar panel area toward the Sun, increasing its power generation. In data-capture mode, the payload geometry is prioritized by pointing the \gls{gnssr} receiver nadir, while the \gls{gnss} receiver is pointed zenith, consistent with the payload constraint introduced in Section \ref{sec:gnssr_constraints}. In communication mode, the radio antenna is pointed toward the selected ground station when a direct line of sight is available. During burn transit and burn modes, the attitude reference is instead supplied by the formation-keeping controller described in Section \ref{sec:formation_controller}, which aligns the body-fixed thrust direction with the desired maneuver direction. Finally, for modes in which minimum drag is included as a secondary objective, the spacecraft is oriented to minimize the cross-sectional area normal to the velocity direction.
+
+
+When a mode defines both a primary and secondary pointing objective, the primary objective is enforced first. In the simulator implementation, this corresponds to aligning a body-fixed vector with a desired inertial direction, which still leaves one rotational degree of freedom about the primary pointing direction. This remaining freedom is used to maximize the secondary objective. For example, in communication mode, the antenna vector is aligned with the selected ground station direction, while the remaining rotation about the antenna axis is chosen to maximize solar-panel illumination, provided that the relevant panel normal is not parallel to the antenna direction. However, the secondary objective can generally not be satisfied exactly, because the primary pointing constraint restricts the available attitude space. Let $\hat{\mathbf{v}}_p^n$ denote the desired primary pointing direction, and let $\hat{\mathbf{v}}_s^n$ denote the direction associated with the secondary objective, both expressed in \gls{eci}. The component of $\hat{\mathbf{v}}_s^n$ that can be used while preserving the primary pointing direction is obtained by projecting it into the $\hat{\mathbf{v}}_p^n$-normal plane,
+\begin{equation}
+    \mathbf{v}_{s,\perp}^n = \hat{\mathbf{v}}_s^n - 
+    \frac{
+    \left(\hat{\mathbf{v}}_s^n \cdot \hat{\mathbf{v}}_p^n\right)
+    }{
+    \left\|
+    \hat{\mathbf{v}}_p^n
+    \right\|^2
+    }\hat{\mathbf{v}}_p^n
+    \label{eq:secondary_pointing_projection}
+\end{equation}
+Using the normalized projected desired secondary pointing direction $\hat{\mathbf{v}_{s,\perp}^n}$, the transformation to the \gls{eci} frame from the desired frame $\mathcal{F}^R$, is then given by
+\begin{equation}
+    \boldsymbol{R}^n_R = \begin{bmatrix}
+        \hat{\mathbf{v}}_p^n & \hat{\mathbf{v}}_{s,\perp}^n & \left(\hat{\mathbf{v}}_p^n \times \hat{\mathbf{v}}_{s,\perp}^n\right)
+    \end{bmatrix}
+\end{equation}
+which can then be converted into the corresponding desired \gls{mrp} parameterization used by the attitude controller described in Section \ref{sec:attitude_controller}. The resulting attitude reference therefore maximizes the secondary objective within the constraint imposed by the primary objective. Note that the guidance system only calculates the desired attitude, not the corresponding reference angular velocity or angular acceleration. Consequently, time-varying attitude references are tracked purely through feedback by the attitude controller, which can increase reaction-wheel actuation and therefore reaction-wheel power consumption.
 
 
 
 \subsection{MRP Feedback Pointing Controller}
+\label{sec:attitude_controller}
 Each spacecraft must be able to track the attitude reference generated by the pointing guidance system for the active operational mode. This is achieved using Basilisk's \texttt{mrpFeedback} module, which implements a nonlinear attitude feedback controller based on the \gls{mrp} attitude and body frame angular-rate tracking error. The commanded body torque is computed using the control law presented in \cite{mrpFeedback}
 \begin{equation}
 \begin{split}
@@ -312,7 +398,7 @@ Each spacecraft must be able to track the attitude reference generated by the po
 \end{split}
 \label{eq:full_pointing_control_law}
 \end{equation}
-In this expression, $\mathbf{L}^{b}$ is the requested control torque expressed in the spacecraft body frame, $\boldsymbol{\sigma}_{e}$ is the \gls{mrp} attitude tracking error, and $\boldsymbol{\omega}_{e}$ is the body-frame angular-rate tracking error. The controller gains are given by the proportional gain $K$, the rate-feedback gain matrix $[P]$, and the integral gain matrix $[K_I]$, while $\mathbf{z}_{e}$ denotes the integral error state. The matrix $[I_{RW}]$ represents the spacecraft inertia including the reaction-wheel contribution, $\boldsymbol{\omega}_{R/n}$ is the angular velocity of the reference frame relative to the inertial frame, and $\boldsymbol{\omega}_{b/n}$ is the spacecraft body angular velocity relative to the inertial frame. The reaction-wheel geometry matrix $[G_s]$ maps the wheel angular momentum vector $\mathbf{h}_s$ into the body frame. Finally, $\mathbf{L}_{\mathrm{ff}}$ represents the feedforward compensation torque, which account for known external torques such as modeled disturbance torques, and reaction-wheel gyroscopic effects.
+In this expression, $\mathbf{L}^{b}$ is the requested control torque expressed in the spacecraft body frame, $\boldsymbol{\sigma}_{e}$ is the \gls{mrp} attitude tracking error, and $\boldsymbol{\omega}_{e}$ is the body-frame angular-rate tracking error. The controller gains are given by the proportional gain $K$, the rate-feedback gain matrix $[P]$, and the integral gain matrix $[K_I]$, while $\mathbf{z}_{e}$ denotes the integral error state. The matrix $[I_{RW}]$ represents the spacecraft inertia including the reaction-wheel contribution, $\boldsymbol{\omega}_{R/n}$ is the angular velocity of the reference frame relative to the inertial frame, and $\boldsymbol{\omega}_{b/n}$ is the spacecraft body angular velocity relative to the inertial frame. The reaction-wheel geometry matrix $[G_s]$ maps the wheel angular momentum vector $\mathbf{h}_s$ into the body frame. Finally, $\mathbf{L}_{\mathrm{ff}}$ represents feedforward compensation for known external torques, such as modeled disturbance torques.
 
 In the simulator implementation, the integral feedback is disabled by setting $[K_I]=0$. In addition, the pointing guidance system only defines the reference attitude, while the reference-frame angular velocity and angular acceleration are set to zero. This gives $\boldsymbol{\omega}_{R/n}=\mathbf{0}$ and $\dot{\boldsymbol{\omega}}_{R/n}=\mathbf{0}$, which removes the reference-motion feedforward terms from Equation~\ref{eq:full_pointing_control_law}. The implemented attitude controller can therefore be written as the simplified PD-type feedback law
 \begin{equation}
@@ -336,6 +422,7 @@ where the remaining feedforward term is only present when known compensation tor
 
 
 \subsection{Formation-Keeping Controller}
+\label{sec:formation_controller}
 As described in Section \ref{sec:diff_perturb}, the absence of corrective maneuvers causes the relative geometry to drift away from the desired formation. Formation control is therefore required in the GNSS-R Formation Flight Simulator because the scientific mission concept depends on maintaining a prescribed leader-follower geometry over time. In this thesis, this is achieved using the Basilisk \texttt{spacecraftReconfig} module, which is an extended version of the spacecraft formation reconfiguration model described in \cite{schaub2018analytical} to account for the under-actuated control problem with only one static thrust vector. The control objective is formulated in terms of the orbital element difference between the two spacecraft, as introduced in Section \ref{sec:natural_rel_drift}. With $\boldsymbol{\alpha}_L$ and ${\boldsymbol{\alpha}_F}_i$ denoting the leader and follower $i$ orbital element vectors, respectively, the formation-relative orbital element difference is written as
 \begin{equation}
     \Delta \boldsymbol{\alpha} = {\boldsymbol{\alpha}_F}_i - \boldsymbol{\alpha}_L = \begin{bmatrix}
@@ -367,45 +454,9 @@ The module also introduces several assumptions and limitations that constrain ho
 2nd paragraph (This paragraph should explain how the formation control actually works, how is the control objective achieved)
 \end{comment}
 
-\section{Simulator inputs}
+\section{\hl{Simulator inputs}}
 
 
 
 
-REMEMBER TO UPDATE THIS FUGRE WITH CORRECT PRIORITIES AND NEW POWER MODULES
-\begin{figure}[htbp]
-    \small
-    \dirtree{%
-    .1 GNSS-R Formation Flight Simulator.
-    .2 EnvironmentProcess.
-    .3 EnvironmentTask.
-    .4 spiceObj [20].
-    .4 eclipseObj [20].
-    .4 groundStation(s) [20].
-    .4 atmObj [20].
-    .3 MsisInputUpdaterTask.
-    .4 msisInputUpdater [20].
-    .2 DynamicsProcess\_\textless sat\_idx\textgreater.
-    .3 DynamicsTask\_\textless sat\_idx\textgreater.
-    .4 scObj.
-    .4 dragEffector [20].
-    .4 srpEffector [20] .
-    .4 solarPanel(s) [20].
-    .4 rwEffector [20].
-    .4 thrusterEffector [20].
-    .4 fuelTankEffector [20].
-    .4 battery [20].
-    .4 obcPowerSink [20].
-    .4 rwPower(s) [20].
-    .4 recorders [10].
-    .2 FswProcess\_\textless sat\_idx\textgreater.
-    .3 FswTask\_\textless sat\_idx\textgreater.
-    .4 scheduler [20].
-    .4 recorders [10].
-    .2 RecorderFlusherProcess.
-    .3 RecorderFlusherTask [20].
-    .4 recorderFlusher [20].
-    }
-    \caption{Hierarchical process-task-model structure of the GNSS-R formation flight Basilisk simulator. The number in square brackets denote the model priority, where higher priority models are updated first. Same-priority tasks are orderly updated from the top-down within a task. ''\textit{<sat\_idx>}'' represent per-spacecraft processes and tasks.}
-    \label{fig:formfly_process_hierarchy}
-\end{figure}
+
