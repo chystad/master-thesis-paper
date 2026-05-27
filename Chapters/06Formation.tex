@@ -296,9 +296,9 @@ The \gls{obc} is modeled as a constant power sink. This represents the baseline 
 \end{equation}
 
 
-The battery heater is modeled as an averaged constant power sink. Since no battery temperature sensor or thermal model is implemented, the heater duty cycle is roughly approximated by assuming that the battery heater is active for one quarter of each orbital period. Under this assumption, the heating contribution to the total consumed power is modeled using the nominal active heater power, $C_{\mathrm{bat,heating}}$
+The battery heater is modeled as an averaged constant power sink. Since no battery temperature sensor or thermal model is implemented, the heater duty cycle is roughly approximated by assuming that the battery heater is active for one half of each orbital period. Under this assumption, the heating contribution to the total consumed power is modeled using the nominal active heater power, $C_{\mathrm{bat,heating}}$
 \begin{equation}
-    W_{\mathrm{bat,heating}} = \frac{1}{4} C_{\mathrm{bat,heating}},
+    W_{\mathrm{bat,heating}} = \frac{1}{2} C_{\mathrm{bat,heating}},
 \end{equation}
 
 
