@@ -261,8 +261,8 @@ All simulator code and LaTeX-files used in the thesis is provided by the GitHub 
 
 
 \clearpage
-\section*{E - GNSS-R Formation Flight Campaign Parameters}
-\addcontentsline{toc}{chapter}{\protect\numberline{}D - Simulator Basilisk Process-Task-Model Structure} 
+\section*{E - GNSS-R Formation Flight Campaign Subsystem Constants}
+\addcontentsline{toc}{chapter}{\protect\numberline{}E - GNSS-R Formation Flight Campaign Constants} 
 
 \begin{sidewaystable}[htbp]
     \centering
@@ -270,7 +270,7 @@ All simulator code and LaTeX-files used in the thesis is provided by the GitHub 
     \setlength{\tabcolsep}{4pt}
     \renewcommand{\arraystretch}{0.9}
     \caption{GNSS-R Formation Flight Simulator update rate, controller gain and operational mode transition constants shared by all lifetime analysis campaigns}
-    \label{tab:base_simulator_constants}
+    \label{tab:formation_flight_campaign_constants}
     \begin{tabular}{llll}
         \hline
         \textbf{Category} & \textbf{Variable} & \textbf{Value} & \textbf{Description} \\
@@ -298,10 +298,10 @@ All simulator code and LaTeX-files used in the thesis is provided by the GitHub 
         & \texttt{CAPTURE\_BATTERY\_EXIT\_THRESHOLD} & $0.38$ & Battery threshold for exiting capture mode \\
         & \texttt{COMMS\_BATTERY\_ENTER\_THRESHOLD} & $0.35$ & Battery threshold for entering communication mode \\
         & \texttt{COMMS\_BATTERY\_EXIT\_THRESHOLD} & $0.28$ & Battery threshold for exiting communication mode \\
-        & \texttt{MIN\_MINUTES\_COM\_TIME} & $10~\mathrm{min}$ & Minimum duration of a communication event, if feasible \\
-        & \texttt{MAX\_HOURS\_SINCE\_LAST\_COM\_THRESHOLD} & $12~\mathrm{h}$ & Maximum time since last communication event \\
         & \texttt{SHADOWFAC\_ENTER\_THRESHOLD} & $0.6$ & Minimum illumination factor required to enter charge mode \\
         & \texttt{SHADOWFAC\_EXIT\_THRESHOLD} & $0.4$ & Maximum illumination factor required to exit charge mode \\
+        & \texttt{MIN\_MINUTES\_COM\_TIME} & $10~\mathrm{min}$ & Minimum duration of a communication event, if feasible \\
+        & \texttt{MAX\_HOURS\_SINCE\_LAST\_COM\_THRESHOLD} & $12~\mathrm{h}$ & Maximum time since last communication event \\
         & \texttt{BURN\_ATT\_ADJUSTMENT\_TIME\_SEC} & $15~\mathrm{s}$ & Fixed time between burn request and burn execution \\
         \hline
     \end{tabular}

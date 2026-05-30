@@ -1,11 +1,229 @@
-\section{Propagation Validation Methodology}
-\begin{comment}
-The purpose of using a sequential TLE series is to reduce the accumulation of SGP4 prediction error that would occur if a single TLE were propagated over the full simulation interval. Since each TLE is derived from recent tracking observations, selecting the TLE closest to each simulation time provides a more observation-informed reference trajectory. The Skyfield output should therefore not be interpreted as an independent high-fidelity truth model, but as an updated SGP4-based reference against which the Basilisk propagation can be compared.
-\end{comment}
-Something like: 
-The purpose of this comparison is to quantify the divergence between the Basilisk translational propagation environment and an observation-updated SGP4 reference, and to assess whether the thesis Basilisk configuration improves over the specialization-project configuration.
+% \section{Basilisk Propagation Accuracy Assessment Method}
+\section{Comparative Propagation Analysis Method}
+The comparative propagation analysis quantifies the divergence between the Basilisk translational propagator and an observation-informed Skyfield-SGP4 reference. The purpose is not to validate Basilisk against a true physical ground truth, but to benchmark the thesis propagation configuration also used in the GNSS-R Formation Flying Simulator, against a continuously updating \gls{tle}-based reference to evaluate its prediction uncertainty, and whether the final Basilisk configuration improves over the configuration used in the specialization project. This provides a propagation-accuracy context for interpreting the long-horizon GNSS-R formation flight lifetime analysis.
 
-State that the Basilisk scenario is configured to start at 23.10.2025 22:19:30 UTC time for t=0 simulation time. This time corresponds to the epoch of the initial TLE used in by the Skyfield SGP4 propagator, which ensures that the simulated 3rd body positions and solar activity are as close as possible to the actual conditions experienced by the HYPSO-1 satellite during this time 
+The analysis is performed by propagating the same leader-follower scenario using Skyfield-SGP4 and several Basilisk configurations. The continuously updating Skyfield-SGP4 trajectory is used as the comparison baseline, while the Basilisk cases are selected to isolate the effect of the improved atmospheric modelling and the final thesis perturbation configuration. The resulting trajectories are compared using both same-satellite state differences and formation-relative drift differences, allowing the analysis to assess both absolute Earth-relative propagation, and formation-relative drift accuracy.
+
+
+
+\subsection{Comparison Scenario}
+\label{sec:comparison_scenario}
+
+The comparative propagation analysis is performed using the Comparative Propagation Simulator described in Chapter \ref{chap:propagator}. Each propagator is configured to simulate two spacecraft separated by an initial in-plane angle of $1^\circ$. The leading and trailing spacecraft are denoted as the leader and follower, respectively, although no active formation-keeping is applied in this comparison. The Basilisk spacecraft use the configuration described in Section \ref{sec:spacecraft_config}, but with active subsystems disabled. The resulting model represents a passive 6U spacecraft with realistic mass and geometry for a remote-sensing, formation-capable satellite. The Skyfield spacecraft corresponds to the real spacecraft associated with the continuously updating \gls{tle} sequence, which is the 6U HYPSO-1 hyperspectral imaging satellite briefly described in \cite{hypso_1}. The Basilisk spacecraft configuration is therefore selected to approximate the size and mass properties of the reference spacecraft, in an attempt to ensure that they are equally influenced by orbital perturbations. Additionally, as explained in Section \ref{sec:propagator_architecture}, precautions are made to ensure that all spacecraft are initialized using the same state vectors across Basilisk and Skyfield-SGP4.
+
+Both propagators are initialized at 23.10.2025 22:19:30 UTC, corresponding to the epoch of the initial \gls{tle} used by the Skyfield propagator. Using the same real epoch is important because the Basilisk environmental models depend on time-varying quantities, including the Sun and Moon positions, solar radiation pressure geometry, eclipse conditions, and space-weather-dependent atmospheric density through the NRLMSISE-00 model. This ensures that simulated Basilisk environment is as close as possible to the actual conditions experienced by the HYPSO-1 satellite during this time. The initial scenario orbit is derived from the following HYPSO-1 \gls{tle}:
+\begin{verbatim}
+HYPSO-1
+1 51053U 22002BX  25296.93021535  .00034531  00000-0  64114-3 0  9997
+2 51053  97.3166   6.7052 0004161  83.3535 276.8189 15.48851464210108
+\end{verbatim}
+This corresponds to a highly inclined, near-circular \gls{leo} orbit with a mean altitude of approximately $420~\mathrm{km}$. The comparison is propagated for 14 days, which provides a long-horizon benchmark for the translational propagation environment used later in the GNSS-R formation-flight lifetime analysis.
+\begin{comment}
+* The comparison is performed using the Comparative Propagation Simulator described in Chapter \ref{chap:propagator}.
+* The scenario uses 2 spacecraft in each propagator separated by $1^\circ$ in-plane separation angle. The leading and trailing spacecraft will be denoted as the leader and follower, respectively, even though they are not subject to active formation-keeping. 
+* The Basilisk simulated spacecraft uses the same configuration as described in \ref{sec:spacecraft_config}, but with all its active components deactivated. This configuration therefore simplifies to a 6U spacecraft geometry with realistic mass for a remote sensing, formation capable satellite. 
+* The Skyfield spacecraft is the real spacecraft associated with the continuously updating \gls{tle}s which in this scenario is the 6U HYPSO-1 hyperspectral imaging satellite \cite{hypso_1}. The Basilisk spacecraft configuration is designed to mimic the shape and approximate weight of this remote sensing satellite, in order to ensure that they are equally influenced by orbital perturbations.
+* Both propagators are configured to start at 23.10.2025 22:19:30 UTC time, which correspond to the epoch of the initial TLE file used in the Skyfield propagator. Propagating over the same real-life time is significant because it enables the Basilisk environmental models to simulate the 3rd body positions and solar activity (and resulting atmospheric density via the NRLMSISE-00 model) as close as possible to the actual conditions experienced by the HYPSO-1 satellite during this time.
+* The initial TLE file with an epoch corresponding to the configured start time given by:
+HYPSO-1
+1 51053U 22002BX  25296.93021535  .00034531  00000-0  64114-3 0  9997
+2 51053  97.3166   6.7052 0004161  83.3535 276.8189 15.48851464210108
+* The initialized orbit is derived from this initial TLE. This corresponds to a highly inclined, near-circular \gls{leo} orbit, with a mean orbital altitude of approximately $420~\mathrm{km}$
+
+
+
+\end{comment}
+
+\subsection{Propagation Accuracy Evaluation Framework}
+\label{sec:propagation_accuracy_evaluation_framework}
+
+The continuously updating Skyfield-SGP4 trajectory is used as the comparison baseline for evaluating the Basilisk propagation results. This reference is not treated as an exact truth model, but as an observation-updated SGP4-based trajectory constructed from a sequential \gls{tle} series to continuously correct for accumulating divergence from the true state. This reduces the long-term accumulation of prediction error that would occur if a single \gls{tle} were propagated over the full comparison interval. The resulting Skyfield trajectory is therefore interpreted as an approximate reference against which the Basilisk configurations can be benchmarked. All propagation differences are evaluated relative to this baseline.
+
+The primary configuration evaluated in this analysis is the highest-fidelity Basilisk configuration used later in the GNSS-R formation flight lifetime analysis. To contextualize its performance, two additional Basilisk configurations are included. The first corresponds to the highest-fidelity configuration used in the specialization project in \cite{hystad2025}, where atmospheric drag was modelled using an exponential atmosphere that was not tuned for its orbital altitude. The second uses the same general Basilisk perturbation configuration, but replaces the old atmospheric tuning with a retuned exponential atmosphere model by adjusting its scale height, $H_0$. These additional cases make it possible to distinguish whether differences between the specialization project and the present thesis are primarily caused by the improved atmospheric modelling, or by the general transition to the final thesis propagation configuration. The comparison scenario is otherwise kept identical for all Basilisk cases.
+
+Two complementary accuracy perspectives are considered. The first is the same-satellite state difference, which describes the difference between the state of the same spacecraft in a Basilisk simulation and in the Skyfield reference. For a spacecraft translational state vector $\mathbf{x}$, this is defined as
+\begin{equation}
+    \mathbf{x}_{\mathrm{sd}}
+    =
+    \mathbf{x}_{\mathrm{bsk}}
+    -
+    \mathbf{x}_{\mathrm{skf}} .
+\end{equation}
+This quantity is used to assess the absolute translational propagation error of a single spacecraft, both through the magnitude of the position and velocity differences and through decomposition of the position error in the \gls{rtn} frame. Orbital element differences are also used as a secondary diagnostic to interpret the source of the observed drift. The second perspective is the same-formation relative error, which compares how the leader-follower separation evolves in each Basilisk case relative to the Skyfield baseline. Let the formation-relative state in propagator $p$ be defined as
+\begin{equation}
+    \Delta \mathbf{x}_{\mathrm{form},p}
+    =
+    \mathbf{x}_{\mathrm{F},p}
+    -
+    \mathbf{x}_{\mathrm{L},p}.
+\end{equation}
+The corresponding same-formation relative error is then
+\begin{equation}
+    \mathbf{x}_{\mathrm{sfr}}
+    =
+    \Delta \mathbf{x}_{\mathrm{form,bsk}}
+    -
+    \Delta \mathbf{x}_{\mathrm{form,skf}} .
+\end{equation}
+This provides a measure of how accurately each Basilisk configuration reproduces the passive leader-follower drift predicted by the reference model, which is especially relevant for interpreting the later formation flight lifetime analysis.
+\begin{comment}
+1. Comparison baseline: the continuously updating Skyfield/SGP4 trajectory is treated as an approximate reference, not truth.
+    * 
+2. Contextual Basilisk configurations: the old specialization-project configuration and the retuned exponential-atmosphere configuration are included to interpret whether the new best Basilisk configuration improves the propagation result.
+    * To contextualize the comparison results of the highest fidelity Basilisk propagator evaluated in this analysis, other Basilisk configurations are included as well. These are:
+    * The Basilisk configuration used in the Specialization project \cite{hystad2025}, configured to include the perturbation effects from spherical harmonics 4th degree and order, SRP, 3rd body perturbation and drag using an un-tuned exponential atmosphere model for this orbital altitude. 
+    * Basilisk configuration including the same perturbation effects, but with a tuned exponential atmosphere model. 
+    * Note that the comparison scenario for these configurations will otherwise be identical. 
+3. Two accuracy perspectives: absolute Earth-relative propagation error for one spacecraft, and formation-relative drift error between leader and follower.
+    * Instead of "Earth-relative", which was the terminology used in the specialization project, the term "same-satellite relative" will be used to denote the state difference between the same satellite state in different propagation outputs in thesis. Because Skyfield SGP4 will be used as a comparison baseline, the same-satellite relative translational state error is given by:
+    \begin{equation}
+        \textbf{x}_{\mathrm{ssr}} = \textbf{x}_{\mathrm{bsk}} - \textbf{x}_{\mathrm{skf}}
+    \end{equation}
+    This is the primary measure used to evaluate the absolute prediction error, both by looking at its magnitude, and decomposing it in the \gls{rtn} frame. 
+    * A secondary measure same-satellite relative measure is the propagator difference in orbital elements. This enables ...
+    
+    * To evaluate Basilisk's same-formation relative propagation accuracy, the relative translational state difference between the leader and follower will be compared against the corresponding formation-relative states in the comparison baseline. Let the formation-relative states between the leader $L$ and the follower $F$ in any propagator $p$ be denoted by $\Delta \textbf{x}_{\mathrm{form}}$ is given by:
+    \begin{equation}
+        \Delta \textbf{x}_{\mathrm{form,p}} = \textbf{x}_{\mathrm{L,p}} - \textbf{x}_{\mathrm{F,p}}
+    \end{equation}
+    Then the same-formation relative error be defined as:
+    \begin{equation}
+        \textbf{x}_{\mathrm{sfr}} = \Delta \textbf{x}_{\mathrm{form,bsk}} - \Delta \textbf{x}_{\mathrm{form,skf}}
+    \end{equation}
+
+
+\end{comment}
+
+\subsection{Propagation Benchmarking Campaign}
+
+The propagation benchmarking campaign is performed to evaluate the error between the Basilisk propagation configurations and the continuously updating Skyfield-SGP4 reference defined in the previous subsections. The campaign consists of one Skyfield-SGP4 reference run and three Basilisk runs, as summarized in Table \ref{tab:basilisk_propagation_benchmarking_campaign}. The Skyfield-SGP4 run provides the updating-\gls{tle} comparison baseline, while the primary Basilisk run represents the highest-fidelity thesis configuration used later in the GNSS-R formation flight lifetime analysis. The remaining Basilisk runs are included to contextualize the result by comparing against the highest-fidelity specialization-project configuration and an additional re-tuned exponential-atmosphere configuration.
+
+All runs are propagated for 14 days from the same initial scenario described in Section \ref{sec:comparison_scenario}. In the first run, the Skyfield-SGP4 trajectory is generated using the continuously updating \gls{tle} sequence. The primary Basilisk run is then initialized from the Skyfield state at the initial epoch, ensuring that the two propagation frameworks start from the same translational state. The subsequent Basilisk runs reuse the previously generated Skyfield reference data, which ensures that all Basilisk configurations are compared against the same baseline and initialized consistently. The Basilisk configurations use the same deactivated spacecraft configuration described in Section \ref{sec:spacecraft_config}, but differ in their atmospheric density model. The primary thesis configuration uses the NRLMSISE-00 atmosphere model, while the two reference configurations use exponential atmosphere models with different scale heights.
+
+\begin{table}[htbp]
+    \centering
+    \caption{Basilisk propagation benchmarking campaign.}
+    \label{tab:basilisk_propagation_benchmarking_campaign}
+    \scriptsize
+    \setlength{\tabcolsep}{3pt}
+    \renewcommand{\arraystretch}{1.15}
+    \begin{adjustbox}{max width=\textwidth}
+    \begin{tabularx}{\textwidth}{p{0.21\textwidth}XXXX}
+        \hline
+        \textbf{Run \#}
+            & \textbf{1}
+            & \textbf{2}
+            & \textbf{3}
+            & \textbf{4} \\
+        \hline
+
+        \textbf{Propagator \newline framework}
+            & Skyfield-SGP4
+            & Basilisk
+            & Basilisk
+            & Basilisk \\[1.2em]
+        \hline
+
+        \textbf{Role}
+            & Updating-TLE\newline reference
+            & Primary thesis\newline configuration
+            & Specialization\newline project reference
+            & Re-tuned exponential \newline atm. reference \\[1.2em]
+        \hline
+
+        \textbf{Initial epoch}
+            & 23.10.2025, \newline 22:19:30 UTC
+            & Same as run 1
+            & Same as run 1
+            & Same as run 1 \\[1.2em]
+        \hline
+
+        \textbf{Duration}
+            & 14 days
+            & Same as run 1
+            & Same as run 1
+            & Same as run 1 \\[1.2em]
+        \hline
+
+        \textbf{Spacecraft}
+            & HYPSO-1\newline from TLE
+            & Deactivated\newline configuration from \ref{sec:spacecraft_config}
+            & Same as run 2
+            & Same as run 2 \\[1.2em]
+        \hline
+
+        \textbf{Initial state}
+            & Initial TLE \newline evaluated at epoch
+            & Initial Skyfield- \newline SGP4 state
+            & Same as run 2
+            & Same as run 2 \\[1.2em]
+        \hline
+
+        \textbf{Gravity}
+            & SGP4 model
+            & Spherical harmonics,\newline 4th degree and order
+            & Same as run 2
+            & Same as run 2 \\[1.2em]
+        \hline
+
+        \textbf{Atmospheric \newline density model}
+            & SGP4 model
+            & NRLMSISE-00
+            & Un-tuned\newline exponential
+            & Tuned\newline exponential \\[1.2em]
+        \hline
+
+        \textbf{Exponential \newline scale height $H_0$}
+            & --
+            & --
+            & 7200.0
+            & 15180.0 \\[1.2em]
+        \hline
+
+        \textbf{Sun and Moon \newline 3rd body pull}
+            & SGP4 model
+            & Enabled
+            & Same as run 2
+            & Same as run 2 \\[1.2em]
+        \hline
+
+        \textbf{SRP}
+            & SGP4 model
+            & Enabled
+            & Same as run 2
+            & Same as run 2 \\[1.2em]
+        \hline
+
+        \textbf{Numerical \newline integration}
+            & SGP4 model
+            & RKF78 w. \newline 1.0 sec max step
+            & Same as run 2
+            & Same as run 2 \\[1.2em]
+        \hline
+    \end{tabularx}
+    \end{adjustbox}
+\end{table}
+
+The output from the campaign is used to compute the same-satellite relative and same-formation relative errors defined in Section \ref{sec:propagation_accuracy_evaluation_framework}. Together, these outputs provide the basis for assessing whether the thesis Basilisk configuration improves over the specialization-project configuration and for quantifying the propagation uncertainty relevant to the later GNSS-R formation flight lifetime analysis.
+
+\begin{comment}
+* Exact run table.
+* Numerical model settings.
+* Duration.
+* TLE update configuration.
+* Atmosphere model/tuning values.
+* Perturbations included.
+* Output data and plots produced.
+\end{comment}
+
+
+\subsection{\hl{Assumptions and Limitations}}
+\begin{comment}
+* SGP4/TLE is not true ground truth.
+* TLE uncertainties.
+* Different force-model assumptions.
+* Benchmark supports confidence/uncertainty context, not strict validation.
+\end{comment}
 
 
 
@@ -13,12 +231,17 @@ State that the Basilisk scenario is configured to start at 23.10.2025 22:19:30 U
 
 \clearpage
 \section{GNSS-R Formation Flight Lifetime Analysis Method}
+The GNSS-R formation flight lifetime analysis estimates the fuel-limited mission lifetime of the selected leader-follower formation scenario using the GNSS-R Formation Flight Simulator. The analysis focuses on the follower spacecraft, which is responsible for acquiring and maintaining the desired concentric formation relative to the leader. Since the mission lifetime definition in Section \ref{sec:gnssr_mission_lifetime_def} is based on the remaining usable fuel mass, the methodology is built around estimating how fuel is consumed during formation acquisition and subsequent formation maintenance.
+
+The lifetime estimation is therefore divided into two simulation campaigns. The \textit{deployment velocity fuel sensitivity campaign} estimates the acquisition fuel cost function $m_{\mathrm{acq}}(\Delta v_{\mathrm{dep}})$ by varying the initial leader-follower deployment velocity difference. The \textit{formation steady-state fuel consumption campaign} estimates the post-acquisition cumulative maintenance fuel consumption function $m_{\mathrm{maint}}(t)$ from a longer-duration simulation. Together, these two contributions provide the fuel-consumption model used to estimate the GNSS-R formation flight mission lifetime for the selected spacecraft configuration, formation geometry, disturbance environment, and operational constraints.
+
 
 \subsection{Formation flight Scenario}
 
-The \gls{gnssr} formation flight lifetime analysis is performed using the GNSS-R Formation Flight Simulator described in Chapter \ref{chap:lifetime}, with the spacecraft configuration introduced in Section \ref{sec:spacecraft_config}. The simulated scenario consists of two spacecraft: one leader and one follower. Both spacecraft are initialized from a shared deployer orbit, but each with a configurable additional velocity component representing the ejection velocity. The deployer orbital elements are derived from the initial \gls{tle} used in the comparative propagation campaign, ensuring that the lifetime analysis is initialized in the same \glossary{leo} orbital regime used to evaluate the long-horizon Basilisk propagation accuracy.  The spacecraft are subject to the same high-fidelity disturbance environment as the comparative propagation study, including fourth-degree-and-order spherical harmonics, atmospheric drag with density estimated by the NRLMSISE-00 model, third-body perturbations from the Sun and Moon, and solar radiation pressure.
+The \gls{gnssr} formation flight lifetime analysis is performed using the GNSS-R Formation Flight Simulator described in Chapter \ref{chap:lifetime}, with the full spacecraft configuration introduced in Section \ref{sec:spacecraft_config}. The simulated scenario consists of two spacecraft: one leader and one follower. Both spacecraft are initialized from a shared deployer orbit, but each with a configurable additional velocity component representing the ejection velocity. The deployer orbital elements are derived from the same initial HYPSO-1 TLE used to initialize the comparative propagation scenario, so that the lifetime analysis is conducted in the same \gls{leo} orbital regime. The spacecraft are subject to the same disturbance environment as in the primary thesis configuration introduced in the comparative propagation study, including fourth-degree-and-order spherical harmonics, atmospheric drag with density estimated by the NRLMSISE-00 model, third-body perturbations from the Sun and Moon, and \gls{srp}.
 
-The follower spacecraft is controlled to acquire and maintain a concentric relative orbit around the leader with a radius of $400\mathrm{m}$. As presented in Section \ref{sec:gnssr_coop_measurements}, a concentric formation normally represents a multi-spacecraft configuration, where several followers occupy projected circular relative orbits with increasing radii around a central spacecraft. In this thesis, the configuration is reduced to a single leader-follower pair due to computational constraints, while preserving the essential fuel-consuming task of acquiring and maintaining a bounded relative orbit. Ideally, a $100\mathrm{m}$ spacing would have been chosen to coincide with the HydroSwarm concentric concept presented in \cite{hill2025hydroswarm}, but a $400\mathrm{m}$ separation was instead chosen to prevent the implemented formation controller from diverging due to poorly defined orbital elements in the scenario's near-circular orbit. In addition to the formation control task, the spacecraft are subject to operational constraints imposed by the autonomous mode-switching logic. These constraints determine whether each spacecraft charges, communicates, captures payload data, coasts, or performs formation-control burns based on battery state, ground-station access, illumination, and formation-maintenance requirements.
+The follower spacecraft is controlled to acquire and maintain a concentric relative orbit around the leader with a radius of $400\mathrm{m}$. As presented in Section \ref{sec:gnssr_coop_measurements}, a concentric formation normally represents a multi-spacecraft configuration, where several followers occupy projected circular relative orbits with increasing radii around a central spacecraft. In this thesis, the configuration is reduced to a single leader-follower pair due to computational constraints, while preserving the essential fuel-consuming task of acquiring and maintaining a bounded relative orbit. Ideally, a $100\mathrm{m}$ spacing would have been chosen to coincide with the HydroSwarm concentric concept presented in \cite{hill2025hydroswarm}, but a $400\mathrm{m}$ separation was instead chosen to prevent the implemented formation controller from diverging due to poorly defined orbital elements in the scenario's near-circular orbit. In addition to the formation control task, the spacecraft are subject to operational constraints imposed by the autonomous mode-switching logic described in Section \ref{sec:mode_switching_logic}. These constraints determine whether each spacecraft charges, communicates, captures payload data, coasts, or performs formation-control burns by adjusting its attitude and activating relevant components to enable the corresponding behavior. The constant operational mode transition constraints, attitude controller gains and module update rates used by all GNSS-R formation lifetime analyses are shown in Table \ref{tab:formation_flight_campaign_constants}.
+
 \begin{comment}
 This subsection should contain the following:
     * Explain that the lifetime estimation will be performed using the GNSS-R Formation Flight simulator described in chapter \ref{chap:lifetime} with the spacecraft configuration described in Section \ref{sec:spacecraft_config}
@@ -83,7 +306,7 @@ For the leader-follower deployment scenario considered in this thesis, the forma
     \mathbf{v}_{\mathrm{F},0}
     \right\|_2
 \end{equation}
-Here, $m_{\mathrm{fuel},0}$ is the initial spacecraft fuel mass, and $m_{\mathrm{maint}}(t)$ is the cumulative post-acquisition formation-maintenance fuel consumption as a function of time. The differential deployment speed $\Delta v_{\mathrm{dep}}$ is defined as the Euclidean norm of the initial deployment-velocity difference between the leader and follower, where $\mathbf{v}_{\mathrm{L},0}$ and $\mathbf{v}_{\mathrm{F},0}$ denote the initial leader and follower deployment velocity vectors, respectively. The acquisition fuel consumption $m_{\mathrm{acq}}(\Delta v_{\mathrm{dep}})$ is modelled as a function of this differential deployment speed. The lifetime estimation is therefore reduced to estimating the two fuel-consumption contributions in the remaining-fuel model. The \textit{deployment velocity fuel sensitivity campaign} described in Section \ref{sec:deploy_sensitivity_campaign} estimates $m_{\mathrm{acq}}(\Delta v_{\mathrm{dep}})$, while the \textit{steady-state formation-maintenance campaign} detailed in Section \ref{sec_steady_state_campaign} estimates $m_{\mathrm{maint}}(t)$. These two function estimates are then combined to predict the fuel-limited GNSS-R formation flight mission lifetime for the selected spacecraft configuration, formation geometry, and deployment scenario.
+Here, $m_{\mathrm{fuel},0}$ is the initial spacecraft fuel mass, and $m_{\mathrm{maint}}(t)$ is the cumulative post-acquisition formation-maintenance fuel consumption as a function of time, which is zero for $0 \leq t \leq t_{\mathrm{acq}}$. The differential deployment speed $\Delta v_{\mathrm{dep}}$ is defined as the Euclidean norm of the initial deployment-velocity difference between the leader and follower, where $\mathbf{v}_{\mathrm{L},0}$ and $\mathbf{v}_{\mathrm{F},0}$ denote the initial leader and follower deployment velocity vectors, respectively. The acquisition fuel consumption $m_{\mathrm{acq}}(\Delta v_{\mathrm{dep}})$ is modelled as a function of this differential deployment speed. The lifetime estimation is therefore reduced to estimating the two fuel-consumption contributions in the remaining-fuel model. The \textit{deployment velocity fuel sensitivity campaign} described in Section \ref{sec:deploy_sensitivity_campaign} estimates $m_{\mathrm{acq}}(\Delta v_{\mathrm{dep}})$, while the \textit{steady-state formation-maintenance campaign} detailed in Section \ref{sec_steady_state_campaign} estimates $m_{\mathrm{maint}}(t)$. These two function estimates are then combined to predict the fuel-limited GNSS-R formation flight mission lifetime for the selected spacecraft configuration, formation geometry, and deployment scenario.
 
 \begin{comment}
     * Because of the leader and follower deployment scenario, the formation flying mission can be divided into two phases: Phase 1 is from the deployment until the formation is acquired, and Phase 2 is from the formation has been acquired until the GNSS-R formation flight mission has expried. 
@@ -109,13 +332,62 @@ Here, $m_{\mathrm{fuel},0}$ is the initial spacecraft fuel mass, and $m_{\mathrm
 \subsection{Deployment Velocity Fuel Sensitivity Campaign}
 \label{sec:deploy_sensitivity_campaign}
 
-The deployment velocity fuel sensitivity campaign is performed to estimate the fuel required to acquire the desired concentric formation as a function of the initial differential deployment speed, $m_{\mathrm{acq}}(\Delta v_{\mathrm{dep}})$. Each simulation begins with the leader and follower initialized from the same deployer orbit, but with different deployment velocity offsets. The acquisition fuel consumption is then computed as the follower fuel consumed from deployment until the acquisition condition defined in Section \ref{sec:formation_acquisition_def} is satisfied. This makes the campaign directly connected to the first fuel-consumption contribution in the lifetime estimation framework.
+The deployment velocity fuel sensitivity campaign is performed to estimate the fuel required to acquire the desired concentric formation as a function of the initial differential deployment speed, $m_{\mathrm{acq}}(\Delta v_{\mathrm{dep}})$. Each simulation begins with the leader and follower initialized from the same deployer orbit, but with different deployment velocity offsets. The acquisition fuel consumption is then computed as the follower fuel consumed from deployment until the acquisition condition defined in Section \ref{sec:formation_acquisition_def} is satisfied. This makes the campaign directly connected to the first fuel-consumption contribution in the lifetime estimation framework. The shared configuration used for all simulations in the campaign is summarized in Table \ref{tab}. This includes the formation type, target formation radius, simulation duration, operational constraints, disturbance environment, and numerical integration settings.
 
 Due to computational constraints, the campaign is limited to cases where the leader and follower are ejected in opposite directions from the shared deployer. This represents a conservative deployment scenario because the relative velocity between the spacecraft is maximized for a given individual deployment speed. The deployment velocities are applied along the inertial $\hat{\mathbf{x}}^n$ direction, with the leader ejected in the positive direction and the follower ejected in the negative direction. This direction was selected after preliminary tests of deployment along the inertial principal axes, where the $\hat{\mathbf{x}}^n$ case produced the largest perturbation in the leader-follower orbital element differences. The selected direction is therefore used as a worst-case deployment direction for the acquisition analysis.
 
-The simulated deployment speed range is chosen to represent realistic 6U CubeSat deployment conditions. Several commercial deployer specifications indicate deployment speeds below approximately $2~\mathrm{m/s}$ for 6U-class satellites \cite{satsearch2026dhruva_dsod6u, isispace2026quadpack, nanoracks2018nrcsde_idd}. The campaign therefore consists of five 48-hour simulations, where the individual deployment speed magnitude is increased by $0.5~\mathrm{m/s}$ between consecutive runs. The resulting test matrix is summarized in Table \ref{tab:deployment_velocity_sensitivity_campaign}. Since the leader and follower are deployed in opposite directions, the differential deployment speed is twice the individual deployment speed magnitude. The final run therefore corresponds to an individual deployment speed of $2.0~\mathrm{m/s}$ for each spacecraft and a differential deployment speed of $4.0~\mathrm{m/s}$.
+\begin{table}[H]
+    \centering
+    \caption{Shared configuration for the deployment velocity fuel sensitivity campaign.}
+    \label{tab:deployment_sensitivity_shared_config}
+    \begin{tabular}{ll}
+        \toprule
+        \textbf{Parameter} & \textbf{Value} \\
+        \midrule
+        Primary metric & Acquisition fuel $m_{\mathrm{acq}}(\Delta v_{\mathrm{dep}})$ \\
+        Duration & 48 h \\
+        Number of spacecraft & 2: one leader and one follower \\
+        Initial epoch & 23.10.2025,  22:19:30 UTC \\
+        Initial state & Shared deployer initial state + ejection velocity \\
+        Formation type & Concentric/circular relative orbit \\
+        Target formation radius & $400~\mathrm{m}$ \\
+        Acquisition criterion & OED tolerances with dwell-time requirement \\
+        Formation-maintenance Control & Enabled \\
+        Attitude \gls{gnc} & Enabled \\
+        Operational mode switching & Enabled \\
+        \gls{eps} & Enabled \\
+        Disturbance environment & Full thesis Basilisk perturbation model \\
+        Numerical integration & RKF78 with $1.0~\mathrm{s}$ maximum step \\
+        \bottomrule
+    \end{tabular}
+\end{table}
 
-
+\begin{table}[H]
+    \centering
+    \caption{Run-specific deployment velocities for the deployment sensitivity campaign.}
+    \label{tab:deployment_velocity_sensitivity_runs}
+    \begin{tabular}{lccccc}
+        \toprule
+        \textbf{Run \#} & \textbf{1} & \textbf{2} & \textbf{3} & \textbf{$\dots$} & \textbf{9} \\
+        \midrule
+        Role & Baseline & Low-speed & Medium-speed & $\dots$ & Max-speed \\
+        Leader speed in $\hat{\mathbf{x}}^n$ [m/s] & 0.0 & 0.25 & 0.5 & $\dots$ & 2.0 \\
+        Follower speed in $\hat{\mathbf{x}}^n$ [m/s] & 0.0 & -0.25 & -0.5 & $\dots$ & -2.0 \\
+        Differential speed $\Delta v_{\mathrm{dep}}$ [m/s] & 0.0 & 0.5 & 1.0 & $\dots$ & 4.0 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+The simulated deployment speed range is chosen to represent realistic 6U CubeSat deployment conditions. Several commercial deployer specifications indicate deployment speeds below approximately $2~\mathrm{m/s}$ for 6U-class satellites \cite{satsearch2026dhruva_dsod6u, isispace2026quadpack, nanoracks2018nrcsde_idd}. The campaign therefore consists of nine 48-hour simulations, where the individual deployment speed magnitude is varied across the range summarized in Table \ref{tab:deployment_velocity_sensitivity_runs}. Since the leader and follower are deployed in opposite directions, the differential deployment speed is twice the individual deployment speed magnitude,
+\begin{equation}
+\Delta v_{\mathrm{dep}}
+=
+||
+\mathbf{v}_{\mathrm{L},0}
+-
+\mathbf{v}_{\mathrm{F},0}
+||_2 .
+\end{equation}
+The campaign therefore provides a discrete mapping between differential deployment speed and acquisition fuel consumption. These results are later used to estimate $m_{\mathrm{acq}}(\Delta v_{\mathrm{dep}})$ for the lifetime estimation framework.
 
 \begin{comment}
     * Explain that this test campaign aims to estimate the fuel consumption required to acquire the formation as a function of differential deployment velocity $m_\mathrm{acq}(\Delta v_{\mathrm{dep}})$
@@ -126,12 +398,41 @@ The simulated deployment speed range is chosen to represent realistic 6U CubeSat
     * Quickly comment on the table, saying that 5 runs will be completed, with a 0.5m/s deployment speed increase for every sequential run. 
 \end{comment}
 
+\clearpage
 \subsection{Formation Steady-State Fuel Consumption Campaign}
 \label{sec_steady_state_campaign}
-\begin{comment}
-    * Explain that this test campaign aims to estimate the steady-state maintenance m_{\mathrm{maint}}(t)
-    * Present a test plan for this 
-\end{comment}
+
+The formation steady-state fuel consumption campaign is performed to estimate the cumulative fuel consumed after the follower has acquired the desired concentric formation, $m_{\mathrm{maint}}(t)$. Unlike the deployment velocity fuel sensitivity campaign, this campaign does not aim to evaluate the influence of initial deployment conditions. Instead, it is designed to observe the long-term fuel consumption trend associated with maintaining the selected leader-follower formation under the full thesis disturbance environment and operational constraints. Due to computational constraints, the campaign consists of a single simulator run over a $60$ day duration. The configuration for this campaign is summarized in Table \ref{tab:steady_state_campaign_shared_config}.
+
+\begin{table}[H]
+    \centering
+    \caption{Shared configuration for the formation steady-state fuel consumption campaign}
+    \label{tab:steady_state_campaign_shared_config}
+    \begin{tabular}{ll}
+        \toprule
+        \textbf{Parameter} & \textbf{Value} \\
+        \midrule
+        Primary metric & Acquisition fuel $m_{\mathrm{maint}}(t)$ \\
+        Duration & 60 days \\
+        Number of spacecraft & 2: one leader and one follower \\
+        Initial epoch & 23.10.2025,  22:19:30 UTC \\
+        Initial state & Shared deployer initial state \\
+        Formation type & Concentric/circular relative orbit \\
+        Target formation radius & $400~\mathrm{m}$ \\
+        Acquisition criterion & OED tolerances with dwell-time requirement \\
+        Formation-maintenance Control & Enabled \\
+        Attitude \gls{gnc} & Enabled \\
+        Operational mode switching & Enabled \\
+        \gls{eps} & Enabled \\
+        Disturbance environment & Full thesis Basilisk perturbation model \\
+        Numerical integration & RKF78 with $1.0~\mathrm{s}$ maximum step \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+The resulting follower fuel history is used to estimate the cumulative post-acquisition formation-maintenance fuel consumption. After the acquisition phase has been excluded, the remaining fuel-consumption history is converted into cumulative fuel expenditure and fitted with a continuous curve. This fitted curve provides the simulation-based estimate of $m_{\mathrm{maint}}(t)$ used later in the fuel-limited lifetime estimate.
+
+
 
 
 
@@ -146,9 +447,10 @@ The simulated deployment speed range is chosen to represent realistic 6U CubeSat
 
 
 
-\subsection{Assumptions \& Limitations}
+\subsection{\hl{Assumptions \& Limitations}}
 \begin{comment}
 * The leader does not contribute to formation control
+* Attitude dependent drag coefficient not modeled. 
 * No torque disturbances->No RW saturation-> No magnetorquer desaturation necessary
 * $m_\mathrm{res}$ is assumed to be 0. This is a fair assumption because the scenario uses a 6U satellite in LEO, which will de-orbit and burn up in the atmosphere by itself, so it does require a reserved amount of fuel. 
 * The steady-state fuel consumption campaign is limited to 500-or-something hours due to computational constraints. This would have been much longer in an ideal case. 

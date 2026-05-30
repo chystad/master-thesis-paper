@@ -28,7 +28,7 @@ Although the two simulators differ in purpose and implementation complexity, the
 \subsection{Spacecraft Platform}
 \begin{comment}
 * 6U satellite without tuna-can
-* Drag coefficient = 2.2 based on the Montenbruck \& Gill crude estimate range of 2.1-2.3 sf
+* Drag coefficient = 2.2 based on the Montenbruck \& Gill crude estimate range of 2.1-2.3 sf. These belong here because they are directly tied to the spacecraft geometry
 * Body frame definition
 \end{comment}
 
@@ -196,6 +196,7 @@ Also state that all EPS, ADCS and propulsion subsystem dynamics are disabled for
 
 
 \section{Shared Numerical Integration Configuration}
+\label{sec:numerical_integration_method}
 \begin{comment}
 NOTE: This does not have to be a long section. Its main purpose is to simply present the chosen numerical method w. parameters, and present the arguments for why this method has been chosen
 State the numerical integrator configuration:
@@ -211,4 +212,4 @@ The dynamics in both Basilisk-based simulators are propagated using the same num
 
 Although these results suggest that several of the tested numerical integration configurations would be sufficient for the translational propagation problem alone, the simulators developed in this thesis impose stricter requirements on the numerical setup. In the Comparative Propagation Simulator, the inclusion of the NRLMSISE-00 atmosphere model introduces atmospheric density variations that are not present in the simpler propagation configurations considered previously. In the GNSS-R Formation Flight Simulator, the same orbital propagation is further coupled to fast attitude dynamics, actuator models, power generation, and autonomous mode switching. These additional models introduce faster dynamics, making it necessary to choose a conservative integration configuration that remains robust across both simulators.
 
-Based on these considerations, both Basilisk-based simulators use the RKF78 variable-step integrator with a maximum step size of 0.5 seconds. A variable-step integrator is selected because it provides high accuracy during dynamically demanding parts of the simulation, such as attitude transitions and formation-keeping maneuvers, while allowing longer internal step sizes during less dynamic coasting or idle periods. This adaptivity is important for reducing computational cost over the long simulation horizons considered in this thesis. The RKF78 method is chosen because a high-precision integration method is desirable when propagating spacecraft trajectories over long time intervals, and because formation-control performance depends directly on accurate relative positioning between the leader and follower satellites. This justifies the increased computational cost per integration step. Finally, the maximum step size is limited to 0.5 seconds as a numerical safeguard against instability in the reaction wheel actuator dynamics used in the GNSS-R Formation Flight Simulator. Although this constraint is only required for the full formation-flight simulator, the same maximum step size is also used in the Comparative Propagation Simulator to ensure that results from the two simulators remain directly comparable.
+Based on these considerations, both Basilisk-based simulators use the RKF78 variable-step integrator with a maximum step size of $1.0$ seconds. A variable-step integrator is selected because it provides high accuracy during dynamically demanding parts of the simulation, such as attitude transitions and formation-keeping maneuvers, while allowing longer internal step sizes during less dynamic coasting or idle periods. This adaptivity is important for reducing computational cost over the long simulation horizons considered in this thesis. The RKF78 method is chosen because a high-precision integration method is desirable when propagating spacecraft trajectories over long time intervals, and because formation-control performance depends directly on accurate relative positioning between the leader and follower satellites. This justifies the increased computational cost per integration step. Finally, the maximum step size is limited to $0.5$ seconds as a numerical safeguard against instability in the reaction wheel actuator dynamics used in the GNSS-R Formation Flight Simulator. Although this constraint is only required for the full formation-flight simulator, the same maximum step size is also used in the Comparative Propagation Simulator to ensure that results from the two simulators remain directly comparable.
