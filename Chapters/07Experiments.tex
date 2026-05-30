@@ -2,15 +2,268 @@
 \begin{comment}
 The purpose of using a sequential TLE series is to reduce the accumulation of SGP4 prediction error that would occur if a single TLE were propagated over the full simulation interval. Since each TLE is derived from recent tracking observations, selecting the TLE closest to each simulation time provides a more observation-informed reference trajectory. The Skyfield output should therefore not be interpreted as an independent high-fidelity truth model, but as an updated SGP4-based reference against which the Basilisk propagation can be compared.
 \end{comment}
+Something like: 
+The purpose of this comparison is to quantify the divergence between the Basilisk translational propagation environment and an observation-updated SGP4 reference, and to assess whether the thesis Basilisk configuration improves over the specialization-project configuration.
+
+State that the Basilisk scenario is configured to start at 23.10.2025 22:19:30 UTC time for t=0 simulation time. This time corresponds to the epoch of the initial TLE used in by the Skyfield SGP4 propagator, which ensures that the simulated 3rd body positions and solar activity are as close as possible to the actual conditions experienced by the HYPSO-1 satellite during this time 
 
 
-\section{GNSS-R Mission Analysis Methodology}
+
+
+
+\clearpage
+\section{GNSS-R Formation Flight Lifetime Analysis Method}
+
+\subsection{Formation flight Scenario}
+
+The \gls{gnssr} formation flight lifetime analysis is performed using the GNSS-R Formation Flight Simulator described in Chapter \ref{chap:lifetime}, with the spacecraft configuration introduced in Section \ref{sec:spacecraft_config}. The simulated scenario consists of two spacecraft: one leader and one follower. Both spacecraft are initialized from a shared deployer orbit, but each with a configurable additional velocity component representing the ejection velocity. The deployer orbital elements are derived from the initial \gls{tle} used in the comparative propagation campaign, ensuring that the lifetime analysis is initialized in the same \glossary{leo} orbital regime used to evaluate the long-horizon Basilisk propagation accuracy.  The spacecraft are subject to the same high-fidelity disturbance environment as the comparative propagation study, including fourth-degree-and-order spherical harmonics, atmospheric drag with density estimated by the NRLMSISE-00 model, third-body perturbations from the Sun and Moon, and solar radiation pressure.
+
+The follower spacecraft is controlled to acquire and maintain a concentric relative orbit around the leader with a radius of $400\mathrm{m}$. As presented in Section \ref{sec:gnssr_coop_measurements}, a concentric formation normally represents a multi-spacecraft configuration, where several followers occupy projected circular relative orbits with increasing radii around a central spacecraft. In this thesis, the configuration is reduced to a single leader-follower pair due to computational constraints, while preserving the essential fuel-consuming task of acquiring and maintaining a bounded relative orbit. Ideally, a $100\mathrm{m}$ spacing would have been chosen to coincide with the HydroSwarm concentric concept presented in \cite{hill2025hydroswarm}, but a $400\mathrm{m}$ separation was instead chosen to prevent the implemented formation controller from diverging due to poorly defined orbital elements in the scenario's near-circular orbit. In addition to the formation control task, the spacecraft are subject to operational constraints imposed by the autonomous mode-switching logic. These constraints determine whether each spacecraft charges, communicates, captures payload data, coasts, or performs formation-control burns based on battery state, ground-station access, illumination, and formation-maintenance requirements.
 \begin{comment}
-
+This subsection should contain the following:
+    * Explain that the lifetime estimation will be performed using the GNSS-R Formation Flight simulator described in chapter \ref{chap:lifetime} with the spacecraft configuration described in Section \ref{sec:spacecraft_config}
+    * 2 satellites, 1 leader, 1 follower. 
+    * The follower will expend fuel in order to acquire and maintain a concentric formation with radius = 400 m. Point out that this formation type generally requires additional spacecraft flying in increasing radii about the leader, but the dual satellite case has been selected because of computational constraints. 
+        - Justify choice of 400m because of constraints in the implemented Basilisk formation maintenance module. I would have run 100m as in the HYDROSWARM paper, but because the scenarion uses a near-circular orbit, the eccentricity becomes poorly defined, which cases the OE difference-based controller to diverge from a 100m radius configuration. 
+    * The satellites will be initialized from a shared deployer that is capable of ejecting each spacecraft at different velocities. Point out that the deployer orbital elements are derived directly from the initial TLE used in the comparative propagator simulator test campaign to make the results from this study directly applicable for this lifetime analysis.
+    * Each satellite will be subject to the full perturbation modeling used in the comparative propagation study. This includes spherical harmonics of 4th degree and order, drag with density estimated by the NRLMSISE-00 atmospheric model, 3rd body perturbations from the Moon and Sun, and SRP
+    * Each satellite will be subject to realistic GNSS-R mission constraints that restricts the satellite's operations to preserve its own battery, and determines its instentanious objective based on surrounding oppertunities. 
 \end{comment}
 
-\subsection{Mission Lifetime Definition}
 
-\subsection{Evaluation Metrics}
+\subsection{Formation Acquisition Definition}
+\label{sec:formation_acquisition_def}
 
-\subsection{Monte Carlo \& Scenarios}
+Formation acquisition refers to the process of applying orbital maneuvers to achieve a desired formation geometry. Since the implemented formation controller is based on desired classical orbital element differences, acquisition is evaluated in terms of the follower's orbital element difference relative to the leader. The formation is considered \textit{acquired} when the deviation between the actual and desired leader-follower orbital element differences remains within prescribed tolerances for a minimum duration dwell time. The acquisition condition is evaluated using tolerances on the semimajor axis, eccentricity and inclination differences. The tolerances used in all formation acquisition campaigns are
+\begin{equation}
+\Delta a_{\mathrm{tol}} = 1.0 \cdot 10^{-5}, \qquad
+\Delta e_{\mathrm{tol}} = 2.0 \cdot 10^{-4}, \qquad
+\Delta i_{\mathrm{tol}} = 2.0 \cdot 10^{-5}.
+\end{equation}
+The formation is considered acquired only if all three conditions are satisfied continuously for a dwell time of
+\begin{equation}
+t_{\mathrm{dwell}} = 0.5~\mathrm{h}.
+\end{equation}
+The acquisition time $t_{\mathrm{acq}}$ is defined as the first time at which the formation orbital element difference enters the prescribed tolerance set, provided that it remains within this set continuously for the entire dwell time duration. Finally, the selected tolerances and dwell time were tuned through preliminary simulations to ensure the most reliable acquisition detection and to prevent short transient crossings of the target state from being counted as successful acquisition.
+
+\begin{comment}
+    * The formation is assumed to be "acquired" whenever the orbital element difference for the leader-follower pair are within certain thresholds for a sufficiently long time (dwell time).
+    * The tolerances and dwell time have been tuned through trail and error.
+    * (This might be too implementation specific, but here we go): The tuned tolerances are as follows:
+        - Semimajor axis difference tolerance, $\Delat a_\mathrm{tol}$: 0.00001
+        - Eccentricity difference tolerance, $\Delat e_\mathrm{tol}$: 0.0002
+        - Inclination difference tolerance, $\Delat i_\mathrm{tol}$: 0.00002
+    * All the leader-follower orbital element differences must be within these tolerances of the desired orbital element difference for a total of $t_\mathrm{dwell} = 0.5$ hours for the formation to be considered \textit{acquired}.
+\end{comment}
+
+
+\subsection{Lifetime Estimation Framework}
+
+The fuel-limited lifetime definition introduced in Section \ref{sec:gnssr_mission_lifetime_def} defines the GNSS-R formation flight mission lifetime as the time at which the remaining usable fuel mass reaches the reserved fuel threshold,
+\begin{equation}
+    m_{\mathrm{fuel}}(T_{\mathrm{life}}) = m_{\mathrm{res}}.
+\end{equation}
+For this spacecraft and scenario configuration, $m_\mathrm{res}$ is set to zero such that mission end is reached only when the available propellant for a required spacecraft has been fully depleted. This is based on the assumption that the spacecraft will de-orbit naturally and burn up in the atmosphere because of the \gls{leo} altitude and its small size, such that reserve fuel capacity is not needed for this purpose. 
+
+For the leader-follower deployment scenario considered in this thesis, the formation flying mission is separated into two phases. The first phase is the formation acquisition phase, which lasts from deployment until the acquisition time $t_{\mathrm{acq}}$ defined in the previous subsection. During this phase, fuel is consumed to remove the initial deployment-induced relative motion and insert the follower into the desired concentric formation geometry. The second phase is the formation-maintenance phase, where fuel is consumed to counteract the long-term relative drift caused by differential perturbations. To evaluate the fuel-limited lifetime, the fuel expenditure in these two phases is represented through a model for the remaining follower fuel mass. The remaining spacecraft fuel mass $m_{\mathrm{fuel}}$ at any given time $t \geq 0$ is modelled as
+\begin{equation}
+    m_{\mathrm{fuel}}(t)
+    =
+    m_{\mathrm{fuel},0}
+    -
+    m_{\mathrm{acq}}(\Delta v_{\mathrm{dep}})
+    -
+    m_{\mathrm{maint}}(t),
+    \qquad
+    \Delta v_{\mathrm{dep}}
+    =
+    \left\|
+    \mathbf{v}_{\mathrm{L},0}
+    -
+    \mathbf{v}_{\mathrm{F},0}
+    \right\|_2
+\end{equation}
+Here, $m_{\mathrm{fuel},0}$ is the initial spacecraft fuel mass, and $m_{\mathrm{maint}}(t)$ is the cumulative post-acquisition formation-maintenance fuel consumption as a function of time. The differential deployment speed $\Delta v_{\mathrm{dep}}$ is defined as the Euclidean norm of the initial deployment-velocity difference between the leader and follower, where $\mathbf{v}_{\mathrm{L},0}$ and $\mathbf{v}_{\mathrm{F},0}$ denote the initial leader and follower deployment velocity vectors, respectively. The acquisition fuel consumption $m_{\mathrm{acq}}(\Delta v_{\mathrm{dep}})$ is modelled as a function of this differential deployment speed. The lifetime estimation is therefore reduced to estimating the two fuel-consumption contributions in the remaining-fuel model. The \textit{deployment velocity fuel sensitivity campaign} described in Section \ref{sec:deploy_sensitivity_campaign} estimates $m_{\mathrm{acq}}(\Delta v_{\mathrm{dep}})$, while the \textit{steady-state formation-maintenance campaign} detailed in Section \ref{sec_steady_state_campaign} estimates $m_{\mathrm{maint}}(t)$. These two function estimates are then combined to predict the fuel-limited GNSS-R formation flight mission lifetime for the selected spacecraft configuration, formation geometry, and deployment scenario.
+
+\begin{comment}
+    * Because of the leader and follower deployment scenario, the formation flying mission can be divided into two phases: Phase 1 is from the deployment until the formation is acquired, and Phase 2 is from the formation has been acquired until the GNSS-R formation flight mission has expried. 
+    * Recall the GNSS-R formation flight mission lifetime definition presented in Section \ref{sec:gnssr_mission_lifetime_def}:
+        \begin{equation}
+        m_{\mathrm{fuel}}(T_{\mathrm{life}}) = m_{\mathrm{res}}.
+        \end{equation}
+    * Define how fuel consumption will be modeled for this thesis:
+        \begin{equation}
+            m_{\mathrm{fuel}}(t)
+            =
+            m_{\mathrm{fuel},0}
+            -
+            m_{\mathrm{acq}}(\Delta v_{\mathrm{dep}})
+            -
+            m_{\mathrm{maint}}(t), \qquad \Delta v_{\mathrm{dep}} = ||\textbf{v}_\mathrm{L} - \textbf{v}_\mathrm{F}||_2
+        \end{equation}
+    * Explain the different symbols
+    * Conclude by stating: "The GNSS-R formation flight lifetime estimate is therefore obtained by estimating the acquisition fuel cost and the post-acquisition maintenance fuel consumption separately."
+\end{comment}
+
+
+\subsection{Deployment Velocity Fuel Sensitivity Campaign}
+\label{sec:deploy_sensitivity_campaign}
+
+The deployment velocity fuel sensitivity campaign is performed to estimate the fuel required to acquire the desired concentric formation as a function of the initial differential deployment speed, $m_{\mathrm{acq}}(\Delta v_{\mathrm{dep}})$. Each simulation begins with the leader and follower initialized from the same deployer orbit, but with different deployment velocity offsets. The acquisition fuel consumption is then computed as the follower fuel consumed from deployment until the acquisition condition defined in Section \ref{sec:formation_acquisition_def} is satisfied. This makes the campaign directly connected to the first fuel-consumption contribution in the lifetime estimation framework.
+
+Due to computational constraints, the campaign is limited to cases where the leader and follower are ejected in opposite directions from the shared deployer. This represents a conservative deployment scenario because the relative velocity between the spacecraft is maximized for a given individual deployment speed. The deployment velocities are applied along the inertial $\hat{\mathbf{x}}^n$ direction, with the leader ejected in the positive direction and the follower ejected in the negative direction. This direction was selected after preliminary tests of deployment along the inertial principal axes, where the $\hat{\mathbf{x}}^n$ case produced the largest perturbation in the leader-follower orbital element differences. The selected direction is therefore used as a worst-case deployment direction for the acquisition analysis.
+
+The simulated deployment speed range is chosen to represent realistic 6U CubeSat deployment conditions. Several commercial deployer specifications indicate deployment speeds below approximately $2~\mathrm{m/s}$ for 6U-class satellites \cite{satsearch2026dhruva_dsod6u, isispace2026quadpack, nanoracks2018nrcsde_idd}. The campaign therefore consists of five 48-hour simulations, where the individual deployment speed magnitude is increased by $0.5~\mathrm{m/s}$ between consecutive runs. The resulting test matrix is summarized in Table \ref{tab:deployment_velocity_sensitivity_campaign}. Since the leader and follower are deployed in opposite directions, the differential deployment speed is twice the individual deployment speed magnitude. The final run therefore corresponds to an individual deployment speed of $2.0~\mathrm{m/s}$ for each spacecraft and a differential deployment speed of $4.0~\mathrm{m/s}$.
+
+
+
+\begin{comment}
+    * Explain that this test campaign aims to estimate the fuel consumption required to acquire the formation as a function of differential deployment velocity $m_\mathrm{acq}(\Delta v_{\mathrm{dep}})$
+    * Because of computational constraints, only cases where the leader and follower are ejected from the shared deployed in exact opposite directions will be considered. This ejection method has been chosen in order to represent a worst-case ejection scenario, where the formation controller must compensate for the maximum amount of velocity difference. 
+    * In this analysis, the satellites will be ejected in the inertial $\hat{\textbf{x}}^n$-direction, where the leader will be pushed out in the positive direction, while the follower will be ejected in the negative direction. This configuration was determined after some initial testing with deployment along the inertial principle axes, where it was revealed that this ejection produced the largest perturbation on the leader-follower orbital elements. This, again means that the worst-case ejection was selected. 
+    * Several sources (\cite{satsearch2026dhruva_dsod6u}, \cite{isispace2026quadpack}, \cite{nanoracks2018nrcsde_idd}) suggest that the expected deployment speed for a 6U satellite is under 2m/s 
+    * Present table showing the 5 runs and their configuration. 
+    * Quickly comment on the table, saying that 5 runs will be completed, with a 0.5m/s deployment speed increase for every sequential run. 
+\end{comment}
+
+\subsection{Formation Steady-State Fuel Consumption Campaign}
+\label{sec_steady_state_campaign}
+\begin{comment}
+    * Explain that this test campaign aims to estimate the steady-state maintenance m_{\mathrm{maint}}(t)
+    * Present a test plan for this 
+\end{comment}
+
+
+
+
+% \subsection{Lifetime Extrapolation}
+% \begin{comment}
+% Onlt write this if time. This could be made clear in the 'Lifetime estimation framework'
+%     * Combine m_acq and m_maint
+%     * Present T_life estimate formula
+% \end{comment}
+
+
+
+
+\subsection{Assumptions \& Limitations}
+\begin{comment}
+* The leader does not contribute to formation control
+* No torque disturbances->No RW saturation-> No magnetorquer desaturation necessary
+* $m_\mathrm{res}$ is assumed to be 0. This is a fair assumption because the scenario uses a 6U satellite in LEO, which will de-orbit and burn up in the atmosphere by itself, so it does require a reserved amount of fuel. 
+* The steady-state fuel consumption campaign is limited to 500-or-something hours due to computational constraints. This would have been much longer in an ideal case. 
+* Limited to 2 spacecraft concentric formation due to computational constraints
+* The simulator has not implemented GNSS constellations, so there is no way to detect feasible GNSS-R observations. The lifetime analysis therefore assumes that it's always possible to perform GNSS-R data capture. But because of this, the CAPTURE operational mode should be interpreted as timespaces where the spacecraft had been ready and able to conduct GNSS-R measurements. 
+* Cooperative capture is not implemented
+* Variable downlink time has not been implemented. Fixed transmit time is assumed (10min)
+\end{comment}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+% The remaining fuel mass $m_{\mathrm{fuel}}$ at any given time $t$ can be modeled as
+% \begin{equation}
+% \begin{split}
+%     m_{\mathrm{fuel}}(t) &= m_0 - m_{\mathrm{acq}}(\delta \textbf{v}_\mathrm{dep}^f) - f(m_{\mathrm{fuel}}) \cdot t \\
+%     &\approx m_0 - m_{\mathrm{acq}} - f(t) \cdot t
+% \end{split}
+% \end{equation}
+
+% The estimated GNSS-R formation flight mission lifetime $T_{\mathrm{life}}$, is defined such that 
+% \begin{equation}
+%     m(T_\mathrm{life}) = m_0 - m_{\mathrm{acq}} - f(T_\mathrm{life}) \cdot T_\mathrm{life} \triangleq 0
+% \end{equation}
+
+% The GNSS-R formation flight mission lifetime analysis will be split into two parts:
+% \begin{enumerate}
+%     \item Formation acquisition cost: how much fuel is consumed immediately after deployment to acquire the target formation. (estimate $f_\mathrm{acq}$ as a function of differential deployment velocity)
+%     \item Steady-state formation-maintenance cost: how much fuel is consumed per day/month after the formation has settled.
+% \end{enumerate}
+
+
+% The first part aims to estimate the fuel mass expenditure $m_{\mathrm{acq}}(\delta \textbf{v}_\mathrm{dep}^f)$ required to acquire the desired formation (is it correct to call this a 'deployment sensitivity analysis'?), while the second part aims to estimate the steady state formation-maintenance fuel mass rate $f(m_{\mathrm{fuel}})$.
+
+
+
+
+
+% The fuel-limited mission lifetime is estimated by separating the total propellant expenditure into an initial formation-acquisition cost and a subsequent steady-state formation-maintenance cost. Let $m_{\mathrm{fuel},0}$ denote the initial usable fuel mass, and let $m_{\mathrm{res}}$ denote a reserved or unusable fuel margin. The remaining usable fuel mass can then be written as
+% \begin{equation}
+%     m_{\mathrm{fuel}}(t)
+%     =
+%     m_{\mathrm{fuel},0}
+%     -
+%     m_{\mathrm{acq}}(\delta \mathbf{v}_{\mathrm{dep}}^f)
+%     -
+%     m_{\mathrm{maint}}(t),
+% \end{equation}
+% where $m_{\mathrm{acq}}$ is the fuel consumed during formation acquisition, and $m_{\mathrm{maint}}(t)$ is the cumulative fuel consumed by steady-state formation maintenance after acquisition.
+
+% After the formation has been acquired, the maintenance fuel consumption is approximated by a constant average rate,
+% \begin{equation}
+%     m_{\mathrm{maint}}(t)
+%     =
+%     \int_{t_{\mathrm{acq}}}^{t}
+%     \dot{m}_{\mathrm{cons}}(\tau)\, d\tau,
+%     \qquad t \geq t_{\mathrm{acq}},
+% \end{equation}
+% where $\dot{m}_{\mathrm{maint}}$ is estimated from the post-acquisition fuel-mass trend.
+
+% The fuel-limited mission lifetime $T_{\mathrm{life}}$ is defined as the first time at which the remaining fuel reaches the reserved fuel threshold,
+% \begin{equation}
+%     m_{\mathrm{fuel}}(T_{\mathrm{life}}) = m_{\mathrm{res}}.
+% \end{equation}
+% Using the constant-rate maintenance approximation, this gives
+% \begin{equation}
+%     T_{\mathrm{life}}
+%     \approx
+%     t_{\mathrm{acq}}
+%     +
+%     \frac{
+%         m_{\mathrm{fuel},0}
+%         -
+%         m_{\mathrm{res}}
+%         -
+%         m_{\mathrm{acq}}(\delta \mathbf{v}_{\mathrm{dep}}^f)
+%     }{
+%         \dot{m}_{\mathrm{maint}}
+%     }.
+% \end{equation}
+
+
+% \subsection{Deployment Velocity Sensitivity Analysis}
+% How initial differential deployment velocity affects acquisition fuel cost, acquisition time, and acquisition reliability. It is important to have a precise definition of this, otherwise early maintenance cost gets included or acquisition consumption gets ignored, which degrades the estimated result's accuracy. 
+
+
+
+

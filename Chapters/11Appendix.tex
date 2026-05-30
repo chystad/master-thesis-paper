@@ -3,7 +3,7 @@
 \section*{A - Github repository}
 \addcontentsline{toc}{chapter}{\protect\numberline{}A - Github repository} 
 
-All simulator code and LaTeX-files used in the thesis provided by the GitHub repositories linked below. Note that both the Comparative Propagation Simulator and GNSS-R Formation Flight Simulator are contained within the \textit{Simulator Repository} link.
+All simulator code and LaTeX-files used in the thesis is provided by the GitHub repositories linked below. Note that both the Comparative Propagation Simulator and GNSS-R Formation Flight Simulator are contained within the \textit{Simulator Repository} link.
 
 \subsection*{Simulator Repository}
 % \addcontentsline{toc}{subsection}{\protect\numberline{}Simulator Repository} 
@@ -41,54 +41,8 @@ All simulator code and LaTeX-files used in the thesis provided by the GitHub rep
 
 
 \clearpage
-\section*{C - Simulator Basilisk Process-Task-Model Structure}
-\addcontentsline{toc}{chapter}{\protect\numberline{}C - Simulator Basilisk Process-Task-Model Structure} 
-
-\subsection*{\hl{Comparative Propagation Simulator}}
-% Todo
-
-\subsection*{GNSS-R Formation Flight Simulator}
-\begin{figure}[htbp]
-    \small
-    \dirtree{%
-    .1 GNSS-R Formation Flight Simulator.
-    .2 EnvironmentProcess.
-    .3 EnvironmentTask.
-    .4 [20] spiceObj.
-    .4 [20] eclipseObj.
-    .4 [20] groundStation(s).
-    .4 [20] atmObj.
-    .3 MsisInputUpdaterTask.
-    .4 [20] msisInputUpdater.
-    .2 DynamicsProcess\_\textless sat\_idx\textgreater.
-    .3 DynamicsTask\_\textless sat\_idx\textgreater.
-    .4 scObj.
-    .4 [20] dragEffector.
-    .4 [20] srpEffector.
-    .4 [20] solarPanel(s).
-    .4 [20] rwEffector.
-    .4 [20] thrusterEffector.
-    .4 [20] fuelTankEffector.
-    .4 [20] battery.
-    .4 [20] obcPowerSink.
-    .4 [20] rwPower(s).
-    .4 [10] recorders.
-    .2 FswProcess\_\textless sat\_idx\textgreater.
-    .3 FswTask\_\textless sat\_idx\textgreater.
-    .4 [20] scheduler.
-    .4 [10] recorders.
-    .2 RecorderFlusherProcess.
-    .3 [20] RecorderFlusherTask.
-    .4 [20] recorderFlusher.
-    }
-    \caption{\hl{TODO: Update and verify after simulator update. Hierarchical process-task-model structure of the GNSS-R formation flight Basilisk simulator. The number in square brackets denote the model priority, where higher priority models are updated first. Same-priority tasks are orderly updated from the top-down within a task. ``\textit{<sat\_idx>}'' represents per-spacecraft processes and tasks.}}
-    \label{fig:formfly_process_hierarchy}
-\end{figure}
-
-
-\clearpage
-\section*{\hl{D - Spacecraft Component Parameters}}
-\addcontentsline{toc}{chapter}{\protect\numberline{}\hl{D - Spacecraft Component Parameters}}
+\section*{\hl{C - Spacecraft Component Parameters}}
+\addcontentsline{toc}{chapter}{\protect\numberline{}\hl{C - Spacecraft Component Parameters}}
 
 \newcommand{\tcell}[1]{\begin{tabular}[t]{@{}l@{}}#1\end{tabular}}
 \begingroup
@@ -258,6 +212,100 @@ All simulator code and LaTeX-files used in the thesis provided by the GitHub rep
 
 \end{xltabular}
 \endgroup
+
+
+\clearpage
+\section*{\hl{D - Simulator Basilisk Process-Task-Model Structure}}
+\addcontentsline{toc}{chapter}{\protect\numberline{}D - Simulator Basilisk Process-Task-Model Structure} 
+
+\subsection*{\hl{Comparative Propagation Simulator}}
+% Todo
+
+\subsection*{GNSS-R Formation Flight Simulator}
+\begin{figure}[htbp]
+    \small
+    \dirtree{%
+    .1 GNSS-R Formation Flight Simulator.
+    .2 EnvironmentProcess.
+    .3 EnvironmentTask.
+    .4 [20] spiceObj.
+    .4 [20] eclipseObj.
+    .4 [20] groundStation(s).
+    .4 [20] atmObj.
+    .3 MsisInputUpdaterTask.
+    .4 [20] msisInputUpdater.
+    .2 DynamicsProcess\_\textless sat\_idx\textgreater.
+    .3 DynamicsTask\_\textless sat\_idx\textgreater.
+    .4 scObj.
+    .4 [20] dragEffector.
+    .4 [20] srpEffector.
+    .4 [20] solarPanel(s).
+    .4 [20] rwEffector.
+    .4 [20] thrusterEffector.
+    .4 [20] fuelTankEffector.
+    .4 [20] battery.
+    .4 [20] obcPowerSink.
+    .4 [20] rwPower(s).
+    .4 [10] recorders.
+    .2 FswProcess\_\textless sat\_idx\textgreater.
+    .3 FswTask\_\textless sat\_idx\textgreater.
+    .4 [20] scheduler.
+    .4 [10] recorders.
+    .2 RecorderFlusherProcess.
+    .3 [20] RecorderFlusherTask.
+    .4 [20] recorderFlusher.
+    }
+    \caption{\hl{TODO: Update and verify after simulator update. Hierarchical process-task-model structure of the GNSS-R formation flight Basilisk simulator. The number in square brackets denote the model priority, where higher priority models are updated first. Same-priority tasks are orderly updated from the top-down within a task. ``\textit{<sat\_idx>}'' represents per-spacecraft processes and tasks.}}
+    \label{fig:formfly_process_hierarchy}
+\end{figure}
+
+
+\clearpage
+\section*{E - GNSS-R Formation Flight Campaign Parameters}
+\addcontentsline{toc}{chapter}{\protect\numberline{}D - Simulator Basilisk Process-Task-Model Structure} 
+
+\begin{sidewaystable}[htbp]
+    \centering
+    \small
+    \setlength{\tabcolsep}{4pt}
+    \renewcommand{\arraystretch}{0.9}
+    \caption{GNSS-R Formation Flight Simulator update rate, controller gain and operational mode transition constants shared by all lifetime analysis campaigns}
+    \label{tab:base_simulator_constants}
+    \begin{tabular}{llll}
+        \hline
+        \textbf{Category} & \textbf{Variable} & \textbf{Value} & \textbf{Description} \\
+        \hline
+
+        \multirow{5}{*}{\begin{tabular}[c]{@{}l@{}}Module\\ update\\ rate\end{tabular}}
+        & \texttt{ENV\_RATE} & $1.0~\mathrm{s^{-1}}$ & Environment model update rate \\
+        & \texttt{DYN\_RATE} & $0.1~\mathrm{s^{-1}}$ & Dynamics model update rate \\
+        & \texttt{FSW\_RATE} & $0.1~\mathrm{s^{-1}}$ & Flight software update rate \\
+        & \texttt{MSIS\_RATE} & $30~\mathrm{s^{-1}}$ & MSIS input update rate \\
+        & \texttt{FLUSH\_RATE} & $24~\mathrm{h}$ & Recorder output and flush interval \\
+        \hline
+
+        \multirow{3}{*}{\begin{tabular}[c]{@{}l@{}}Attitude\\ controller\\ gain\end{tabular}}
+        & \texttt{MRP\_K} & $0.05$ & Gain on attitude error \\
+        & \texttt{MRP\_P} & $0.035$ & Gain on attitude-rate error \\
+        & \texttt{MRP\_KI} & $-1$ & Integral gain, where $-1$ disables integral action \\
+        \hline
+
+        \multirow{12}{*}{\begin{tabular}[c]{@{}l@{}}Operational\\ mode\\ transition\\ constraints\end{tabular}}
+        & \texttt{LOW\_BATTERY\_THRESHOLD} & $0.3$ & Upper battery threshold for low-charge state \\
+        & \texttt{CRITICAL\_BATTERY\_THRESHOLD} & $0.2$ & Upper battery threshold for critically low-charge state \\
+        & \texttt{EMERGENCY\_BATTERY\_EXIT\_THRESHOLD} & $0.7$ & Minimum battery level required to exit emergency mode \\
+        & \texttt{CAPTURE\_BATTERY\_ENTER\_THRESHOLD} & $0.45$ & Battery threshold for entering capture mode \\
+        & \texttt{CAPTURE\_BATTERY\_EXIT\_THRESHOLD} & $0.38$ & Battery threshold for exiting capture mode \\
+        & \texttt{COMMS\_BATTERY\_ENTER\_THRESHOLD} & $0.35$ & Battery threshold for entering communication mode \\
+        & \texttt{COMMS\_BATTERY\_EXIT\_THRESHOLD} & $0.28$ & Battery threshold for exiting communication mode \\
+        & \texttt{MIN\_MINUTES\_COM\_TIME} & $10~\mathrm{min}$ & Minimum duration of a communication event, if feasible \\
+        & \texttt{MAX\_HOURS\_SINCE\_LAST\_COM\_THRESHOLD} & $12~\mathrm{h}$ & Maximum time since last communication event \\
+        & \texttt{SHADOWFAC\_ENTER\_THRESHOLD} & $0.6$ & Minimum illumination factor required to enter charge mode \\
+        & \texttt{SHADOWFAC\_EXIT\_THRESHOLD} & $0.4$ & Maximum illumination factor required to exit charge mode \\
+        & \texttt{BURN\_ATT\_ADJUSTMENT\_TIME\_SEC} & $15~\mathrm{s}$ & Fixed time between burn request and burn execution \\
+        \hline
+    \end{tabular}
+\end{sidewaystable}
 
 % \clearpage
 % \section*{C - Numerical Values}

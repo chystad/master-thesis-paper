@@ -152,6 +152,7 @@ The inclination is the intersection angle between the orbital plane and the refe
 
 The argument of perigee specifies the orientation of the ellipse within the orbital plane. It is defined as the angle from the ascending node to the perigee along the orbital trajectory, where perigee is a term specific to Earth satellites, describing the point along the trajectory closest to Earth. Finally, the mean anomaly defines the orbiting body's position along the orbit as a function of time. It is defined as the elapsed fraction of the orbital period since the orbiting body passed the perigee \cite{curtis2005orbital, astronomicalreturns_orbitalelements}. 
 
+\subsection{\hl{Undefined Orbits / Singularities?}}
 \begin{comment}
 WRITE A SMALL PARAGRAPH ABOUT THIS!!
 
@@ -159,6 +160,10 @@ e ≈ 0  →  argument of periapsis ω poorly defined
 i ≈ 0  →  RAAN Ω poorly defined
 e ≈ 0 and i ≈ 0  →  both Ω and ω become poorly defined
 \end{comment}
+
+\subsection{\hl{Two-Line Elements (TLE)?}}
+
+
 
 
 
@@ -302,7 +307,7 @@ Use the following sources:
 For a leader-follower spacecraft pair, the relative orbit can be described by the difference between their respective classic orbital elements. If the leader has orbital elements $\boldsymbol{\alpha}_L$, and the follower has $\boldsymbol{\alpha}_F$, the differential orbital elements can be expressed as
 \begin{equation}
     \Delta \boldsymbol{\alpha} = \boldsymbol{\alpha}_F - \boldsymbol{\alpha}_L = \begin{bmatrix}
-        \delta a & \delta e & \delta i & \delta \Omega & \delta \omega & \delta M_0
+        \Delta a & \Delta e & \Delta i & \Delta \Omega & \Delta \omega & \Delta M_0
     \end{bmatrix}^T
 \end{equation}
 where the components represent the differences in semimajor axis, eccentricity, inclination, \gls{raan}, argument of perigee and mean anomaly at a chosen epoch, respectively. Under the ideal two-body assumption, where the Earth is modeled as a spherical body and all perturbing forces from Section \ref{sec:orbital_perturb} are neglected, the only form of secular formation drift is caused by a difference in the semimajor axis. This is stated by Alfriend et al. in \cite{alfriend2010}, who explain that the drift only manifest in the along-track direction, resulting in continuous differential mean anomaly growth. This interpretation is also consistent with Hammerl \& Schaub, who show that the relative radial offset must be zero for bounded relative motion in \cite{schaub2026}.
@@ -368,9 +373,15 @@ where $||\textbf{a}_{D}||_2$ denotes the drag acceleration magnitude of the lead
 
 
 
+
+
+
+
 \subsection{Cooperative GNSS-R Measurements}
+\label{sec:gnssr_coop_measurements}
 % Multi-satellite cooperation concepts
 % required formation
+\hl{Mentioned in Formation flight Scenario}
 
 
 \subsection{Operational Constraints}
@@ -381,6 +392,46 @@ where $||\textbf{a}_{D}||_2$ denotes the drag acceleration magnitude of the lead
 % Formation geometry tolerances
 % Attitude constraints (antenna pointing, Earth-visibility, GNSS visibility)
 % Power constraints (observation power consumtion, attitude maintenance costs, battery dependence)
+
+\subsection{GNSS-R Formation Flying Mission Lifetime Definition}
+\label{sec:gnssr_mission_lifetime_def}
+A spacecraft mission lifetime can generally be defined as the time from deployment until the spacecraft can no longer provide its intended functionality. For a conventional remote-sensing spacecraft, this functionality is often limited by the ability to generate power, communicate with ground stations, maintain attitude pointing, and operate the payload. For a formation flying \gls{gnssr} mission, however, the mission functionality also depends on the ability to maintain the required relative geometry between the spacecraft. If the formation geometry can no longer be maintained within the required tolerance, the cooperative \gls{gnssr} measurement concept can no longer be supported.
+
+As discussed in Section \ref{sec:diff_perturb}, differential perturbations cause spacecraft formations to drift away from their desired relative geometry over time. Formation-control maneuvers are therefore required to counteract this drift. For a propulsion-based formation maintenance strategy, this makes the available propellant a limiting resource. A spacecraft loses its ability to maintain the formation once the remaining usable fuel is depleted, or once it falls below a reserved fuel threshold. The fuel-limited lifetime of the formation can therefore be defined as the time from deployment until one of the required spacecraft can no longer perform the maneuvers needed to maintain the desired formation geometry.
+
+Let $m_{\mathrm{fuel}}(t)$ denote the remaining usable fuel mass of the limiting spacecraft at time $t$, and let $m_{\mathrm{res}}$ denote the reserved or unusable fuel mass. The fuel-limited mission lifetime is then defined as the time $T_\mathrm{life}$ that fulfills the following equation
+
+\begin{equation}
+m_{\mathrm{fuel}}(T_{\mathrm{life}}) = m_{\mathrm{res}}.
+\end{equation}
+
+For a formation consisting of multiple controlled spacecraft, the formation lifetime is determined by the first required spacecraft that reaches this condition. The mission lifetime can therefore be expressed as
+
+\begin{equation}
+    T_{\mathrm{life,form}}
+    =
+    \min_i T_{\mathrm{life},i},
+\end{equation}
+
+where $T_{\mathrm{life},i}$ is the fuel-limited lifetime of spacecraft $i$. This definition only describes the fuel-limited lifetime. Other end-of-life drivers, such as battery degradation, component failure, loss of communication capability, or orbital decay, may also limit an actual mission. End-of-life disposal or de-orbiting requirements may also reserve part of the propellant, effectively reducing the usable fuel available for formation maintenance.
+
+\begin{comment}
+* A Spacecraft lifetime is generally defined as the time from deployment until the loss of its intended functionality. 
+* State that GNSS-R missions lifetimes are, like most remote sensing missions, independent on payload because scientific data collection will be possible as long as power is available. To this extent, battery degradation over time due to frequent charge cycles eventually become a limiting factor, but other factors are more urgent for formation flying missions. 
+For a GNSS-R formation flying mission that rely on precise formation geometry to provide its intended functionality, the mission can be considered ended when one of the satellites looses its ability to maintain the desired geometry.
+* As stated in \ref{sec:diff_perturb}, differential perturbations cause formations to naturally drift apart over time, which means that formation control strategies are required for formation geometry maintenance. However, this means that a spacecraft looses its ability to maintain a formation whenever the on-board propellant runs out. 
+* Thus, the lifetime of a GNSS-R formation flying mission can be defined as the duration from deployment until the propellant is depleted such that it looses its ability to maintain the desired geometry. 
+* The mission lifetime $T_{\mathrm{life}}$ can then be defined mathematically as:
+
+\begin{equation}
+    m_{\mathrm{fuel}}(T_{\mathrm{life}}) \triangleq 0
+\end{equation}
+
+
+* De-orbiting is also a fuel consumption driver, where the spacecraft must compensate for the momentum loss due to atmospheric drag, but its effect on mission lifetime depends strongly on the orbital altitude. 
+\end{comment}
+
+
 
 % \section{Simulation Frameworks}
 \section{Basilisk Process-Task-Model Hierarchy}

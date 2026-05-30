@@ -101,36 +101,35 @@ Although the two simulators differ in purpose and implementation complexity, the
         Subsystem & Component & Mass [g] & Source \\
         \hline
 
-        Structural & Frame & 665 & GomSpace NanoStructure 6U \\
+        Structural & Frame & 665 & GomSpace NanoStructure 6U \cite{endurosat_6u_solar_panel} \\
         OBC & OBC & 240 & GomSpace NanoMind HP MK3 \\
-        EPS & Power management & 80 & GomSpace NanoPower (dock, 1ACU, 1PCU) \\
+        EPS & Power management & 80 & GomSpace NanoPower (1ACU \& 1PCU) \\
         EPS & battery & 500 & GomSpace Nanopower BPX 100 Wh \\
         EPS & Solar panels BIG & 392 & Endurosat 6U Solar panel \\
         EPS & Solar panels SMALL & 2 $\times$ 147 & Endurosat 3U Solar panel \\
         Comms & Radio Antenna & 2 & Endurosat X-band patch antenna \\
-        Payload & GNSS-R Receiver & \hl{-} & \hl{-} \\
-        Payload & GNSS Receiver & 114 & Endurosat GNSS patch antenna L1 + L2 \\
+        Payload & Payload system & 1200 & Scout-2 HydroGNSS payload system \cite{hydrognss_requirements_2024} \\
         AOCS & Propulsion System Dry & 1430 & VACCO ArgoMoon propulsion system \\
         AOCS & RWs & 4 $\times$ 144 & Cubespace CW0162 \\
         Misc & Wires and mounting & 100 &  \\
         \hline
 
-        \multicolumn{2}{r}{\textbf{System mass}:} & 4393 &  \\
-        \multicolumn{2}{r}{20\% margin:} & 879 &  \\
-        \multicolumn{2}{r}{\textbf{Total dry mass}:} & 5272 &  \\
+        \multicolumn{2}{r}{\textbf{System mass}:} & 5479 &  \\
+        \multicolumn{2}{r}{20\% margin:} & 1096 &  \\
+        \multicolumn{2}{r}{\textbf{Total dry mass}:} & 6575 &  \\
         \multicolumn{2}{r}{Propellant:} & 635 &  \\
-        \multicolumn{2}{r}{\textbf{Total wet mass}:} & 5907 &  \\
+        \multicolumn{2}{r}{\textbf{Total launch mass}:} & 7210 &  \\
         \hline
     \end{tabular}
 \end{table}
 
 
-Assuming uniform mass distribution, a perfect cuboid shape, and the body frame definition illustrated in Figure \ref{fig:body_def}, the spacecraft moment of inertia matrix can be estimated to
+Assuming uniform mass distribution, a perfect cuboid shape, and the body frame definition illustrated in Figure \ref{fig:body_def}, the spacecraft moment of inertia matrix can be estimated to \hl{ROUND FINAL ESTIMATE}
 \begin{equation}
   J = \begin{bmatrix}
-    0.049221667 &	0	& 0 \\
-    0 &	0.024610833 &	0 \\
-    0 &	0 &	0.063988167
+    0.060081667 &	0	& 0 \\
+    0 &	0.030040833 &	0 \\
+    0 &	0 &	0.078106167
   \end{bmatrix} 
 \end{equation}
 
