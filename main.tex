@@ -172,16 +172,27 @@
 \cleardoublepage
 
 
-\chapter*{\LARGE \textbf{Appendix}}
-\fancyhf{} %clear the header, it should be empty for the appendices
-\renewcommand{\headrulewidth}{0pt} %no rule
-\fancyfoot[C]{\thepage} %set the page numbers in the center of the footer instead 
+\appendix
 
-%it is possible to set a different page numbering style for the appendix, but I personally just continued with the same page numbering as the main content as I find that more tidy
+% Appendix page style
+\fancyhf{} % clear the header; it should be empty for the appendices
+\renewcommand{\headrulewidth}{0pt} % no rule
+\fancyfoot[C]{\thepage} % set appendix page numbers in the center of the footer
+
+% Keep appendix page numbering separate from the main text.
+% Remove these two lines if you prefer continuous Arabic page numbering.
 \pagenumbering{roman}
 \setcounter{page}{1}
-\addcontentsline{toc}{chapter}{\protect\numberline{}Appendices:}
-\appendix
+
+% Make appendix chapter numbers appear as "A -" in the table of contents and headings.
+% Section numbers are redefined separately to avoid forms such as "A -.1".
+\renewcommand{\thechapter}{\Alph{chapter} -}
+\renewcommand{\thesection}{\Alph{chapter}.\arabic{section}}
+
+% Add a non-numbered appendix group label to the ToC.
+% Individual appendices are now added automatically by \chapter in 11Appendix.tex.
+\addtocontents{toc}{\protect\contentsline{chapter}{\protect\numberline{}Appendices:}{}{}}
+
 \input{Chapters/11Appendix}
  
 

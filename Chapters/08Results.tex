@@ -44,7 +44,7 @@ At the end of the 14-day propagation interval, the primary thesis Basilisk confi
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{Figures/05Results/bsk_skf_comparison/Ex1 - RTN pos difference.png}
-    \caption{Decomposition of the same-spacecraft position difference in the RTN frame}
+    \caption{\hl{If time, change the subplot ordering to R, T, N}. Decomposition of the same-spacecraft position difference in the RTN frame}
     \label{fig:same_sc_pos_RTN_decomposition} 
 \end{figure}
 Figure \ref{fig:same_sc_pos_RTN_decomposition} shows the same-spacecraft position difference for the leader spacecraft decomposed in the Skyfield-SGP4 baseline leader's RTN frame. The along-track component is the dominant contributor to the position difference for all Basilisk configurations. The primary thesis configuration with the NRLMSISE-00 atmosphere model diverges in the positive along-track direction, while both exponential atmosphere configurations diverge in the negative along-track direction. By the end of the 14-day comparison interval, the old specialization-project exponential atmosphere configuration has the largest along-track difference, followed by the re-tuned exponential atmosphere configuration and the primary thesis configuration.
@@ -112,7 +112,7 @@ The long-term altitude trend differs between the atmosphere models. The primary 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{Figures/05Results/bsk_skf_comparison/Ex1 - Leader follower RTN relative position difference.png}
-    \caption{Leader-follower pair same-formation position drift difference for each Basilisk configuration compared against the updating TLE Skyfield-SGP4 baseline.}
+    \caption{\hl{If time, change the subplot ordering to R, T, N}.Leader-follower pair same-formation position drift difference for each Basilisk configuration compared against the updating TLE Skyfield-SGP4 baseline.}
     \label{fig:same_form_drift_RTN_decomposition} 
 \end{figure}
 
@@ -151,18 +151,8 @@ Insert short introduction here including
 \end{comment}
 
 
+\clearpage
 \subsection{RTN Formation Trajectories}
-\begin{comment}
-* The highest deployment-speed cases produce the largest initial relative excursions.
-* The $\Delta v_{\mathrm{dep}} = 4~\mathrm{m/s}$ case has the largest early radial/along-track/cross-track excursion.
-* After the acquisition phase, all cases converge to similar bounded RTN relative-position trajectories.
-* The acquired formation has much smaller relative-position variation than the initial deployment transient.
-
-* The radial, along-track, and cross-track components show the largest transient deviations for the largest deployment speeds.
-* The vertical dashed lines indicate acquisition time for each case.
-* The higher-speed cases generally take longer to satisfy the acquisition criterion.
-* The component oscillations reduce and become similar after the burn sequence has inserted the follower into the target relative motion.
-\end{comment}
 
 \begin{figure}[htbp]
     \centering
@@ -177,16 +167,36 @@ Insert short introduction here including
         \includegraphics[width=\linewidth]{Figures/05Results/deployment_sensitivity_analysis/deployment_velocity_rtn_relative_position_3d_selected_runs_15_48h.png}
     \end{minipage}
 
-    \caption{Leader-follower RTN relative-position trajectories for selected differential deployment-velocities. The left plot shows the initial transient response over $t \in [0, 15]$ h, while the right plot shows the subsequent bounded relative motion over $t \in [15, 48]$ h.}
-    \label{fig:rtn_relative_position_3d_trajectories}
+    \caption{Leader-follower RTN relative-position trajectories for a selected set of differential deployment velocities corresponding to run 0, 2, 4, 6 and 8 detailed in \ref{sec:deploy_sensitivity_campaign}. The left plot shows the initial transient response over $t \in [0, 15]$ h, while the right plot shows the subsequent bounded relative motion over $t \in [15, 48]$ h.}
+    \label{fig:diff_deploy_rtn_relative_position_3d_trajectories}
 \end{figure}
+
+Figure \ref{fig:diff_deploy_rtn_relative_position_3d_trajectories} shows the leader-follower relative-position trajectories for selected deployment velocity cases, expressed in the leader RTN frame. The left plot shows the initial response during the first $15 \mathrm{h}$ after deployment, while the right plot shows the relative motion over the remaining interval from $15$ to $48 \mathrm{h}$. The largest initial relative-position magnitude occur for the largest differential deployment speeds, but all cases evolve into similar bounded relative-position trajectories.
+
+\begin{comment}
+* Figure \ref{fig:diff_deploy_rtn_relative_position_3d_trajectories} show the formation trajectories for a selected number of runs (differential deployment speeds 0, 1, 2, 3 and 4m/s) expressed in the \gls{rtn} frame while influenced by the formation control system. The left plot show the transient formation acquisition for times up until 15 hours after deployment, while the right plot show the more stable formation after the initial transients have faded. (be very careful not to use the word "acquired" here, because the acquisition time will only be determined in the next subsection)
+* The RTN trajectories are decomposed into its Radial, Along-track and Cross-track components in Figure \ref{fig:diff_deploy_rtn_relative_position_decomposition}. The vertical dashed lines show acquisition times of the runs of same color, but this will be presented in more detail in the next subsections.  
+* Comment on the observed results in these plots:
+    * The general trend seem to be that the transient oscillatory position difference increase in magnitude with increased differential deployment velocity. This is especially apparent in the cross-track component in Figure \ref{diff_deploy_rtn_relative_position_decomposition}, and the transient trajectories
+    * Despite this, the 
+Point out that, while it is tempting to attribute the large initial follower deviation from the desired formation geometry purely to its differential deployment speed, it is also because of formation acquisition burns. 
+\end{comment} 
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{Figures/05Results/deployment_sensitivity_analysis/deployment_velocity_rtn_relative_position_components_selected_runs.png}
-    \caption{asdf}
-    \label{fig:h} 
+    \caption{\hl{Add all case visualization to appendix} Decomposition of the leader-follower RTN relative-position trajectories into its individual components over $t \in [0, 15]$. Only a selected set of differential deployment velocities are included, corresponding to run 0, 2, 4, 6 and 8 detailed in \ref{sec:deploy_sensitivity_campaign}. The vertical dashed lines show the corresponding color's acquisition time. }
+    \label{fig:diff_deploy_rtn_relative_position_decomposition} 
 \end{figure}
+
+The component-wise RTN relative-position time series is shown in Figure \ref{fig:diff_deploy_rtn_relative_position_decomposition}. The radial, along-track, and cross-track components all show transient oscillations during the initial formation response. The largest transient amplitudes occur for the highest differential deployment-speed cases, most clearly in the cross-track component. The $\Delta v_{\mathrm{dep}} = 4~\mathrm{m/s}$ case reaches the largest along-track displacement, while the lower deployment-speed cases remain closer to the leader during the initial interval. The vertical dashed lines in Figure \ref{fig:diff_deploy_rtn_relative_position_decomposition} indicate the acquisition times determined for the corresponding deployment velocity cases. These acquisition times are evaluated formally in the next subsection using the orbital-element-difference acquisition criterion. The RTN trajectories shown here therefore present the geometric leader-follower response before and after the initial formation insertion process.
+
+
+
+
+
+
+
 
 
 \subsection{Formation Acquisition Determination}
@@ -194,23 +204,36 @@ Insert short introduction here including
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{Figures/05Results/deployment_sensitivity_analysis/deployment_velocity_oed_da_de_di_comparison.png}
-    \caption{a}.
-    \label{fig:e} 
+    \caption{\hl{Show all cases in same fugure in Appendix} Classic orbital element differences between the leader-follower pair for a selected set of differential deployment velocities corresponding to run 0, 2, 4, 6 and 8 detailed in \ref{sec:deploy_sensitivity_campaign}. The horizontal dashed lines show the OED tolerance range, while the vertical dashed lines show the acquisition times.}
+    \label{fig:diff_deploy_oed} 
 \end{figure}
+
+The formation acquisition time was determined from the time evolution of the follower-leader classical orbital element differences, shown in Figure \ref{fig:diff_deploy_oed} for a selected subset of all cases presented in Section \ref{sec:deploy_sensitivity_campaign}. For this campaign, acquisition was defined by the follower remaining within the specified tolerance bounds for the selected acquisition-relevant \gls{oed} components: $\Delta a/a$, $\Delta e$, and $\Delta i$, in accordance with Section \ref{sec:formation_acquisition_def}. The tolerance ranges are shown as black dashed horizontal lines, and the vertical dashed lines show the corresponding acquisition times.
+
+The results show that the initial differential deployment speeds produces different transient \gls{oed} responses that eventually converge within the formation tolerances at different rates. The steep changes observed in the \gls{oed} histories are caused by formation-control burn maneuvers, which rapidly adjust the relative orbital elements. These jumps are especially visible in $\Delta a/a$ and $\Delta i$, where the commanded burns rapidly changes the semi-major axis and inclination difference. Between these burn events, the \gls{oed}s evolve more smoothly due to the natural relative orbital motion and perturbation environment.
+
+The acquisition time generally increases with differential deployment speed, but the trend is not strictly true for the displayed cases. The largest differential deployment speed case is acquired slightly before the next-highest case, which is the only visible deviation from the overall trend of the displayed cases. The figure therefore indicates that increasing differential deployment speed generally increases the time required to establish the target formation, while the exact acquisition time also depends on the timing and effect of the discrete formation-control burn sequence.
+
+
+
+
+
+
+
 
 
 \subsection{Acquisition Fuel Consumption}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{Figures/05Results/deployment_sensitivity_analysis/deployment_velocity_follower_cumulative_fuel_consumption.png}
-    \caption{a}.
+    \includegraphics[width=0.8\textwidth]{Figures/05Results/deployment_sensitivity_analysis/deployment_velocity_follower_cumulative_fuel_consumption.png}
+    \caption{}.
     \label{fig:d} 
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{Figures/05Results/deployment_sensitivity_analysis/deployment_velocity_acquisition_time_and_fuel_vs_deployment_speed.png}
+    \includegraphics[width=0.8\textwidth]{Figures/05Results/deployment_sensitivity_analysis/deployment_velocity_acquisition_time_and_fuel_vs_deployment_speed.png}
     \caption{something}.
     \label{fig:b} 
 \end{figure}
@@ -245,9 +268,52 @@ Insert short introduction here including
 
 \subsection{Deployment Sensitivity Summary}
 
+\begin{table}[H]
+    \centering
+    \caption{Summary of deployment velocity formation acquisition results.}
+    \label{tab:deployment_velocity_acquisition_summary}
+    \begin{tabular}{lccccccc}
+        \toprule
+        \textbf{Run} &
+        $\boldsymbol{\Delta v_{\mathrm{dep}}}$ \textbf{[m/s]} &
+        \textbf{Acquired} &
+        $\boldsymbol{t_{\mathrm{acq}}}$ \textbf{[h]} &
+        $\boldsymbol{m_{\mathrm{acq}}}$ \textbf{[g]} &
+        \textbf{Burns} &
+        $\boldsymbol{\bar{t}_{\mathrm{burn}}}$ \textbf{[s]} &
+        $\boldsymbol{m_{\mathrm{48h}}}$ \textbf{[g]} \\
+        \midrule
+        0 & 0.0 & Yes & 1.55 & 5.60  & 3  & 2.27 & 10.42 \\
+        1 & 0.5 & Yes & 1.55 & 5.39  & 2  & 3.20 & 12.34 \\
+        2 & 1.0 & Yes & 2.50 & 10.83 & 3  & 4.33 & 21.58 \\
+        3 & 1.5 & Yes & 3.88 & 24.96 & 7  & 4.27 & 33.24 \\
+        4 & 2.0 & Yes & 3.88 & 29.16 & 7  & 5.23 & 34.77 \\
+        5 & 2.5 & Yes & 4.73 & 43.05 & 9  & 5.74 & 49.87 \\
+        6 & 3.0 & Yes & 5.48 & 59.36 & 10 & 7.09 & 66.01 \\
+        7 & 3.5 & Yes & 3.92 & 59.61 & 9  & 8.26 & 67.98 \\
+        8 & 4.0 & Yes & 5.43 & 77.02 & 11 & 8.37 & 83.41 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
 
 
-
+\begin{table}[H]
+    \centering
+    \caption{Additional deployment acquisition diagnostics.}
+    \label{tab:deployment_velocity_acquisition_diagnostics}
+    \begin{tabular}{lccccc}
+        \toprule
+        \textbf{Run} &
+        $\boldsymbol{\Delta v_{\mathrm{dep}}}$ \textbf{[m/s]} &
+        $\boldsymbol{t_{\mathrm{dwell,pass}}}$ \textbf{[h]} &
+        $\boldsymbol{\bar{e}_{\mathrm{att,burn}}}$ \textbf{[deg]} &
+        $\boldsymbol{m_{\mathrm{fuel},0}}$ \textbf{[kg]} &
+        $\boldsymbol{m_{\mathrm{fuel},f}}$ \textbf{[kg]} \\
+        \midrule
+        ... \\
+        \bottomrule
+    \end{tabular}
+\end{table}
 
 
 
@@ -330,12 +396,13 @@ SUMMARY TABLE
 \end{comment}
 
 
-\section{Steady-State Formation Maintenance Fuel Consumption}
+\section{Steady-State Fuel Consumption}
 \begin{comment}
-
-
-Supporting plot: 
-Show the average pointing error during burns 
+Plots:
+1. Cumulative post-acquisition fuel consumption with fitted model
+2. RTN states over the entire duration
+3. operational mode timeline
+4. Battery stored energy over tiime
 
 
 \end{comment}
