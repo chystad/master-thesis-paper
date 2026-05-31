@@ -1,5 +1,5 @@
 \section{Comparative Propagation Analysis Results}
-This section presents the results from the comparative propagation benchmarking campaign described in Section \ref{sec:comparative_propagation_analysis_method}. The continuously updating Skyfield-SGP4 propagation is used as the comparison baseline, while three Basilisk configurations are evaluated against it: the primary thesis configuration with NRLMSISE-00 atmospheric density, the specialization-project configuration with an un-tuned exponential atmosphere model, and a re-tuned exponential atmosphere configuration. All reported differences are computed as Basilisk minus Skyfield-SGP4 and should be interpreted as differences relative to the updating-\gls{tle} reference, not as errors relative to a true physical ground truth.
+This section presents the results from the comparative propagation benchmarking campaign described in Section \ref{sec:comparative_prop_anal_method}. The continuously updating Skyfield-SGP4 propagation is used as the comparison baseline, while three Basilisk configurations are evaluated against it: the primary thesis configuration with NRLMSISE-00 atmospheric density, the specialization-project configuration with an un-tuned exponential atmosphere model, and a re-tuned exponential atmosphere configuration. All reported differences are computed as Basilisk minus Skyfield-SGP4 and should be interpreted as differences relative to the updating-\gls{tle} reference, not as errors relative to a true physical ground truth.
 
 The results are first presented using same-spacecraft state differences for the leader spacecraft, followed by an RTN decomposition of the position difference, altitude differences, ground-track offsets, and same-formation drift differences for the passive leader-follower pair. Together, these quantities describe both the Earth-relative divergence of each Basilisk configuration and the corresponding difference in predicted formation drift. This provides the propagation benchmark used to contextualize the GNSS-R formation flight lifetime analysis.
 
@@ -107,7 +107,7 @@ The long-term altitude trend differs between the atmosphere models. The primary 
 \end{comment}
 
 
-\subsection{RTN Decomposition of Same-Formation Drift Difference}
+\subsection{Decomposition of Same-Formation Drift Difference}
 
 \begin{figure}[H]
     \centering
@@ -141,54 +141,28 @@ Just like the altitude comparison, every component of the RTN position drift dec
 
 \clearpage
 \section{Deployment Velocity Acquisition Fuel Sensitivity}
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.6\textwidth]{Figures/05Results/deployment_sensitivity_analysis/deployment_velocity_acquisition_burn_metrics_vs_deployment_speed.png}
-    \caption{a}.
-    \label{fig:a} 
-\end{figure}
+\begin{comment}
+Insert short introduction here including
+* Nine 48-hour simulations.
+* One leader and one follower initialized from the shared deployer.
+* Differential deployment speed $\Delta v_{\mathrm{dep}}$ varied from $0$ to $4~\mathrm{m/s}$.
+* The acquisition condition from the methodology is used to determine $t_{\mathrm{acq}}$.
+* The follower fuel consumed up to $t_{\mathrm{acq}}$ defines $m_{\mathrm{acq}}$.
+\end{comment}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.6\textwidth]{Figures/05Results/deployment_sensitivity_analysis/deployment_velocity_acquisition_time_and_fuel_vs_deployment_speed.png}
-    \caption{\hl{If time, display the linear function equation in the plot, and adjust the scaling in the right y-axis to highlight that the fuel consumption grows faster than the aquisition time, }}.
-    \label{fig:b} 
-\end{figure}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.6\textwidth]{Figures/05Results/deployment_sensitivity_analysis/deployment_velocity_eps_overview_all_runs.png}
-    \caption{a}.
-    \label{fig:c} 
-\end{figure}
+\subsection{RTN Formation Trajectories}
+\begin{comment}
+* The highest deployment-speed cases produce the largest initial relative excursions.
+* The $\Delta v_{\mathrm{dep}} = 4~\mathrm{m/s}$ case has the largest early radial/along-track/cross-track excursion.
+* After the acquisition phase, all cases converge to similar bounded RTN relative-position trajectories.
+* The acquired formation has much smaller relative-position variation than the initial deployment transient.
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.6\textwidth]{Figures/05Results/deployment_sensitivity_analysis/deployment_velocity_follower_cumulative_fuel_consumption.png}
-    \caption{a}.
-    \label{fig:d} 
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.6\textwidth]{Figures/05Results/deployment_sensitivity_analysis/deployment_velocity_oed_da_de_di_comparison.png}
-    \caption{a}.
-    \label{fig:e} 
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.6\textwidth]{Figures/05Results/deployment_sensitivity_analysis/deployment_velocity_operational_modes_all_runs.png}
-    \caption{a}.
-    \label{fig:f} 
-\end{figure}
-
-% \begin{figure}[H]
-%     \centering
-%     \includegraphics[width=0.6\textwidth]{Figures/05Results/deployment_sensitivity_analysis/deployment_velocity_rtn_relative_position_3d_selected_runs.png}
-%     \caption{a}.
-%     \label{fig:g} 
-% \end{figure}
+* The radial, along-track, and cross-track components show the largest transient deviations for the largest deployment speeds.
+* The vertical dashed lines indicate acquisition time for each case.
+* The higher-speed cases generally take longer to satisfy the acquisition criterion.
+* The component oscillations reduce and become similar after the burn sequence has inserted the follower into the target relative motion.
+\end{comment}
 
 \begin{figure}[htbp]
     \centering
@@ -209,10 +183,75 @@ Just like the altitude comparison, every component of the RTN position drift dec
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{Figures/05Results/deployment_sensitivity_analysis/deployment_velocity_rtn_relative_position_components_selected_runs.png}
-    \caption{a}.
+    \includegraphics[width=0.8\textwidth]{Figures/05Results/deployment_sensitivity_analysis/deployment_velocity_rtn_relative_position_components_selected_runs.png}
+    \caption{asdf}
     \label{fig:h} 
 \end{figure}
+
+
+\subsection{Formation Acquisition Determination}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Figures/05Results/deployment_sensitivity_analysis/deployment_velocity_oed_da_de_di_comparison.png}
+    \caption{a}.
+    \label{fig:e} 
+\end{figure}
+
+
+\subsection{Acquisition Fuel Consumption}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{Figures/05Results/deployment_sensitivity_analysis/deployment_velocity_follower_cumulative_fuel_consumption.png}
+    \caption{a}.
+    \label{fig:d} 
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{Figures/05Results/deployment_sensitivity_analysis/deployment_velocity_acquisition_time_and_fuel_vs_deployment_speed.png}
+    \caption{something}.
+    \label{fig:b} 
+\end{figure}
+
+
+\subsection{Operational Feasibility}
+\begin{comment}
+* Short paragraph only.
+* No plots, all added to appendix 
+\end{comment}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{Figures/05Results/deployment_sensitivity_analysis/deployment_velocity_acquisition_burn_metrics_vs_deployment_speed.png}
+    \caption{\hl{APPENDIX}}.
+    \label{fig:a} 
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{Figures/05Results/deployment_sensitivity_analysis/deployment_velocity_eps_overview_all_runs.png}
+    \caption{\hl{APPENDIX}}.
+    \label{fig:c} 
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{Figures/05Results/deployment_sensitivity_analysis/deployment_velocity_operational_modes_all_runs.png}
+    \caption{\hl{APPENDIX}}.
+    \label{fig:f} 
+\end{figure}
+
+\subsection{Deployment Sensitivity Summary}
+
+
+
+
+
+
+
+
 
 
 \begin{comment}
