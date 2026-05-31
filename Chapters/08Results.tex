@@ -1,49 +1,86 @@
-% \section{Results overview and roadmap}
+\section{Comparative Propagation Analysis Results}
+This section presents the results from the comparative propagation benchmarking campaign described in Section \ref{sec:comparative_propagation_analysis_method}. The continuously updating Skyfield-SGP4 propagation is used as the comparison baseline, while three Basilisk configurations are evaluated against it: the primary thesis configuration with NRLMSISE-00 atmospheric density, the specialization-project configuration with an un-tuned exponential atmosphere model, and a re-tuned exponential atmosphere configuration. All reported differences are computed as Basilisk minus Skyfield-SGP4 and should be interpreted as differences relative to the updating-\gls{tle} reference, not as errors relative to a true physical ground truth.
 
-Plotting ideas for part 2:
-\begin{itemize}
-    \item The big important plot: Fuel level over time
-    \item It would be interesting to see natural formation drift, and calculate delta-V requirements to compensate for this drift to estimate lifetime. This estimate could be used to validate results.
-    \item Show the relative differences in applied perturbation acceleration from differential J2 and drag to explain drift rate
-    \item Each subsystem should be validated in addition to showing the full fuel consumption over simulation duration:
-    \begin{itemize}
-        \item RW speed/torque step response
-        \item Thruster force output as a function of fuel level (/tank pressure)
-        \item MRP feedback controller tracking error and/or step response (would also be interesting to see a step response for different fuel levels)
-        \item Decomposed net power and battery level (should also show the illumination factor in the same/adjacent plot and the FSW state)
-    \end{itemize}
-\end{itemize}
+The results are first presented using same-spacecraft state differences for the leader spacecraft, followed by an RTN decomposition of the position difference, altitude differences, ground-track offsets, and same-formation drift differences for the passive leader-follower pair. Together, these quantities describe both the Earth-relative divergence of each Basilisk configuration and the corresponding difference in predicted formation drift. This provides the propagation benchmark used to contextualize the GNSS-R formation flight lifetime analysis.
 
-\section{Bsk Skf comparison}
-State clearly that all differences are computed as Basilisk minus Skyfield.
+\begin{comment}
+Include a short introduction briefly explaining the campaign and the differently configured simulator runs that created these results:
+    * Skyfield-SGP4 with continuously updating TLEs is the reference baseline.
+    * Three Basilisk configurations are compared:
+        - current thesis configuration with NRLMSISE-00,
+        - specialization-project exponential model,
+        - retuned exponential model.
+    * All differences are Basilisk minus Skyfield.
+    * Remind the reader that the comparison is a benchmark against an approximate reference, not a validation against truth.
+    * Refer back to the campaign table in the methodology chapter.
+\end{comment}
 
 
-\subsection{Overall Earth-relative Divergence}
+\subsection{Same-Spacecraft State Magnitude Difference}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{Figures/05Results/bsk_skf_comparison/Ex1 - ECI pos difference magnitude.png}
-    \caption{ECI position difference}
-    \label{fig:1} 
+    \includegraphics[width=0.6\textwidth]{Figures/05Results/bsk_skf_comparison/Ex1 - ECI pos-vel difference magnitude.png}
+    \caption{Leader spacecraft ECI position and velocity difference magnitudes between various Basilisk configuration and the updating TLE Skyfield-SGP4 baseline}
+    \label{fig:same_sc_ECI_state_mag_diff} 
 \end{figure}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.6\textwidth]{Figures/05Results/bsk_skf_comparison/Ex1 - Groundtrack comparison.png}
-    \caption{}
-    \label{fig:2} 
-\end{figure}
+Figure \ref{fig:same_sc_ECI_state_mag_diff} shows the same-spacecraft ECI position and velocity difference magnitudes for the leader spacecraft over the 14-day propagation benchmarking campaign. The differences are computed between each Basilisk configuration and the continuously updating Skyfield-SGP4 baseline. Both the position and velocity difference magnitudes increase throughout the propagation interval for all Basilisk configurations. The ordering of the configurations is the same for both translational states: the primary thesis Basilisk configuration with the NRLMSISE-00 atmosphere model has the smallest divergence, the re-tuned exponential atmosphere configuration has an intermediate divergence, and the specialization-project exponential atmosphere configuration has the largest divergence.
+
+At the end of the 14-day propagation interval, the primary thesis Basilisk configuration has reached a leader position difference of approximately $900~\mathrm{km}$ relative to the Skyfield-SGP4 baseline. The re-tuned exponential atmosphere configuration reaches approximately $1500~\mathrm{km}$, while the specialization-project exponential atmosphere configuration reaches approximately $2900~\mathrm{km}$. The velocity difference magnitudes show the same relative ordering. 
+
+\begin{comment}
+* Figure \ref{same_sc_ECI_pos_vel_mag_diff} shows the magnitude of the ECI position and velocity difference between various Basilisk configurations and the continuously updating TLE Skyfield-SGP4 comparison baseline over a 14 day period. 
+* Both the position and velocity difference magnitudes show very similar diverging behavior, and the divergence ordering from least to most is the same for both positioning and velocity. 
+* Both translational states show an increasing divergence rate with time
+* After 14 days, the thesis Basilisk configuration has diverged by approximately 900km in position, the Basilisk configuration evaluated in the Specaialization project has diverged by approx 2900km and the tuned exponential atmosphere configuration has diverged by approx 1500km. 
+* The same ratio of divergence is also about the same for the velocity magnitude differences, where the tuned basilisk model has diverged approx 70% more than the thesis Configuration, and the old configuration has diverged approx 240% more
+\end{comment}
 
 
 
-\subsection{Decomposition of Position Error in RTN Frame}
+\subsection{Decomposition of Same-Spacecraft Position Difference}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{Figures/05Results/bsk_skf_comparison/Ex1 - RTN pos difference.png}
-    \caption{}
-    \label{fig:3} 
+    \caption{Decomposition of the same-spacecraft position difference in the RTN frame}
+    \label{fig:same_sc_pos_RTN_decomposition} 
 \end{figure}
+Figure \ref{fig:same_sc_pos_RTN_decomposition} shows the same-spacecraft position difference for the leader spacecraft decomposed in the Skyfield-SGP4 baseline leader's RTN frame. The along-track component is the dominant contributor to the position difference for all Basilisk configurations. The primary thesis configuration with the NRLMSISE-00 atmosphere model diverges in the positive along-track direction, while both exponential atmosphere configurations diverge in the negative along-track direction. By the end of the 14-day comparison interval, the old specialization-project exponential atmosphere configuration has the largest along-track difference, followed by the re-tuned exponential atmosphere configuration and the primary thesis configuration.
+
+The cross-track separation remains small compared with the along-track and radial components throughout the comparison. The plotted cross-track component remains oscillatory and within a few kilometers for all Basilisk configurations. The radial component is also smaller than the along-track component, but shows a clear separation between the configurations. The old specialization-project exponential atmosphere configuration has the largest radial difference, while the primary thesis configuration has the smallest radial difference. The ordering of the RTN components is therefore consistent with the ECI state-difference magnitudes shown in Figure \ref{fig:same_sc_ECI_state_mag_diff}.
+
+
+\begin{comment}
+* Figure \ref{fig:same_sc_pos_RTN_decomposition} show how the same-spacecraft position difference magnitude presented in Figure \ref{fig:same_sc_ECI_state_mag_diff} is expressed in terms of along-track, cross-track and radial difference.
+* The RTN decomposition show that the absolute difference in the in each component follow the same ordering as the magnitudes. In increasing along-track, cross-track and radial absolute difference order: Thesis configuration, tuned Basilisk, old Basilisk. 
+* An interesting result is that the rate of divergence for the Old Basilisk configuration is much bigger in the radial component compared to both the along-track and cross-track rates. 
+* Another interesting result is that while the old and tuned exponential atmosphere Basilisk configurations diverge in the negative along-track direction, the thesis configuration diverges in the positive direction
+\end{comment}
+
+\begin{figure}[htbp]
+    \centering
+
+    \resizebox{\textwidth}{!}{%
+        \includegraphics[height=0.34\textheight]{Figures/05Results/bsk_skf_comparison/Ex1 - Groundtrack comparison.png}
+        \hspace{0.03\textwidth}
+        \includegraphics[height=0.34\textheight]{Figures/05Results/bsk_skf_comparison/Ex1 - Zoomed-in Groundtrack comparison.png}
+    }
+
+    \caption{Surface projections for the leader satellite position over time propagated by each Basilisk configuration and the updating TLE Skyfield-SGP4 baseline. The zoomed-out view is shown on the left, while the zoomed-in view of the north-western coast of Norway is shown on the right.}
+    \label{fig:same_sc_ground_track}
+\end{figure}
+Figure \ref{fig:same_sc_ground_track} shows the corresponding ground-track tracings for the same leader trajectories. The left subplot shows the ground-track comparison over the Nordic countries during the final six hours of the simulation, while the right subplot shows a zoomed-in view near the north-western coast of Norway. The visible separation between the projected tracks is largest for the old specialization-project exponential atmosphere configuration and smallest for the primary thesis configuration. The estimated ground-track offset relative to the Skyfield-SGP4 baseline is approximately $17~\mathrm{km}$ for the primary thesis configuration, $32~\mathrm{km}$ for the re-tuned exponential atmosphere configuration, and $60~\mathrm{km}$ for the old specialization-project configuration.
+
+The ground-track offset shown in Figure \ref{fig:same_sc_ground_track} is not equivalent to the cross-track separation shown in Figure \ref{fig:same_sc_pos_RTN_decomposition}. The cross-track separation is the orbit-normal component of the three-dimensional position difference in the RTN frame, while the ground-track offset is the separation between the Earth-projected spacecraft trajectories. The RTN decomposition shows that the three-dimensional position difference is dominated by along-track drift, whereas the ground-track comparison shows the surface projection of this accumulated drift onto the Earth-fixed latitude-longitude map.
+
+\begin{comment}
+* Figure \ref{fig:same_sc_ground_track} show the leader spacecraft position projected onto the Earth's surface for each propagator. 
+* The ground track offset relative to the Skyfield-SGP4 baseline has been estimated to be 17km for the thesis configuration, 32km for the tuned exponential atmosphere config, and 60km for the old Basilisk configuration. 
+* Point out that the ground-track offset is not the same as the cross-track difference shown in Figure \ref{fig:same_sc_pos_RTN_decomposition} because of the long radial and along-track separation between the propagated leader spacecraft
+    - The ground-track comparison shows the surface projection of the accumulated propagation difference and should not be interpreted directly as an RTN component plot. Although the tracks appear laterally separated on the map, the RTN decomposition shows that the corresponding 3D spacecraft separation is dominated by along-track phase drift, while the orbit-normal component remains small. The apparent ground-track offset is therefore mainly a consequence of along-track timing differences in an inclined orbit, projected onto the Earth-fixed latitude/longitude map.
+\end{comment}
 
 
 
@@ -52,38 +89,45 @@ State clearly that all differences are computed as Basilisk minus Skyfield.
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{Figures/05Results/bsk_skf_comparison/Ex1 - Altitude difference.png}
-    \caption{}
-    \label{fig:4} 
+    \caption{Leader spacecraft orbital altitudes for each Basilisk configuration compared against the updating TLE Skyfield-SGP4 baseline}
+    \label{fig:same_sc_altitude_difference} 
 \end{figure}
-\hl{I might try to remove some oscillations through data processing to highlight the trends and remove the altitude difference caused by different positions in the along-track and cross-track directions. Remove the }
+
+Figure \ref{fig:same_sc_altitude_difference} shows the leader spacecraft altitude difference for each Basilisk configuration relative to the continuously updating Skyfield-SGP4 baseline. All Basilisk configurations exhibit short-period oscillations in altitude difference, with amplitudes that increase over the 14-day propagation interval. The primary thesis configuration with the NRLMSISE-00 atmosphere model remains closest to the Skyfield-SGP4 baseline throughout the comparison, while the re-tuned exponential atmosphere configuration shows a larger altitude difference and the old specialization-project exponential atmosphere configuration shows the largest altitude difference.
+
+The long-term altitude trend differs between the atmosphere models. The primary thesis configuration gradually decreases in altitude relative to the Skyfield-SGP4 baseline, while both exponential atmosphere configurations diverge in the positive altitude direction. The old specialization-project exponential atmosphere configuration has the largest positive altitude difference by the end of the comparison interval. The ordering of the altitude differences is therefore consistent with the previous same-spacecraft state difference results: the primary thesis configuration gives the smallest deviation from the Skyfield-SGP4 baseline, followed by the re-tuned exponential atmosphere configuration and then the old specialization-project configuration.
 
 
-\subsection{Orbital Element Drift}
+\begin{comment}
+* Figure \ref{fig:same_sc_altitude_difference} shows the leader spacecraft orbital altitude difference for each Basecraft configuration compared against the Skyfield-SGP4 baseline. 
+* Every Basilisk configuration exhibits short term oscillatory behavior increasing in amplitude over time. 
+* The short term oscillations is a due to a compbination of the scenario's non-circular orbit, and a growing along-track difference. The oscillation period is consistent with the orbital period
+* The general trend however, show that the altitude of the thesis Basilisk configuration is slightly decreasing relative to the SGP4 baseline, while the tuned and old configurations diverge in the positive altitude direction. 
+* The difference ordering is again the same as previous figures have shown: thesis configuration deviate the least, followed by the tuned configuration, and lastly, the old configuration. 
+\end{comment}
+
+
+\subsection{RTN Decomposition of Same-Formation Drift Difference}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{Figures/05Results/bsk_skf_comparison/Ex1 - OE difference comparison.png}
-    \caption{}
-    \label{fig:5} 
+    \includegraphics[width=0.6\textwidth]{Figures/05Results/bsk_skf_comparison/Ex1 - Leader follower RTN relative position difference.png}
+    \caption{Leader-follower pair same-formation position drift difference for each Basilisk configuration compared against the updating TLE Skyfield-SGP4 baseline.}
+    \label{fig:same_form_drift_RTN_decomposition} 
 \end{figure}
 
-% \begin{figure}[H]
-%     \centering
-%     \includegraphics[width=0.6\textwidth]{Figures/05Results/bsk_skf_comparison/Ex1 - ECI pos-vel difference magnitude.png}
-%     \caption{}
-%     \label{fig:6} 
-% \end{figure}
+Figure \ref{fig:same_form_drift_RTN_decomposition} shows the same-formation drift difference for the leader-follower pair, decomposed in the leader RTN frame. The plotted quantities compare the leader-relative follower position predicted by each Basilisk configuration against the corresponding leader-relative follower position predicted by the continuously updating Skyfield-SGP4 baseline. All three RTN components exhibit short-period oscillations with amplitudes that increase throughout the 14-day comparison interval.
+
+The along-track component is the dominant same-formation drift difference. All Basilisk configurations show a positive along-track drift difference relative to the Skyfield-SGP4 baseline, reaching approximately $4~\mathrm{km}$ by the end of the propagation interval. The three Basilisk configurations remain close to each other in this component. Although more oscillatory, the old specialization-project exponential atmosphere configuration shows slightly smaller final along-track drift difference than the primary thesis and re-tuned exponential configurations, although it also exhibits stronger short-period oscillations.
+
+The cross-track and radial components remain much smaller than the along-track component. In these components, the same ordering observed in the same-spacecraft state difference results is present: the primary thesis configuration has the smallest divergence, the re-tuned exponential atmosphere configuration is intermediate, and the old specialization-project exponential atmosphere configuration has the largest oscillation amplitude. The radial drift difference remains below approximately $150~\mathrm{m}$, while the cross-track drift difference remains within approximately $\pm 10~\mathrm{m}$ over the full comparison interval.
+
+\hl{If time, insert a same-formation drift difference magnitude}
 
 
-\subsection{Propagator Comparison Summary}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.6\textwidth]{Figures/05Results/bsk_skf_comparison/Bsk-Skf comparison summary table.png}
-    \caption{Basilisk/Skyfield-SGP4 comparison summary}.
-    \label{fig:bsk_skf_summary} 
-\end{figure}
-
+\begin{comment}
+Just like the altitude comparison, every component of the RTN position drift decomposition is subject to short-term oscillations with growing amplitude. For the cross-track and radial components, the usual difference ordering is present: The thesis configuration diverges the least, followed by the tuned and old configurations in ascending order. However, the main thing to point is that the Old configuration, though more oscillatory,  diverges ever so slightly less than the other configurations.
+\end{comment}
 
 
 
@@ -95,8 +139,82 @@ State clearly that all differences are computed as Basilisk minus Skyfield.
 % ======================= G N S S - R    F O R M A T I O N    F L I G H T    S I M U L A T O R    R E S U L T S ======================= %
 % ======================================================================================================================================= %
 
+\clearpage
+\section{Deployment Velocity Acquisition Fuel Sensitivity}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{Figures/05Results/deployment_sensitivity_analysis/deployment_velocity_acquisition_burn_metrics_vs_deployment_speed.png}
+    \caption{a}.
+    \label{fig:a} 
+\end{figure}
 
-\section{Deployment Velocity Formation Acquisition Fuel Sensitivity}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{Figures/05Results/deployment_sensitivity_analysis/deployment_velocity_acquisition_time_and_fuel_vs_deployment_speed.png}
+    \caption{\hl{If time, display the linear function equation in the plot, and adjust the scaling in the right y-axis to highlight that the fuel consumption grows faster than the aquisition time, }}.
+    \label{fig:b} 
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{Figures/05Results/deployment_sensitivity_analysis/deployment_velocity_eps_overview_all_runs.png}
+    \caption{a}.
+    \label{fig:c} 
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{Figures/05Results/deployment_sensitivity_analysis/deployment_velocity_follower_cumulative_fuel_consumption.png}
+    \caption{a}.
+    \label{fig:d} 
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{Figures/05Results/deployment_sensitivity_analysis/deployment_velocity_oed_da_de_di_comparison.png}
+    \caption{a}.
+    \label{fig:e} 
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{Figures/05Results/deployment_sensitivity_analysis/deployment_velocity_operational_modes_all_runs.png}
+    \caption{a}.
+    \label{fig:f} 
+\end{figure}
+
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=0.6\textwidth]{Figures/05Results/deployment_sensitivity_analysis/deployment_velocity_rtn_relative_position_3d_selected_runs.png}
+%     \caption{a}.
+%     \label{fig:g} 
+% \end{figure}
+
+\begin{figure}[htbp]
+    \centering
+
+    \begin{minipage}[c]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Figures/05Results/deployment_sensitivity_analysis/deployment_velocity_rtn_relative_position_3d_selected_runs_0_15h.png}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[c]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Figures/05Results/deployment_sensitivity_analysis/deployment_velocity_rtn_relative_position_3d_selected_runs_15_48h.png}
+    \end{minipage}
+
+    \caption{Leader-follower RTN relative-position trajectories for selected differential deployment-velocities. The left plot shows the initial transient response over $t \in [0, 15]$ h, while the right plot shows the subsequent bounded relative motion over $t \in [15, 48]$ h.}
+    \label{fig:rtn_relative_position_3d_trajectories}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{Figures/05Results/deployment_sensitivity_analysis/deployment_velocity_rtn_relative_position_components_selected_runs.png}
+    \caption{a}.
+    \label{fig:h} 
+\end{figure}
+
+
 \begin{comment}
 This builds heavily on how "Formation Acquisition" is defined in the methodology
 
@@ -170,21 +288,10 @@ SUMMARY TABLE
     * Avg. attitude tracking error during burn
     * Min battery [%]
 
-
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.6\textwidth]{Figures/05Results/bsk_skf_comparison/Bsk-Skf comparison summary table.png}
-    \caption{Basilisk/Skyfield-SGP4 comparison summary}.
-    \label{fig:bsk_skf_summary} 
-\end{figure}
-
-
-
 \end{comment}
 
 
-\section{Steady-State Formation Maintenance Fuel Rate Estimation}
+\section{Steady-State Formation Maintenance Fuel Consumption}
 \begin{comment}
 
 

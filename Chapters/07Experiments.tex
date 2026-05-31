@@ -2,7 +2,7 @@
 \section{Comparative Propagation Analysis Method}
 The comparative propagation analysis quantifies the divergence between the Basilisk translational propagator and an observation-informed Skyfield-SGP4 reference. The purpose is not to validate Basilisk against a true physical ground truth, but to benchmark the thesis propagation configuration also used in the GNSS-R Formation Flying Simulator, against a continuously updating \gls{tle}-based reference to evaluate its prediction uncertainty, and whether the final Basilisk configuration improves over the configuration used in the specialization project. This provides a propagation-accuracy context for interpreting the long-horizon GNSS-R formation flight lifetime analysis.
 
-The analysis is performed by propagating the same leader-follower scenario using Skyfield-SGP4 and several Basilisk configurations. The continuously updating Skyfield-SGP4 trajectory is used as the comparison baseline, while the Basilisk cases are selected to isolate the effect of the improved atmospheric modelling and the final thesis perturbation configuration. The resulting trajectories are compared using both same-satellite state differences and formation-relative drift differences, allowing the analysis to assess both absolute Earth-relative propagation, and formation-relative drift accuracy.
+The analysis is performed by propagating the same leader-follower scenario using Skyfield-SGP4 and several Basilisk configurations. The continuously updating Skyfield-SGP4 trajectory is used as the comparison baseline, while the Basilisk cases are selected to isolate the effect of the improved atmospheric modelling and the final thesis perturbation configuration. The resulting trajectories are compared using both same-spacecraft state- and same-formation drift differences, allowing the analysis to assess both absolute Earth-relative propagation, and formation drift accuracy.
 
 
 
@@ -41,15 +41,15 @@ The continuously updating Skyfield-SGP4 trajectory is used as the comparison bas
 
 The primary configuration evaluated in this analysis is the highest-fidelity Basilisk configuration used later in the GNSS-R formation flight lifetime analysis. To contextualize its performance, two additional Basilisk configurations are included. The first corresponds to the highest-fidelity configuration used in the specialization project in \cite{hystad2025}, where atmospheric drag was modelled using an exponential atmosphere that was not tuned for its orbital altitude. The second uses the same general Basilisk perturbation configuration, but replaces the old atmospheric tuning with a retuned exponential atmosphere model by adjusting its scale height, $H_0$. These additional cases make it possible to distinguish whether differences between the specialization project and the present thesis are primarily caused by the improved atmospheric modelling, or by the general transition to the final thesis propagation configuration. The comparison scenario is otherwise kept identical for all Basilisk cases.
 
-Two complementary accuracy perspectives are considered. The first is the same-satellite state difference, which describes the difference between the state of the same spacecraft in a Basilisk simulation and in the Skyfield reference. For a spacecraft translational state vector $\mathbf{x}$, this is defined as
+Two complementary accuracy perspectives are considered. The first is the same-spacecraft state difference, which describes the difference between the state of the same spacecraft in a Basilisk simulation and in the Skyfield reference. For a spacecraft translational state vector $\mathbf{x}$, this is defined as
 \begin{equation}
-    \mathbf{x}_{\mathrm{sd}}
+    \mathbf{x}_{\mathrm{sss}}
     =
     \mathbf{x}_{\mathrm{bsk}}
     -
     \mathbf{x}_{\mathrm{skf}} .
 \end{equation}
-This quantity is used to assess the absolute translational propagation error of a single spacecraft, both through the magnitude of the position and velocity differences and through decomposition of the position error in the \gls{rtn} frame. Orbital element differences are also used as a secondary diagnostic to interpret the source of the observed drift. The second perspective is the same-formation relative error, which compares how the leader-follower separation evolves in each Basilisk case relative to the Skyfield baseline. Let the formation-relative state in propagator $p$ be defined as
+This quantity is used to assess the Earth-relative translational divergence of a single spacecraft, both through the magnitude of the position and velocity differences and through decomposition of the position difference in the \gls{rtn} frame. The second perspective is the same-formation drift difference, which compares how the leader-follower separation evolves in each Basilisk case relative to the Skyfield baseline. Let the formation-relative state in propagator $p$ be defined as
 \begin{equation}
     \Delta \mathbf{x}_{\mathrm{form},p}
     =
@@ -57,9 +57,9 @@ This quantity is used to assess the absolute translational propagation error of 
     -
     \mathbf{x}_{\mathrm{L},p}.
 \end{equation}
-The corresponding same-formation relative error is then
+The corresponding same-formation drift difference is then
 \begin{equation}
-    \mathbf{x}_{\mathrm{sfr}}
+    \mathbf{x}_{\mathrm{sfd}}
     =
     \Delta \mathbf{x}_{\mathrm{form,bsk}}
     -
@@ -96,7 +96,7 @@ This provides a measure of how accurately each Basilisk configuration reproduces
 
 \subsection{Propagation Benchmarking Campaign}
 
-The propagation benchmarking campaign is performed to evaluate the error between the Basilisk propagation configurations and the continuously updating Skyfield-SGP4 reference defined in the previous subsections. The campaign consists of one Skyfield-SGP4 reference run and three Basilisk runs, as summarized in Table \ref{tab:basilisk_propagation_benchmarking_campaign}. The Skyfield-SGP4 run provides the updating-\gls{tle} comparison baseline, while the primary Basilisk run represents the highest-fidelity thesis configuration used later in the GNSS-R formation flight lifetime analysis. The remaining Basilisk runs are included to contextualize the result by comparing against the highest-fidelity specialization-project configuration and an additional re-tuned exponential-atmosphere configuration.
+The propagation benchmarking campaign is performed to evaluate the difference between the Basilisk propagation configurations and the continuously updating Skyfield-SGP4 reference defined in the previous subsections. The campaign consists of one Skyfield-SGP4 reference run and three Basilisk runs, as summarized in Table \ref{tab:basilisk_propagation_benchmarking_campaign}. The Skyfield-SGP4 run provides the updating-\gls{tle} comparison baseline, while the primary Basilisk run represents the highest-fidelity thesis configuration used later in the GNSS-R formation flight lifetime analysis. The remaining Basilisk runs are included to contextualize the result by comparing against the highest-fidelity specialization-project configuration and an additional re-tuned exponential-atmosphere configuration.
 
 All runs are propagated for 14 days from the same initial scenario described in Section \ref{sec:comparison_scenario}. In the first run, the Skyfield-SGP4 trajectory is generated using the continuously updating \gls{tle} sequence. The primary Basilisk run is then initialized from the Skyfield state at the initial epoch, ensuring that the two propagation frameworks start from the same translational state. The subsequent Basilisk runs reuse the previously generated Skyfield reference data, which ensures that all Basilisk configurations are compared against the same baseline and initialized consistently. The Basilisk configurations use the same deactivated spacecraft configuration described in Section \ref{sec:spacecraft_config}, but differ in their atmospheric density model. The primary thesis configuration uses the NRLMSISE-00 atmosphere model, while the two reference configurations use exponential atmosphere models with different scale heights.
 
@@ -109,102 +109,102 @@ All runs are propagated for 14 days from the same initial scenario described in 
     \renewcommand{\arraystretch}{1.15}
     \begin{adjustbox}{max width=\textwidth}
     \begin{tabularx}{\textwidth}{p{0.21\textwidth}XXXX}
-        \hline
+        \toprule
         \textbf{Run \#}
             & \textbf{1}
             & \textbf{2}
             & \textbf{3}
             & \textbf{4} \\
-        \hline
+        \toprule
 
         \textbf{Propagator \newline framework}
             & Skyfield-SGP4
             & Basilisk
             & Basilisk
             & Basilisk \\[1.2em]
-        \hline
+        \midrule
 
         \textbf{Role}
             & Updating-TLE\newline reference
             & Primary thesis\newline configuration
             & Specialization\newline project reference
             & Re-tuned exponential \newline atm. reference \\[1.2em]
-        \hline
+        \midrule
 
         \textbf{Initial epoch}
             & 23.10.2025, \newline 22:19:30 UTC
             & Same as run 1
             & Same as run 1
             & Same as run 1 \\[1.2em]
-        \hline
+        \midrule
 
         \textbf{Duration}
             & 14 days
             & Same as run 1
             & Same as run 1
             & Same as run 1 \\[1.2em]
-        \hline
+        \midrule
 
         \textbf{Spacecraft}
             & HYPSO-1\newline from TLE
             & Deactivated\newline configuration from \ref{sec:spacecraft_config}
             & Same as run 2
             & Same as run 2 \\[1.2em]
-        \hline
+        \midrule
 
         \textbf{Initial state}
             & Initial TLE \newline evaluated at epoch
             & Initial Skyfield- \newline SGP4 state
             & Same as run 2
             & Same as run 2 \\[1.2em]
-        \hline
+        \midrule
 
         \textbf{Gravity}
             & SGP4 model
             & Spherical harmonics,\newline 4th degree and order
             & Same as run 2
             & Same as run 2 \\[1.2em]
-        \hline
+        \midrule
 
         \textbf{Atmospheric \newline density model}
             & SGP4 model
             & NRLMSISE-00
             & Un-tuned\newline exponential
             & Tuned\newline exponential \\[1.2em]
-        \hline
+        \midrule
 
         \textbf{Exponential \newline scale height $H_0$}
             & --
             & --
             & 7200.0
             & 15180.0 \\[1.2em]
-        \hline
+        \midrule
 
         \textbf{Sun and Moon \newline 3rd body pull}
             & SGP4 model
             & Enabled
             & Same as run 2
             & Same as run 2 \\[1.2em]
-        \hline
+        \midrule
 
         \textbf{SRP}
             & SGP4 model
             & Enabled
             & Same as run 2
             & Same as run 2 \\[1.2em]
-        \hline
+        \midrule
 
         \textbf{Numerical \newline integration}
             & SGP4 model
             & RKF78 w. \newline 1.0 sec max step
             & Same as run 2
             & Same as run 2 \\[1.2em]
-        \hline
+        \bottomrule
     \end{tabularx}
     \end{adjustbox}
 \end{table}
 
-The output from the campaign is used to compute the same-satellite relative and same-formation relative errors defined in Section \ref{sec:propagation_accuracy_evaluation_framework}. Together, these outputs provide the basis for assessing whether the thesis Basilisk configuration improves over the specialization-project configuration and for quantifying the propagation uncertainty relevant to the later GNSS-R formation flight lifetime analysis.
+The output from the campaign is used to compute the same-spacecraft state- and same-formation drift differences defined in Section \ref{sec:propagation_accuracy_evaluation_framework}. Together, these outputs provide the basis for assessing whether the thesis Basilisk configuration improves over the specialization-project configuration and for quantifying the propagation uncertainty relevant to the later GNSS-R formation flight lifetime analysis.
 
 \begin{comment}
 * Exact run table.
