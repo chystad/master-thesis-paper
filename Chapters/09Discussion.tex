@@ -4,4 +4,152 @@ I have done some initial testing using the Basilisk Station Keeping example, and
 
 For the Basilisk-Skyfield comparison, the TLE series propagation will also drift from drag caused by any and all attitude maneuvers. This can be seen in the difference between the first and last TLE mean motion (revolutions per day) estimate, which increase by 0.061 over the span of 130 days. The increase in daily revolutions correspond to a smaller semimajor axis, which is primarily caused by drag. A perfect match would therefore not necessarily mean perfect Basilisk prediction accuracy. Ideally, multiple TLE series should be compared and averaged to use as a baseline, but it is not feasible to find multiple TLE series that define the EXACT same orbit. Any deviation in orbital elements will manifest as a drift in the comparison. It might be possible to find 2 separate TLE series for 2 same-shaped spacecraft that have approximately the same position and orbit at different points in time, but this search and additional implementation complexity does not justify the presumably small increase "ground-truth" accuracy.
 
+% \subsection{comparative bsk / sgp4 propagation}
+% * TLEs are tied to real spacecraft, which mean that their change in orbit over time is the result of real perturbations acting on the real spacecraft. HYPSO-1, which is the corresponding satellite for the TLEs used by the Skyfield SGP4 models, is an Earth-observation satellite with a fixed imaging payload. This means its attitude will change over time to 
+% * TLEs are estimated from observations, which mean there are intrinsic parameter uncertanties.
 
+
+% \subsection{deployment velocity acquisition fuel consumption}
+% % * The formation appears to be a bounded periodic relative orbit with CPO-like characteristics. The larger along-track amplitude is expected for HCW-type relative orbital motion and does not by itself mean the formation is not a CPO.
+% % * I am a little careful not to make too hard claims here since I don't really know different formation types that well: 
+% %     Limited to a 2 spacecraft concentric formation due to formation-maintenance implementation constraints. This is because the formation targets a classic orbital element difference setpoint, which cannot be used to achieve a precise constant-separation or circular projected orbit formation discussed in \cite{hill2025hydroswarm}.
+
+
+% \subsection{Steady-state fuel consumption}
+% * The corresponding campagin was not run at the full 60-day duration as planned, but ended prematurely at 24 days due to memory overflow issues in the GNSS-R Formation Flight Simulator. 
+
+
+% \section{GNSS-R Formation Flight Lifetime Estimate}
+% * comment on the fact that the linear fitted m\_acq is negative for the zero differential deployment speed case. 
+
+
+
+
+\section{Propagation Benchmark Interpretation}
+\begin{comment}
+Wait with this section, for now
+\end{comment}
+
+
+\section{GNSS-R Formation Flight Mission Realism}
+\begin{comment}
+The operational constraints implemented to limit the satellites operations to be consistent with a real GNSS-R mission did not prevent any formation corrections. It then raises the question, did these operational constraints actually represent the real day-to-day operations of a GNSS-R formation spacecraft? 
+* Does the operational modes sufficiently model the realistic operations of formation flight GNSS-R spacecraft? 
+* Discuss around the steady-state mode transitions and battery level. 
+* Spacecraft configuration (component placement, mass, size, etc.)
+* Does the formation meet the GNSS-R formation flight requirements for cooperative measurements? If no, how would maintenance of the preferred formation have changed the observed fuel consumption
+\end{comment}
+
+
+\section{Formation Fuel Consumption}
+
+\hl{Intro}
+
+\subsection{Acquisition Consumption}
+\label{sec:discussion_acq_consumption}
+
+The deployment sensitivity results show summarized in Figure \ref{fig:diff_deploy_curve_fitting}, show that acquisition time is generally positively correlated with differential deployment speed, but that the relationship is not strictly increasing. The most visible exception is the $\Delta v_{\mathrm{dep}}=3.5~\mathrm{m/s}$ case, which acquired the formation after $3.92~\mathrm{h}$, compared with $5.48~\mathrm{h}$ for the $\Delta v_{\mathrm{dep}}=3.0~\mathrm{m/s}$ case and $5.43~\mathrm{h}$ for the $\Delta v_{\mathrm{dep}}=4.0~\mathrm{m/s}$ case. Since $t_{\mathrm{acq}}$ is determined directly from the \gls{oed} tolerance and dwell-time criterion, this non-monotonic behavior indicates that the selected acquisition criterion does not provide a perfectly smooth measure of the acquisition transient across the tested deployment cases.
+
+The \gls{oed} histories shown in Figure \ref{fig:diff_deploy_oed} suggest that the acquisition criterion may be somewhat relaxed for the purpose of distinguishing the end of acquisition from the beginning of maintenance. For example, the $\Delta v_{\mathrm{dep}}=4.0~\mathrm{m/s}$ case performs several additional burns after its acquisition time, which further reduces the semi-major-axis difference toward the center of the tolerance band. Similarly, the eccentricity difference is not fully synchronized across all deployment cases until approximately $7.6~\mathrm{h}$, which is later than the largest recorded acquisition time. The cumulative fuel-consumption time series in Figure \ref{fig:diff_deploy_cum_fuel_consumption} also show several post-acquisition burn events of non-negligible size. These observations suggest that the exact numerical value of $t_{\mathrm{acq}}$ is sensitive to the selected \gls{oed} tolerances and dwell time, although the plots alone do not provide a strict separation between late acquisition burns and early maintenance burns.
+
+The acquisition fuel consumption shows a more uniform dependence on differential deployment speed than the acquisition time. The only from this strictly increasing behavior is in the change from $\Delta v_{\mathrm{dep}}=0.0~\mathrm{m/s}$ to $\Delta v_{\mathrm{dep}}=0.5~\mathrm{m/s}$, where the measured acquisition fuel consumption decreases with differential deployment speed. The slightly lower acquisition fuel consumption for the $0.5~\mathrm{m/s}$ case may indicate that a small non-zero differential deployment speed can reduce the fuel needed to initiate the concentric formation. This makes sense considering this removes the need for an initial burn to separate the leader and follower spacecraft. For the remaining cases, the increasing trend is consistent with the larger velocity correction required to remove the initial deployment-induced relative motion and insert the follower into the target formation.
+
+Because the acquisition time is on the order of a couple of hours for the cases studied in this thesis, the time-horizon is too short for any small differential orbital perturbations to take any noticeable effect, and cannot be considered a major driver for acquisition fuel consumption. Thus, the main driver of acquisition fuel consumption is the initial differential deployment condition and the corrective burns required to reach the desired formation. Modeling this cumulative fuel consumption purely as a function of $\Delta v_{\mathrm{dep}}$ is therefore a reasonable simplification. However, as discussed initially, the largest uncertainty in the extracted acquisition fuel values is likely associated with the acquisition-time definition itself, since changing the \gls{oed} tolerances or dwell-time requirement would shift the point at which cumulative fuel consumption is sampled. 
+
+\begin{comment}
+* Discuss the acquisition times. Are all transients gone at this point? Are the OED tolerances correctly tuned?
+    - As presented in Figure \ref{fig:diff_deploy_curve_fitting}, the acquisition time is positivly correlated with the differential deployment speed. 
+    - however, this relationship is not strictly increasing. The most extreme simulated case for this is the 3.5m/s deployment case which had 3.92hours acquisition time, compared to 5.48 for the 3m/s differential deployment case. This is comparable to the 1.5 and 2 m/s cases with 3.88 hours each. The 3.0m/s case also had the highest acquisition time of all cases, even higher than the highest differential deployment speed case at 5.43 hours. 
+    - Since the acquisition time is directly determined by the \gls{oed} tolerances, this effect might be explained by too relaxed parameters. Evidence for this is present in Figure \ref{diff_deploy_oed}, where, for example, the 4m/s case performs several additional burns in order to change its semimajor axis closer to the center of the tolerances after its acquisition time. Additionally, we also see that the eccentricity difference is not fully synchronized for all cases until approximately 7.6 hours, which is greater than the highest acquisition time. 
+    - This claim of too loose \gls{oed} tolerances is supported by Figure \ref{fig:diff_deploy_cum_fuel_consumption} that show multiple instances of many relatively large burns after the initial acquisition. However, this is not definitive proof as it is hard to distinguish between formation acquisition and maintenance burns by looking at the cumulative fuel consumption
+
+
+Discuss the simulated acquisition fuel consumption: 
+    * The acquisition fuel consumption trend shown, however, is more uniform. 
+    * The only case of non-strict increase in acquisition time is in cases 0.0 (5.6g) to 0.5 m/s (5.39) diff deploy speed. 
+    * This result is particularly interesting, because it suggests that it is less fuel intensive to achieve a formation with some non-zero differential deployment speed. This makes sense because it removes the need for the follower to expend fuel to accelerate to away from the leader before it can begin the insertion burns for the concentric formation. 
+    * Otherwise, it makes sense that the for the acquisition fuel consumption to be strongly positively correlated with the differential deployment speed, because the follower spacecraft has to expend more fuel to correct for a higher the initial differential deployment speed.  
+
+
+
+* What are the drivers for acquisition fuel consumption? (Is it reasonable to model acquisition consumption as a function of only $\Delta v_{\mathrm{dep}}$)
+    * Because the acquisition time is on the order of a couple of hours for the cases studied in this thesis, the time-horizon is too short for any small differential orbital perturbations to take any noticeable effect, and cannot be considered a major driver for acquisition fuel consumption. 
+    * Therefore, I would argue that modeling the acquisition fuel consumption purely as a function of $\Delta v_{\mathrm{dep}}$ is a fair assumption
+    * However, because moving the acquisition time also changes the amount of cumulated consumed fuel before this time, the formation tolerances are probably the greatest source of uncertainty for acquisition fuel consumption. 
+\end{comment}
+
+
+\subsection{Steady-State Maintenance Fuel Consumption}
+
+The steady-state fuel consumption result in Figure \ref{fig:steady_state_cum_consumption} show that the steady-state cumulative fuel consumption rate is not perfectly constant, but appears to decrease slightly over the 24-day simulation. This trend is physically reasonable, since a lower remaining propellant mass reduces the spacecraft mass, so a given orbital correction requires slightly less thrust impulse, assuming that the required formation-maintenance corrections remain approximately the same. This behavior differs from the acquisition phase, where fuel consumption is dominated by a short sequence of corrective burns shortly after deployment. Regardless of how the acquisition time is defined, the deployment sensitivity fuel time series in Figure \ref{fig:diff_deploy_cum_fuel_consumption} clearly show that the burn frequency is strongly reduced after the initial formation insertion period. The remaining fuel consumption is therefore associated with slower formation-maintenance corrections, rather than the removal of the initial deployment-induced relative motion.
+
+This behavior differs from the acquisition phase, where fuel consumption is dominated by a short sequence of corrective burns shortly after deployment. Regardless of how the acquisition time is defined, the deployment sensitivity fuel time series in Figure \ref{fig:diff_deploy_cum_fuel_consumption} clearly show that the burn frequency is strongly reduced after the initial formation insertion period. The remaining fuel consumption is therefore associated with slower formation-maintenance corrections, rather than the removal of the initial deployment-induced relative motion.
+
+The steady-state drift mechanism is not expected to be dominated by large ballistic-coefficient differences between the spacecraft. As described in Section \ref{sec:diff_drag}, the differential atmospheric drag depends on differences in ballistic coefficient, which is affected by the drag coefficient and flow-normal cross-sectional area. In the simulated formation, both spacecraft use the same drag coefficient, and Figure \ref{fig:steady_state_eps_modes_final_day} shows that the leader and follower are synchronized in their operational modes during steady-state operation. Since the operational modes determine the attitude profile, the two spacecraft therefore spend most of the time in similar attitudes. This reduces differences in flow-normal area and gives the leader and follower very similar ballistic coefficients.
+
+Some differential drag is still present because the follower follows an oscillatory relative trajectory around the leader. The radial component in Figure \ref{fig:diff_deploy_rtn_relative_position_decomposition} has an amplitude of approximately $400~\mathrm{m}$, which for small separation distances, correspond to a small periodic altitude difference between the leader and follower. The follower therefore periodically occupies slightly higher and lower atmospheric density regions than the leader. However, this separation is small compared with the orbital altitude, and the formation controller also limits long-term along-track drift by keeping the semimajor axis difference close to zero.
+
+The full \gls{oed} time series in Appendix \ref{fig:diff_dep_all_6_oed} show that the \gls{raan} difference increases over time. This indicates a gradual relative precession of the follower orbit plane with respect to the leader. Since the spacecraft are in a highly inclined low Earth orbit, this behavior is consistent with differential $J_2$ perturbation effects from Earth's non-spherical gravity field. Within the simulated steady-state scenario, this makes differential gravitational perturbations a likely contributor to the long-term formation drift that produces the observed maintenance burns.
+\begin{comment}
+* Explanation of observed fuel consumption:
+    * As shown in figure \ref{fig:steady_state_cum_consumption},the cumulative expended fuel increases at a pretty steady rate over the course of 24 days. 
+    * Regardless of how you define the acquisition time, figure \ref{fig:diff_deploy_cum_fuel_consumption} clearly show the pace of corrective burns is heavily reduced in the duration ofter the initial 6 days. 
+    * This indicates that other mechanisms are the cause of drifting orbital element difference outside their respective tolerances. 
+    * The drift caused by differential drag is greatly reduced in this case because of 2 main reasons. Recall from Section \ref{sec:diff:drag} that the main source of differential atmospheric drag is from the ballistic coefficient, which is dependent on both the drag  coefficient and flow-normal cross-section area. First, the spacecraft is configured with a static drag coefficient, which is the same for both spacecraft. Second, Figure \ref{fig:steady_state_eps_modes_final_day} show that their steady-state operational modes are synchronized, which mean they for the majority of the time occupy the same attitude. This greatly reduced the difference between their flow-normal areas, which in total amounts to a very similar ballistic coefficient for the leader and follower.
+    * The follower does however have an oscillating radial component with an amplitude of 400m, as shown in Figure \ref{fig:diff_deploy_rtn_relative_position_decomposition}. With this small separation between leader and follower, this translates well into difference in orbital altitude. Consequentially, the follower dips into slightly thicker and thinner parts of the atmosphere, which periodically subjects it to more and less drag compared to the leader. However, this effect is likely very limited due to the small separation distance considered in this formation flight scenario.
+    * Because the formation-maintenance controller actively keeps the semimajor axis difference within small tolerances of zero, the natural relative drift in along-track direction is also limited.
+    * The full six orbital elements shown in Appendix \ref{fig:diff_dep_all_6_oed} show that the \gls{raan} difference increases over time. This is precession of the orbital plane around the leader spacecraft is consistent with the effect of $J_2$ differential perturbations, which is likely the biggest source of formation drift considered in this scenario. 
+\end{comment}
+
+
+
+
+\section{Lifetime Estimate Reliability}
+
+
+\subsection{Acquisition Fuel Model Reliability}
+
+The acquisition fuel model used in the lifetime estimate is based on the nine deployment velocity cases shown in Figure \ref{fig:diff_deploy_curve_fitting}. The fitted linear model captures the overall increase in acquisition fuel consumption with differential deployment speed, but it does not reproduce all features of the simulated data. The deviations between the predicted and simulated acquisition fuel consumption are shown in Figure \ref{fig:predicted_vs_simulated_remaining_fuel_comparison} and summarized numerically in Table \ref{tab:gnssr_lifetime_prediction_summary}. Some of non-systematic deviation from the linear model may be explained by the uncertainty related to the determination of the acquisition time, as discussed in Subsection \ref{sec:discussion_acq_consumption}. However, the largest deviation occurs for the zero-deployment-speed case, where the fitted model predicts an acquisition fuel consumption of $-2.56~\mathrm{g}$, compared with the simulated value of $5.60~\mathrm{g}$. This gives a prediction error of $8.16~\mathrm{g}$ and is physically unrealistic, since acquisition fuel consumption cannot be negative.
+
+The poor zero-speed prediction is consistent with the non-monotonic behavior between the $\Delta v_{\mathrm{dep}}=0.0~\mathrm{m/s}$ and $\Delta v_{\mathrm{dep}}=0.5~\mathrm{m/s}$ cases discussed in Section \ref{sec:discussion_acq_consumption}. Since the remaining data points follow a more regular increasing trend, the fitted linear model is more representative for the higher deployment-speed cases than for the lowest part of the tested range. This indicates that the acquisition fuel dependence on $\Delta v_{\mathrm{dep}}$ is not fully captured by a single unconstrained linear fit across the complete interval.
+
+A higher-order model could potentially represent the low-speed nonlinearity more accurately, but the available data do not clearly support a single quadratic model over the full deployment-speed range. Such a fit would force a continuously curved relationship, even though the simulated acquisition fuel consumption is approximately linear for most of the tested interval. A piecewise model, with a separate low-speed representation below approximately $1~\mathrm{m/s}$ and a linear model at higher differential deployment speeds, might better represent the observed behavior. However, additional differential deployment speed cases would be required to determine this speculated dynamics more closely.
+
+\begin{comment}
+How accurate do I think the model predictions are. Discuss the methodology here (specifically data collection method and curve fitting)
+* How well does the remaining fuel model fit the simulation data from the deployment cases? 
+    * The linear model that was developed to predict acquisition fuel consumption is only based on the nine samples shown in Figure \ref{fig:diff_deploy_curve_fitting}. 
+    * The deviations between the predicted and simulated acquisition fuel consumption for every case in the deployment sensitivity campaign is clearly shown in Figure \ref{fig:predicted_vs_simulated_remaining_fuel_comparison}, and summarized with numerical values in Table \ref{tab:gnssr_lifetime_prediction_summary}. 
+    * The deviations vary across the board, with no clear trend. The largest predicted deviation from the simulated acquisition fuel consumption is for the zero deployment speed case, with a difference of 8.16m/s, where the predicted fuel consumption is -2.56m/s. First, it is unsurprising that this differential deployment speed yielded the largest deviation from the predicted model because of the unique case around 0-0.5m/s discussed in Section \ref{sec:discussion_acq_consumption}. Second, a negative predicted acquisition fuel consumption is clearly not realistic.
+    * This raises concerns about the predictive accuracy of this linear model. A quadratic fitted model might have been able to capture some of the non-linearities around the 0-0.5m/s differential deployment speed range. However, this would have resulted in a continuously growing acquisition fuel consumption, which does not seem to be the case based on the data points shown in Figure \ref{fig:diff_deploy_curve_fitting}. 
+    * Perhaps a more accurate model could be built from a quadratic model in the first 0-1.0 differential deployment speed range, and then transitioning to a linear model for speed differences greater than 1.0.
+    * In any case, additional differential deployment speed cases should be run to decipher this behavior further. 
+    
+\end{comment}
+
+\subsection{Steady-State Fuel Model Reliability}
+\begin{comment}
+
+\end{comment}
+
+\subsection{Interpretation of the Predicted Lifetime}
+\begin{comment}
+
+* As mentioned in Section \ref{sec:discussion_acq_consumption}, loose tolerances in the formation acquisition criterion means that there is a substantial uncertainty in the acquisition times. Furthermore, small uncertainties translate to big lifetime variance due to the large fuel rate in during the acquisition (poorly explained)
+
+    * Steady-state consumption
+        - deviations from predicted in Figure \ref{predicted_lifetime}
+        - Linear model sufficient? (mention that the actual steady-state fuel rate should decrease as the spacecraft mass becomes smaller as propellant is used up, assuming the rate of formation drift remain the same. This might not be the case though if differential drag is a big influence and the formation looses orbital altitude over time)
+        - Excluding orbital maintenance maneuvers. 
+* Based on observed model deviations, how would I evaluate the predicted lifetimes (optimistic? Pessimistic?)
+* Adjusted for propagation uncertainty (from evaluation performed in the first section)
+\end{comment}
+
+
+
+\section{Main Limitations and Future Work}
+\begin{comment}
+* Only one orbital "layer" of the concentric formation was studied. Spacecraft in larger radius relative orbit about the leader will probably experience larger differential perturbations, but this needs more studying. 
+* GNSS-R observation geometry
+* 
+\end{comment}

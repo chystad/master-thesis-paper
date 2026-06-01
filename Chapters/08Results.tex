@@ -1,3 +1,6 @@
+\hl{Result chapter intro}
+
+
 \section{Comparative Propagation Analysis Results}
 This section presents the results from the comparative propagation benchmarking campaign described in Section \ref{sec:comparative_prop_anal_method}. The continuously updating Skyfield-SGP4 propagation is used as the comparison baseline, while three Basilisk configurations are evaluated against it: the primary thesis configuration with NRLMSISE-00 atmospheric density, the specialization-project configuration with an un-tuned exponential atmosphere model, and a re-tuned exponential atmosphere configuration. All reported differences are computed as Basilisk minus Skyfield-SGP4 and should be interpreted as differences relative to the updating-\gls{tle} reference, not as errors relative to a true physical ground truth.
 
@@ -44,7 +47,7 @@ At the end of the 14-day propagation interval, the primary thesis Basilisk confi
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{Figures/05Results/bsk_skf_comparison/Ex1 - RTN pos difference.png}
-    \caption{\hl{If time, change the subplot ordering to R, T, N}. Decomposition of the same-spacecraft position difference in the RTN frame}
+    \caption{Decomposition of the same-spacecraft position difference in the RTN frame}
     \label{fig:same_sc_pos_RTN_decomposition} 
 \end{figure}
 Figure \ref{fig:same_sc_pos_RTN_decomposition} shows the same-spacecraft position difference for the leader spacecraft decomposed in the Skyfield-SGP4 baseline leader's RTN frame. The along-track component is the dominant contributor to the position difference for all Basilisk configurations. The primary thesis configuration with the NRLMSISE-00 atmosphere model diverges in the positive along-track direction, while both exponential atmosphere configurations diverge in the negative along-track direction. By the end of the 14-day comparison interval, the old specialization-project exponential atmosphere configuration has the largest along-track difference, followed by the re-tuned exponential atmosphere configuration and the primary thesis configuration.
@@ -112,7 +115,7 @@ The long-term altitude trend differs between the atmosphere models. The primary 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{Figures/05Results/bsk_skf_comparison/Ex1 - Leader follower RTN relative position difference.png}
-    \caption{\hl{If time, change the subplot ordering to R, T, N}.Leader-follower pair same-formation position drift difference for each Basilisk configuration compared against the updating TLE Skyfield-SGP4 baseline.}
+    \caption{Leader-follower pair same-formation position drift difference for each Basilisk configuration compared against the updating TLE Skyfield-SGP4 baseline.}
     \label{fig:same_form_drift_RTN_decomposition} 
 \end{figure}
 
@@ -138,6 +141,7 @@ Just like the altitude comparison, every component of the RTN position drift dec
 
 \clearpage
 \section{Deployment Velocity Acquisition Fuel Sensitivity}
+\label{sec:deployment_vel_acq_fuel_sens}
 This section presents the results from the deployment velocity fuel sensitivity campaign described in Section \ref{sec:deploy_sensitivity_campaign}. The campaign consists of nine 48-hour GNSS-R formation flight simulations where one leader and one follower are initialized from the same deployer orbit, but with different opposite deployment velocity offsets. The differential deployment speed $\Delta v_{\mathrm{dep}}$ is varied from $0$ to $4~\mathrm{m/s}$. For each case, the acquisition time $t_{\mathrm{acq}}$ is determined using the \gls{oed} acquisition criterion defined in Section \ref{sec:formation_acquisition_def}, and the corresponding acquisition fuel consumption $m_{\mathrm{acq}}$ is computed as the follower fuel consumed from deployment until this acquisition time.
 
 The results are first presented using leader-follower RTN relative-position trajectories to show the geometric formation response during and after the initial deployment transient. The acquisition condition is then evaluated using the \gls{oed} tolerances that define $t_{\mathrm{acq}}$, before the follower fuel consumption is used to extract $m_{\mathrm{acq}}$ for each deployment case. The section concludes by summarizing the resulting acquisition time, acquisition fuel, burn statistics, and operational diagnostics. Together, these results provide the simulation-based deployment sensitivity estimate of $m_{\mathrm{acq}}(\Delta v_{\mathrm{dep}})$ used in the GNSS-R formation flight lifetime analysis.
@@ -224,6 +228,7 @@ The results show that the initial differential deployment speeds produces differ
 
 
 \subsection{Acquisition Time \& Fuel Consumption}
+\label{sec:acq_time_and_fuel_consumption}
 
 \begin{figure}[H]
     \centering
@@ -331,18 +336,26 @@ The burn statistics in Table \ref{tab:deployment_velocity_acquisition_summary} a
         $\boldsymbol{e_{\mathrm{batt,min}} }$ \textbf{[\%]} &
         \textbf{Burns denied} \\
         \midrule
-        0 & 0.0 & 26.55 & -- & No \\
-        1 & 0.5 & 10.17 & -- & No  \\
-        2 & 1.0 & 18.53 & -- & No \\
-        3 & 1.5 & 18.61 & -- & No \\
-        4 & 2.0 & 12.08 & -- & No \\
-        5 & 2.5 & 13.31 & -- & No  \\
-        6 & 3.0 & 11.06 & -- & No \\
-        7 & 3.5 & 11.39 & -- & No \\
-        8 & 4.0 & 13.93 & -- & No \\
+        0 & 0.0 & 26.55 & 37.90 & No \\
+        1 & 0.5 & 10.17 & 37.18 & No  \\
+        2 & 1.0 & 18.53 & 37.43 & No \\
+        3 & 1.5 & 18.61 & 37.82 & No \\
+        4 & 2.0 & 12.08 & 37.18 & No \\
+        5 & 2.5 & 13.31 & 37.01 & No  \\
+        6 & 3.0 & 11.06 & 37.57 & No \\
+        7 & 3.5 & 11.39 & 37.32 & No \\
+        8 & 4.0 & 13.93 & 37.50 & No \\
         \bottomrule
     \end{tabular}
 \end{table}
+
+
+
+
+
+
+
+
 
 The additional diagnostics in Table \ref{tab:deployment_velocity_acquisition_diagnostics} show that no burn requests were denied in any of the deployment cases. The average attitude tracking error during burns remains case-dependent, but no case is marked as burn-limited by the internal subsystem logic. The follower EPS overview shown in Appendix \ref{fig:diff_deploy_eps_overview} shows the battery-energy history and instantaneous net power for all deployment cases during the acquisition interval. The operational-mode in Appendix \ref{fig:diff_deploy_operational_mode} histories show the transitions between burn, capture, charge, communication, and coast modes, while the burn diagnostics in Appendix \ref{fig:diff_deploy_burn_statistics} summarize the burn execution statistics. Across the tested deployment-speed cases, the operational constraints did not prevent the execution of any commanded formation-maintenance burns. Since entering emergency mode is the condition required to block a burn request, this indicates that the simulated battery state remained sufficient for the formation acquisition sequence in all cases.
 
@@ -350,6 +363,10 @@ The additional diagnostics in Table \ref{tab:deployment_velocity_acquisition_dia
 
 
 \section{Steady-State Fuel Consumption}
+This section presents the results from the formation steady-state fuel consumption campaign described in Section \ref{sec_steady_state_campaign}. The campaign uses the GNSS-R Formation Flight Simulator to propagate the selected leader-follower concentric formation after deployment, with formation control, attitude control, operational mode switching, EPS modelling, and the full thesis disturbance environment enabled. The purpose of the campaign is to estimate the cumulative post-acquisition formation-maintenance fuel consumption $m_{\mathrm{maint}}(t)$ from the follower fuel history.
+
+The results are first presented using the follower cumulative fuel consumption over the available long-horizon simulation interval, together with fitted continuous models for $m_{\mathrm{maint}}(t)$. The section then summarizes the operational feasibility of the run using EPS, mode, pointing, and burn-execution metrics for both spacecraft. Together, these results provide the steady-state fuel-consumption model and subsystem feasibility check used in the GNSS-R formation flight lifetime estimate.
+
 \begin{comment}
 Plots:
 1. Cumulative post-acquisition fuel consumption with fitted model
@@ -362,86 +379,215 @@ Plots:
 \end{comment}
 
 
-\subsection{Post-Acquisition Fuel Consumption Model}
+\subsection{Post-Acquisition Fuel Consumption}
+\label{sec:post_acq_fuel_consumption}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.9\textwidth]{Figures/05Results/steady_state_fuel_rate_analysis/steady_state_fuel_consumption.png}
-    \caption{}
+    \caption{Cumulative fuel consumption for a zero differential deployment speed case over 24 days. A quadratic and linear model has been fitted to the cumulative fuel consumption using samples in the timespan $t \in \left[ t_{\mathrm{acq}}, t_{\mathrm{end}} \right]$}
     \label{fig:steady_state_cum_consumption} 
 \end{figure}
 
+Figure \ref{fig:steady_state_cum_consumption} shows the cumulative follower fuel consumption from the long-horizon steady-state fuel consumption campaign. The follower is initialized with zero relative deployment velocity with respect to the leader, and the vertical dashed line marks the acquisition time $t_{\mathrm{acq}} = 1.55~\mathrm{h}$. After $24$ days of simulation time, the follower has consumed approximately $44~\mathrm{g}$ of propellant during acquisition and subsequent formation maintenance.
 
-% \begin{figure}[H]
-%     \centering
-%     \begin{subfigure}[t]{0.44\textwidth}
-%         \centering
-%         \includegraphics[height=0.34\textheight, keepaspectratio]{Figures/05Results/steady_state_fuel_rate_analysis/predicted vs simulated remaining acquisition consumption.png}
-%         \caption{Remaining fuel over the full acquisition interval.}
-%         \label{fig:predicted_vs_simulated_remaining_fuel_acquisition}
-%     \end{subfigure}
-%     \hfill
-%     \begin{subfigure}[t]{0.52\textwidth}
-%         \centering
-%         \includegraphics[height=0.34\textheight, keepaspectratio]{}
-%         \caption{Remaining acquisition consumption during the initial interval.}
-%         \label{fig:predicted_vs_simulated_remaining_acquisition_consumption}
-%     \end{subfigure}
-%     \caption{Comparison of predicted and simulated remaining fuel during formation acquisition.}
-%     \label{fig:predicted_vs_simulated_remaining_fuel_comparison}
-% \end{figure}
+Two continuous models are fitted to the cumulative fuel-consumption history in the period after the acquisition time. The quadratic fit is
+\begin{equation}
+\hat{m}_{\mathrm{maint}}(t)
+=
+-0.018 t^2
++
+1.979 t
++
+6.683,
+\end{equation}
+while the linear fit is
+\begin{equation}
+\hat{m}_{\mathrm{maint}}(t)
+=
+1.536 t
++
+8.471.
+\end{equation}
+Here, $t$ is measured in days and the fitted fuel consumption is given in grams. The fitted curves provide the simulation-based approximation of the cumulative post-acquisition formation-maintenance fuel consumption used in the lifetime estimate.
 
 
-
+\begin{comment}
+* Figure \ref{steady_state_cum_consumption} show the long-horizon cumulative fuel consumption for the follower spacecraft, which has been deployed with 0m/s relative to the leader spacecrft.
+* After the full duration of 24 days, approximately 42h of fuel has been spent during acquisition and the following steady-state formation maintanance. 
+* 2 models have been fitted to match the cumulative fuel consumption, one linear and one quadratic. The quadratic approximarion is given by:
+\begin{equation}
+    \hat{m}_{\mathrm{maint}}(t) = -0.018 t^2 + 1.979 t + 6.683
+\end{equation}
+And the linear approximation is given by
+\begin{equation}
+    \hat{m}_{\mathrm{maint}}(t) = 1.536 t + 8.471
+\end{equation}
+\end{comment}
 
 
 
 
 \subsection{Steady-State Operational Feasibility}
-zxczfgxhgxfhf
 
-% \begin{table}[H]
-% \centering
-% \caption{Steady-state campaign operational feasibility summary.}
-% \label{tab:steady_state_feasibility_summary}
-% \begin{tabular}{lcc}
-% \toprule
-% \textbf{Metric} & \textbf{Leader} & \textbf{Follower} \
-% \midrule
-% Simulation duration [days] & 24.00 & 24.00 \
-% Fit interval [days] & -- & -- \
-% Minimum battery energy [\%] & 36.16 & 36.14 \
-% Mean battery energy [\%] & 42.48 & 42.48 \
-% Maximum battery energy [\%] & 79.89 & 79.89 \
-% Mean net power [W] & -0.06 & -0.06 \
-% Minimum net power [W] & -- & -- \
-% Maximum net power [W] & -- & -- \
-% Time in BURN mode [h] & 0.00 & 0.02 \
-% Time in CAPTURE mode [h] & 328.35 & 328.17 \
-% Time in CHARGE mode [h] & 161.63 & 161.73 \
-% Time in COMMS mode [h] & 35.90 & 35.87 \
-% Time in COAST mode [h] & 50.12 & 50.21 \
-% Number of burns [-] & -- & -- \
-% Mean burn duration [s] & -- & -- \
-% Mean pointing error [deg] & -- & -- \
-% Burn denied & -- & -- \\
-% \bottomrule
-% \end{tabular}
-% \end{table}
 
+Table \ref{tab:steady_state_feasibility_summary} summarizes the operational feasibility metrics from the steady-state fuel consumption campaign. The simulation was propagated for $24$ days for both spacecraft. The leader and follower show nearly identical EPS statistics, with a minimum battery energy of approximately $36\%$, a mean battery energy of approximately $42\%$, and a maximum battery energy of approximately $80\%$. The mean net power is close to zero for both spacecraft, while the instantaneous net power varies between approximately $-28~\mathrm{W}$ and $20~\mathrm{W}$. Both spacecraft spend most of the simulation time in CAPTURE mode, followed by CHARGE, COAST, and COMMS. No burn requests were denied for either spacecraft during the campaign.
+
+\begin{table}[H]
+\centering
+\caption{Steady-state campaign operational feasibility metrics}
+\label{tab:steady_state_feasibility_summary}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Metric} & \textbf{Leader} & \textbf{Follower} \\
+\midrule
+
+Simulation duration [days] & 24.00 & 24.00 \\
+Minimum battery energy [\%] & 36.16 & 36.14 \\
+Mean battery energy [\%] & 42.48 & 42.48 \\
+Maximum battery energy [\%] & 79.89 & 79.89 \\
+Mean net power [W] & -0.06 & -0.06 \\
+Minimum net power [W] & -23.08 & -28.12 \\
+Maximum net power [W] & 18.25 & 20.41 \\
+Time in BURN mode [h] & 0.00 (0.00\%) & 0.02 (0.00\%) \\
+Time in CAPTURE mode [h] & 328.35 (57.01\%) & 328.17 (56.97\%) \\
+Time in CHARGE mode [h] & 161.63 (28.06\%) & 161.73 (28.08\%) \\
+Time in COMMS mode [h] & 35.90 (6.23\%) & 35.87 (6.23\%) \\
+Time in COAST mode [h] & 50.12 (8.70\%) & 50.21 (8.72\%) \\
+Burns & 0 & 49 \\
+Mean burn duration [s] & 0 & 1.28 \\
+Mean pointing error [deg] & 0.04 & 0.36 \\
+Burn denied & No & No \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Figure \ref{fig:steady_state_eps_modes_final_day} shows the EPS and operational-mode behaviour during the final $24~\mathrm{h}$ of the long-horizon simulation. The leader and follower battery-energy time series, net-power profiles, and operational-mode transitions are nearly identical over this interval. Both spacecraft exhibit a repeated mode sequence dominated by CAPTURE and CHARGE, with shorter intervals in COMMS and COAST. A single follower BURN-mode event occurs during the displayed interval, while the leader remains without burn activity. The similarity between the leader and follower EPS time series and mode transitions indicates that the two spacecraft remain synchronized in their steady-state operational cycle at the end of the simulation.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{Figures/05Results/steady_state_fuel_rate_analysis/simple_steady_state_eps_and_pointing_mode.png}
+    \caption{Operational mode transitions and EPS parameters for the leader and follower spacecraft during the final hours of the steady-state campaign}
+    \label{fig:steady_state_eps_modes_final_day} 
+\end{figure}
+
+
+
+
+\begin{comment}
+* Table \ref{tab:steady_state_feasibility_summary} show different metrics summarizing the operational states, eps and pointing behaviour during the steady-state formation maintanence mission phase. 
+* The subsystem hevaviour between the leader follower are generally very similar:
+    - approximately the same battery states 
+    - Approximately the same time spent in the different operational states
+    - approximately the same pointing error
+* The only notable difference is:
+    - Leader complete no burns (as per design)
+    - 
+\end{comment}
 
 
 
 \section{GNSS-R Formation Flight Lifetime Estimation}
 
+The fuel-limited lifetime estimate is obtained by combining the acquisition fuel model from Section \ref{sec:acq_time_and_fuel_consumption} with the post-acquisition maintenance fuel model from Section \ref{sec:post_acq_fuel_consumption}. The remaining follower fuel mass is modelled as
+\begin{equation}
+\hat{m}_{\mathrm{fuel}}(t, \Delta v_{\mathrm{dep}})
+=
+m_{\mathrm{fuel},0}
+-
+\hat{m}_{\mathrm{acq}}(\Delta v_{\mathrm{dep}})
+-
+\hat{m}_{\mathrm{maint}}(t),
+\end{equation}
+where $m_{\mathrm{fuel},0}=635~\mathrm{g}$ is the initial follower fuel mass. The fitted acquisition fuel model is
+\begin{equation}
+\hat{m}_{\mathrm{acq}}(\Delta v_{\mathrm{dep}})
+=
+18.782\Delta v_{\mathrm{dep}} - 2.557,
+\end{equation}
+with $\Delta v_{\mathrm{dep}}$ given in $\mathrm{m/s}$ and $\hat{m}_{\mathrm{acq}}$ in grams. The post-acquisition fuel consumption was fitted using both a quadratic and a linear model. The quadratic model is
+\begin{equation}
+\hat{m}_{\mathrm{maint,q}}(t)
+=
+-0.018t^2
++
+1.979t
++
+6.683,
+\end{equation}
+while the linear model is
+\begin{equation}
+\hat{m}_{\mathrm{maint,l}}(t)
+=
+1.536t
++
+8.471.
+\end{equation}
+Here, $t$ is measured in days and $\hat{m}_{\mathrm{maint}}$ is given in grams. Substituting the two maintenance models into the remaining fuel expression gives
+\begin{equation}
+    m_{\mathrm{fuel}} \approx \hat{m}_{fuel} = \begin{cases}
+        \hat{m}_{\mathrm{fuel,q}}(t, \Delta v_{\mathrm{dep}}) = 0.018t^2 - 1.979t - 18.782\Delta v_{\mathrm{dep}} + 630.874 \\
+        \;\; \text{or} \\
+        \hat{m}_{\mathrm{fuel,l}}(t, \Delta v_{\mathrm{dep}}) = -1.536t - 18.782\Delta v_{\mathrm{dep}} + 629.086.
+    \end{cases}
+\end{equation}
 
+% \begin{equation}
+% \hat{m}_{\mathrm{fuel,q}}(t, \Delta v_{\mathrm{dep}})
+% =
+% 0.018t^2
+% -
+% 1.979t
+% -
+% 18.782\Delta v_{\mathrm{dep}}
+% +
+% 630.874,
+% \end{equation}
+% and
+% \begin{equation}
+% \hat{m}_{\mathrm{fuel,l}}(t, \Delta v_{\mathrm{dep}})
+% =
+% -1.536t
+% -
+% 18.782\Delta v_{\mathrm{dep}}
+% +
+% 629.086.
+% \end{equation}
+
+The predicted fuel-limited lifetime is evaluated using both remaining-fuel models and the reserve condition $m_{\mathrm{res}}=0$. The quadratic lifetime estimate $\hat{T}_{\mathrm{life,q}}$ is defined as the time at which $\hat{m}_{\mathrm{fuel,q}}(t,\Delta v_{\mathrm{dep}})$ reaches zero, while the linear lifetime estimate $\hat{T}_{\mathrm{life,l}}$ is defined as the time at which $\hat{m}_{\mathrm{fuel,l}}(t,\Delta v_{\mathrm{dep}})$ reaches zero. Table \ref{tab:gnssr_lifetime_prediction_summary} summarizes the resulting lifetime estimates for the deployment speeds considered in the acquisition fuel sensitivity campaign, together with the corresponding simulated and estimated acquisition fuel consumption.
+\begin{table}[H]
+\centering
+\caption{Predicted GNSS-R formation flight lifetime as a function of differential deployment speed using the quadratic and linear remaining fuel models.}
+\label{tab:gnssr_lifetime_prediction_summary}
+\begin{tabular}{ccccc}
+\toprule
+$\boldsymbol{\Delta v_{\mathrm{dep}}}$ \textbf{[m/s]} &
+$\boldsymbol{m_{\mathrm{acq}}}$ \textbf{[g]} &
+$\boldsymbol{\hat{m}_{\mathrm{acq}}}$ \textbf{[g]} &
+$\boldsymbol{\hat{T}_{\mathrm{life,q}}}$ \textbf{[days]} &
+$\boldsymbol{\hat{T}_{\mathrm{life,l}}}$ \textbf{[days]} \\
+\midrule
+0.0 & 5.60  & -2.56 & -- & 413.58 \\
+0.5 & 5.39  & 6.83 & -- & 409.14 \\
+1.0 & 10.83 & 16.23 & -- & 403.06 \\
+1.5 & 24.96 & 25.62 & -- & 397.01 \\
+2.0 & 29.16 & 35.01 & -- & 390.89 \\
+2.5 & 43.05 & 44.40 & -- & 384.81 \\
+3.0 & 59.36 & 53.79 & -- & 378.73 \\
+3.5 & 59.61 & 63.18 & -- & 372.55 \\
+4.0 & 77.02 & 72.57 & -- & 366.50 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The quadratic model does not produce a finite lifetime estimate for any of the deployment-speed cases. This is indicated by the undefined entries for $\hat{T}_{\mathrm{life,q}}$ in Table \ref{tab:gnssr_lifetime_prediction_summary}. The undefined values occur because the fitted quadratic remaining-fuel model does not reach zero fuel. Instead, the positive quadratic term causes the remaining-fuel estimate to eventually increase after reaching a minimum. The linear model therefore provides the finite lifetime estimates reported in the final column of the table.
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\textwidth]{Figures/05Results/steady_state_fuel_rate_analysis/pisscum.png}
-    \caption{}
+    \includegraphics[width=0.9\textwidth]{Figures/05Results/steady_state_fuel_rate_analysis/model_predicted_lifetime.png}
+    \caption{Linear remaining fuel model applied to each differential deployment speed case considered in the deployment sensitivity campaign, plotted for the estimated lifetime duration. The quadratic remaining fuel model is only applied to the zero-deployment-speed case}
     \label{fig:predicted_lifetime} 
 \end{figure}
-
+Figure \ref{fig:predicted_lifetime} shows the predicted remaining follower fuel mass over the extrapolated lifetime interval for each differential deployment speed. The dashed curves correspond to the linear remaining-fuel model and reach zero fuel at the predicted linear lifetime $\hat{T}_{\mathrm{life,l}}$. The vertical markers indicate the corresponding depletion times, which decrease from $413.58~\mathrm{days}$ for the zero-deployment-speed case to $366.50~\mathrm{days}$ for the $\Delta v_{\mathrm{dep}}=4.0~\mathrm{m/s}$ case. The quadratic model is shown for the $\Delta v_{\mathrm{dep}}=0~\mathrm{m/s}$ case and illustrates why $\hat{T}_{\mathrm{life,q}}$ is undefined.
 
 \begin{figure}[htbp]
     \centering
@@ -452,9 +598,41 @@ zxczfgxhgxfhf
         \includegraphics[height=0.34\textheight]{Figures/05Results/steady_state_fuel_rate_analysis/predicted_vs_simulated_fuel_consumption.png}
     }
 
-    \caption{Predicted and simulated remaining fuel during formation acquisition. The full acquisition interval is shown on the left, while the initial acquisition-consumption interval is shown on the right.}
+    \caption{Comparison between the linear remaining fuel model and the simulated differential deployment cases in Section \ref{sec:deployment_vel_acq_fuel_sens}. The left plot highlights fuel acquisition estimate accuracy, while the right plot shows the remaining fuel model compared to the full $48~h$ simulation duration.}
     \label{fig:predicted_vs_simulated_remaining_fuel_comparison}
 \end{figure}
+
+Figure \ref{fig:predicted_vs_simulated_remaining_fuel_comparison} compares the predicted remaining fuel time seris against the simulated fuel histories during the acquisition interval. The solid curves show the simulated follower fuel mass from the deployment velocity sensitivity campaign, while the dashed curves show the model prediction using the fitted acquisition fuel model and the linear post-acquisition fuel model. The zoomed view highlights the deployment-speed-dependent fuel offset introduced by $\hat{m}_{\mathrm{acq}}(\Delta v_{\mathrm{dep}})$ during the first part of the simulation.
+
+\hl{if time, compute the lifetimes again using the actual acquisition fuel consumption, not the estimated}
+
+
+\begin{comment}
+* Combining the approximated models presented in Sections \ref{sec:acq_time_and_fuel_consumption} and \ref{post_acq_fuel_consumption} gives the final expression for the remaining fuel using the quadratic model:
+\begin{equation}
+\begin{split}
+    \hat{m}_{\mathrm{fuel}}(t, \Delta v_{\mathrm{dep}}) &= m_{\mathrm{fuel},0} - m_{\mathrm{acq}}(\Delta v_{\mathrm{dep}}) - m_{\mathrm{maint}}(t)\\
+    &= 635 - 18.782 \Delta v_{\mathrm{dep}} + 2.557 + 0.018 t^2- 1.979 t - 6.683 \\
+\end{split}
+\end{equation}
+linear maintenance model:
+\begin{equation}
+\begin{split}
+    \hat{m}_{\mathrm{fuel}}(t, \Delta v_{\mathrm{dep}}) &= m_{\mathrm{fuel},0} - m_{\mathrm{acq}}(\Delta v_{\mathrm{dep}}) - m_{\mathrm{maint}}(t)\\
+    &= 635 - 18.782 \Delta v_{\mathrm{dep}} + 2.557 - 1.536 t - 8.471 \\
+    &= -1.536 t - 18.782 \Delta v_{\mathrm{dep}} + 629.086
+\end{split}
+\end{equation}
+for $t \geq t_acq$
+* Figure \ref{fig:predicted_lifetime} show this linear model applied to the same differential deplyment speed cases as considered in the deplyment sensitivity campaign. 
+* Figure \ref{predicted_vs_simulated_remaining_fuel_comparison} shows zoomed in versions of the same figure to better visualize how the predictions compare against the simulated fuel consumption from the deplyment sensitivity campaign. 
+\end{comment}
+
+
+
+
+
+
 
 
 
