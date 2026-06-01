@@ -122,9 +122,6 @@ The along-track component is the dominant same-formation drift difference. All B
 
 The cross-track and radial components remain much smaller than the along-track component. In these components, the same ordering observed in the same-spacecraft state difference results is present: the primary thesis configuration has the smallest divergence, the re-tuned exponential atmosphere configuration is intermediate, and the old specialization-project exponential atmosphere configuration has the largest oscillation amplitude. The radial drift difference remains below approximately $150~\mathrm{m}$, while the cross-track drift difference remains within approximately $\pm 10~\mathrm{m}$ over the full comparison interval.
 
-\hl{If time, insert a same-formation drift difference magnitude}
-
-
 \begin{comment}
 Just like the altitude comparison, every component of the RTN position drift decomposition is subject to short-term oscillations with growing amplitude. For the cross-track and radial components, the usual difference ordering is present: The thesis configuration diverges the least, followed by the tuned and old configurations in ascending order. However, the main thing to point is that the Old configuration, though more oscillatory,  diverges ever so slightly less than the other configurations.
 \end{comment}
@@ -141,6 +138,10 @@ Just like the altitude comparison, every component of the RTN position drift dec
 
 \clearpage
 \section{Deployment Velocity Acquisition Fuel Sensitivity}
+This section presents the results from the deployment velocity fuel sensitivity campaign described in Section \ref{sec:deploy_sensitivity_campaign}. The campaign consists of nine 48-hour GNSS-R formation flight simulations where one leader and one follower are initialized from the same deployer orbit, but with different opposite deployment velocity offsets. The differential deployment speed $\Delta v_{\mathrm{dep}}$ is varied from $0$ to $4~\mathrm{m/s}$. For each case, the acquisition time $t_{\mathrm{acq}}$ is determined using the \gls{oed} acquisition criterion defined in Section \ref{sec:formation_acquisition_def}, and the corresponding acquisition fuel consumption $m_{\mathrm{acq}}$ is computed as the follower fuel consumed from deployment until this acquisition time.
+
+The results are first presented using leader-follower RTN relative-position trajectories to show the geometric formation response during and after the initial deployment transient. The acquisition condition is then evaluated using the \gls{oed} tolerances that define $t_{\mathrm{acq}}$, before the follower fuel consumption is used to extract $m_{\mathrm{acq}}$ for each deployment case. The section concludes by summarizing the resulting acquisition time, acquisition fuel, burn statistics, and operational diagnostics. Together, these results provide the simulation-based deployment sensitivity estimate of $m_{\mathrm{acq}}(\Delta v_{\mathrm{dep}})$ used in the GNSS-R formation flight lifetime analysis.
+
 \begin{comment}
 Insert short introduction here including
 * Nine 48-hour simulations.
@@ -151,7 +152,6 @@ Insert short introduction here including
 \end{comment}
 
 
-\clearpage
 \subsection{RTN Formation Trajectories}
 
 \begin{figure}[htbp]
@@ -171,6 +171,8 @@ Insert short introduction here including
     \label{fig:diff_deploy_rtn_relative_position_3d_trajectories}
 \end{figure}
 
+
+\clearpage
 Figure \ref{fig:diff_deploy_rtn_relative_position_3d_trajectories} shows the leader-follower relative-position trajectories for selected deployment velocity cases, expressed in the leader RTN frame. The left plot shows the initial response during the first $15 \mathrm{h}$ after deployment, while the right plot shows the relative motion over the remaining interval from $15$ to $48 \mathrm{h}$. The largest initial relative-position magnitude occur for the largest differential deployment speeds, but all cases evolve into similar bounded relative-position trajectories.
 
 \begin{comment}
@@ -185,11 +187,11 @@ Point out that, while it is tempting to attribute the large initial follower dev
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{Figures/05Results/deployment_sensitivity_analysis/deployment_velocity_rtn_relative_position_components_selected_runs.png}
-    \caption{\hl{Add all case visualization to appendix} Decomposition of the leader-follower RTN relative-position trajectories into its individual components over $t \in [0, 15]$. Only a selected set of differential deployment velocities are included, corresponding to run 0, 2, 4, 6 and 8 detailed in \ref{sec:deploy_sensitivity_campaign}. The vertical dashed lines show the corresponding color's acquisition time. }
+    \caption{Decomposition of the leader-follower RTN relative-position trajectories into its individual components over $t \in [0, 15]$. Only a selected set of differential deployment velocities are included, corresponding to run 0, 2, 4, 6 and 8 detailed in \ref{sec:deploy_sensitivity_campaign}. The vertical dashed lines show the corresponding color's acquisition time. }
     \label{fig:diff_deploy_rtn_relative_position_decomposition} 
 \end{figure}
 
-The component-wise RTN relative-position time series is shown in Figure \ref{fig:diff_deploy_rtn_relative_position_decomposition}. The radial, along-track, and cross-track components all show transient oscillations during the initial formation response. The largest transient amplitudes occur for the highest differential deployment-speed cases, most clearly in the cross-track component. The $\Delta v_{\mathrm{dep}} = 4~\mathrm{m/s}$ case reaches the largest along-track displacement, while the lower deployment-speed cases remain closer to the leader during the initial interval. The vertical dashed lines in Figure \ref{fig:diff_deploy_rtn_relative_position_decomposition} indicate the acquisition times determined for the corresponding deployment velocity cases. These acquisition times are evaluated formally in the next subsection using the orbital-element-difference acquisition criterion. The RTN trajectories shown here therefore present the geometric leader-follower response before and after the initial formation insertion process.
+The component-wise RTN relative-position time series is shown in Figure \ref{fig:diff_deploy_rtn_relative_position_decomposition}. The radial, along-track, and cross-track components all show transient oscillations during the initial formation response. The largest transient amplitudes occur for the highest differential deployment speed cases, most clearly in the cross-track component. The $\Delta v_{\mathrm{dep}} = 4~\mathrm{m/s}$ case reaches the largest along-track displacement, while the lower deployment speed cases remain closer to the leader during the initial interval. The vertical dashed lines in Figure \ref{fig:diff_deploy_rtn_relative_position_decomposition} indicate the acquisition times determined for the corresponding deployment velocity cases. These acquisition times are evaluated formally in the next subsection using the orbital-element-difference acquisition criterion. The RTN trajectories shown here therefore present the geometric leader-follower response before and after the initial formation insertion process.
 
 
 
@@ -200,19 +202,18 @@ The component-wise RTN relative-position time series is shown in Figure \ref{fig
 
 
 \subsection{Formation Acquisition Determination}
+The formation acquisition time was determined from the time evolution of the follower-leader classical orbital element differences, shown in Figure \ref{fig:diff_deploy_oed} for a selected subset of all cases presented in Section \ref{sec:deploy_sensitivity_campaign}. For this campaign, acquisition was defined by the follower remaining within the specified tolerance bounds for the selected acquisition-relevant \gls{oed} components: $\Delta a/a$, $\Delta e$, and $\Delta i$, in accordance with Section \ref{sec:formation_acquisition_def}. The tolerance ranges are shown as black dashed horizontal lines, and the vertical dashed lines show the corresponding acquisition times.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{Figures/05Results/deployment_sensitivity_analysis/deployment_velocity_oed_da_de_di_comparison.png}
-    \caption{\hl{Show all cases in same fugure in Appendix} Classic orbital element differences between the leader-follower pair for a selected set of differential deployment velocities corresponding to run 0, 2, 4, 6 and 8 detailed in \ref{sec:deploy_sensitivity_campaign}. The horizontal dashed lines show the OED tolerance range, while the vertical dashed lines show the acquisition times.}
+    \caption{Classic orbital element differences between the leader-follower pair for a selected set of differential deployment velocities corresponding to run 0, 2, 4, 6 and 8 detailed in \ref{sec:deploy_sensitivity_campaign}. The horizontal dashed lines show the OED tolerance range, while the vertical dashed lines show the acquisition times. The plotted time-horizon is reduced to $t \in [0, 15]$.}
     \label{fig:diff_deploy_oed} 
 \end{figure}
 
-The formation acquisition time was determined from the time evolution of the follower-leader classical orbital element differences, shown in Figure \ref{fig:diff_deploy_oed} for a selected subset of all cases presented in Section \ref{sec:deploy_sensitivity_campaign}. For this campaign, acquisition was defined by the follower remaining within the specified tolerance bounds for the selected acquisition-relevant \gls{oed} components: $\Delta a/a$, $\Delta e$, and $\Delta i$, in accordance with Section \ref{sec:formation_acquisition_def}. The tolerance ranges are shown as black dashed horizontal lines, and the vertical dashed lines show the corresponding acquisition times.
-
 The results show that the initial differential deployment speeds produces different transient \gls{oed} responses that eventually converge within the formation tolerances at different rates. The steep changes observed in the \gls{oed} histories are caused by formation-control burn maneuvers, which rapidly adjust the relative orbital elements. These jumps are especially visible in $\Delta a/a$ and $\Delta i$, where the commanded burns rapidly changes the semi-major axis and inclination difference. Between these burn events, the \gls{oed}s evolve more smoothly due to the natural relative orbital motion and perturbation environment.
 
-The acquisition time generally increases with differential deployment speed, but the trend is not strictly true for the displayed cases. The largest differential deployment speed case is acquired slightly before the next-highest case, which is the only visible deviation from the overall trend of the displayed cases. The figure therefore indicates that increasing differential deployment speed generally increases the time required to establish the target formation, while the exact acquisition time also depends on the timing and effect of the discrete formation-control burn sequence.
+% The acquisition time generally increases with differential deployment speed, but the trend is not strictly true for the displayed cases. The largest differential deployment speed case is acquired slightly before the next-highest case, which is the only visible deviation from the overall trend of the displayed cases. The figure therefore indicates that increasing differential deployment speed generally increases the time required to establish the target formation, while the exact acquisition time also depends on the timing and effect of the discrete formation-control burn sequence. The exact acquisition times for all differential deployment speeds considered in this campaign are presented in Figure \ref{fig:diff_deploy_curve_fitting} in the next subsection.
 
 
 
@@ -222,51 +223,70 @@ The acquisition time generally increases with differential deployment speed, but
 
 
 
-\subsection{Acquisition Fuel Consumption}
+\subsection{Acquisition Time \& Fuel Consumption}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{Figures/05Results/deployment_sensitivity_analysis/deployment_velocity_follower_cumulative_fuel_consumption.png}
-    \caption{}.
-    \label{fig:d} 
+    \caption{Cumulative formation acquisition fuel consumption for all campaign cases over $t \in [0, 15]$. The vertical dashed lines show the acquisition times.}
+    \label{fig:diff_deploy_cum_fuel_consumption} 
 \end{figure}
+
+The cumulative follower fuel consumption during the first 15 hours of the deployment sensitivity campaign is shown in Figure \ref{fig:diff_deploy_cum_fuel_consumption}. The colored curves show the accumulated fuel consumed by the follower spacecraft, while the vertical dashed lines mark the acquisition time for the corresponding differential deployment speed case. The circular markers at the intersection between these lines show the acquisition fuel consumption $m_{\mathrm{acq}}$.
+
+The fuel time series show a clear difference between the acquisition phase and the subsequent formation-keeping phase, where the general cumulative fuel consumption rate is significantly larger during acquisition. This behavior is observed across the deployment speed cases, although the number, timing, and magnitude of the burn events vary between cases. The acquisition fuel consumption also increases with differential deployment speed. The lowest deployment speed case requires only a few grams of fuel before acquisition, while the largest differential deployment speed case requires approximately 77 g. The cumulative fuel curves therefore show that larger initial deployment velocity differences lead to a larger propellant cost before the formation is acquired. This trend is more consistent for fuel consumption than for acquisition time, as each increase in differential deployment speed generally results in a larger value of $m_{\mathrm{acq}}$.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{Figures/05Results/deployment_sensitivity_analysis/deployment_velocity_acquisition_time_and_fuel_vs_deployment_speed.png}
-    \caption{something}.
-    \label{fig:b} 
+    \caption{Formation acquisition time and cumulative fuel consumption as a function of all campaign differential deployment speed cases}.
+    \label{fig:diff_deploy_curve_fitting} 
 \end{figure}
 
+Figure \ref{fig:diff_deploy_curve_fitting} summarizes the acquisition time and acquisition fuel consumption as functions of the differential deployment speed. The observed acquisition time $t_{\mathrm{acq}}$ is plotted on the left axis, while the acquisition fuel consumption $m_{\mathrm{acq}}$ is plotted on the right axis. Both quantities show a strong positive correlation with differential deployment speed. The acquisition time generally increases as $\Delta v_{\mathrm{dep}}$ increases, but the trend does not strictly apply to all cases. In particular, some intermediate cases deviate from the otherwise increasing trend, showing that the exact acquisition time depends on the timing of the discrete burn sequence and on when the dwell-time acquisition criterion is first satisfied.
 
-\subsection{Operational Feasibility}
+A first-order prediction model was estimated for both quantities using a linear least-squares fit. The resulting approximations are shown as dashed lines in Figure \ref{fig:diff_deploy_curve_fitting}. For the acquisition time, the fitted model is
+
+\begin{equation}
+\hat{t}_{\mathrm{acq}}(\Delta v_{\mathrm{dep}}) =
+0.982 \Delta v_{\mathrm{dep}} + 1.696 ,
+\end{equation}
+
+where $\hat{t}_{\mathrm{acq}}$ is given in hours when $\Delta v_{\mathrm{dep}}$ is given in $m/s$. For the acquisition fuel consumption, the fitted model is
+
+\begin{equation}
+\hat{m}_{\mathrm{acq}}(\Delta v_{\mathrm{dep}}) =
+18.782 \Delta v_{\mathrm{dep}} - 2.557 ,
+\end{equation}
+
+where $\hat{m}_{\mathrm{acq}}$ is given in grams. The fuel-consumption fit follows the observed data closely, reflecting the approximately linear increase in acquisition fuel cost over the simulated deployment speed range. The acquisition-time fit captures the overall positive trend, but the observed acquisition times show larger deviations from a purely linear response. This is consistent with the stepwise nature of the formation-control process, where acquisition depends not only on the size of the initial deployment velocity difference, but also on the timing of the burn maneuvers and the dwell-time condition used to define successful acquisition.
+
+
 \begin{comment}
-* Short paragraph only.
-* No plots, all added to appendix 
+Addressing the cumulative fuel consumption figure:
+* Figure \ref{fig:diff_deploy_cum_fuel_consumption} show the cumulative fuel consumption for all differential deployment speeds considered in the campaign. The dashed vertical lines are again there to show the acquisition time for each same-colored differential deployment speed case. 
+* The acquisition time generally increases with differential deployment speed, but the trend is not strictly true for all cases. For example, the largest differential deployment speed case is acquired slightly before the \Delta v_{dep}=3m/s case, and the next-largest differential deployment speed formation is acquired long before some of its smaller deployment cases. The figure therefore indicates that increasing differential deployment speed generally increases the time required to establish the target formation, while the exact acquisition time also depends on the timing and effect of the discrete formation-control burn sequence. 
+* There also seems to be a more strict trend where increasing the differential deployment speed increases the fuel consumed before the acquisition time.
+* In each deployment case, there is a distinct difference between the fuel consumption rate before and after the acquisition time. Before this time, the fuel consumption is steep, but "levels out" right after. 
+    (This might be too discussion related): This behavior is consistent with the acquisition definition, where a larger amount of fuel is required to obtain the desired formation, followed by a decreased fuel requirement for formation maintenance after this period.
+
+Addressing the formation-acquisition differential deployment speed sensitivity figure: 
+* Figure \ref{fig:diff_deploy_curve_fitting} shows the observed acquisition time $t_{\mathrm{acq}}$ and cumulative acquisition fuel consumption $m_{\mathrm{acq}$ plotted as a function of each case's differential deployment speed. Additionally, an estimated linear model for each of these functions are shown in the figure as dashed lines.
+* The linear approximations are estimated to be:
+\begin{equation}
+    \tilde{t_{\mathrm{acq}}$ = 0.981666667 {v_\mathrm{acq}} + 1.695925926
+\end{equation}
+\begin{equation}
+    \tilde{m_{\mathrm{acq}}$ = 18.78246268 {v_\mathrm{acq}} - 2.567488617
+\end{equation}
+* where $\tilde{t_{\mathrm{acq}}$ and $\tilde{m_{\mathrm{acq}}$ is the linear approximation given in hours and m/s, respectively. 
+* As observed in the cumulative fuel consumption figure, there is a strong positive correlation between both the acqusition time and fuel consumption and the differential deployment speed
 \end{comment}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.6\textwidth]{Figures/05Results/deployment_sensitivity_analysis/deployment_velocity_acquisition_burn_metrics_vs_deployment_speed.png}
-    \caption{\hl{APPENDIX}}.
-    \label{fig:a} 
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.6\textwidth]{Figures/05Results/deployment_sensitivity_analysis/deployment_velocity_eps_overview_all_runs.png}
-    \caption{\hl{APPENDIX}}.
-    \label{fig:c} 
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.6\textwidth]{Figures/05Results/deployment_sensitivity_analysis/deployment_velocity_operational_modes_all_runs.png}
-    \caption{\hl{APPENDIX}}.
-    \label{fig:f} 
-\end{figure}
 
 \subsection{Deployment Sensitivity Summary}
+
+The differential deployment speed formation acquisition results are summarized in Table \ref{tab:deployment_velocity_acquisition_summary}. All nine deployment cases successfully acquired the desired formation within the 48-hour simulation interval. The acquisition time increased from $1.55~\mathrm{h}$ for the $\Delta v_{\mathrm{dep}} = 0.0~\mathrm{m/s}$ and $0.5~\mathrm{m/s}$ cases to $5.43~\mathrm{h}$ for the $\Delta v_{\mathrm{dep}} = 4.0~\mathrm{m/s}$ case. The acquisition fuel consumption increased from $5.60~\mathrm{g}$ for the zero-deployment-speed case to $77.02~\mathrm{g}$ for the largest deployment-speed case. The total follower fuel consumption after 48 hours follows the same overall trend, increasing from $10.42~\mathrm{g}$ to $83.41~\mathrm{g}$ across the tested deployment-speed range.
 
 \begin{table}[H]
     \centering
@@ -296,6 +316,8 @@ The acquisition time generally increases with differential deployment speed, but
     \end{tabular}
 \end{table}
 
+The burn statistics in Table \ref{tab:deployment_velocity_acquisition_summary} also show that the increased acquisition fuel consumption is accompanied by both an increased number of formation-control burns and longer average thruster on-times. The number of burns during acquisition increases from $3$ in the zero-deployment-speed case to $11$ in the $\Delta v_{\mathrm{dep}} = 4.0~\mathrm{m/s}$ case. The average thruster on-time during acquisition increases from $2.27~\mathrm{s}$ to $8.37~\mathrm{s}$ over the same range.
+
 
 \begin{table}[H]
     \centering
@@ -305,15 +327,137 @@ The acquisition time generally increases with differential deployment speed, but
         \toprule
         \textbf{Run} &
         $\boldsymbol{\Delta v_{\mathrm{dep}}}$ \textbf{[m/s]} &
-        $\boldsymbol{t_{\mathrm{dwell,pass}}}$ \textbf{[h]} &
-        $\boldsymbol{\bar{e}_{\mathrm{att,burn}}}$ \textbf{[deg]} &
-        $\boldsymbol{m_{\mathrm{fuel},0}}$ \textbf{[kg]} &
-        $\boldsymbol{m_{\mathrm{fuel},f}}$ \textbf{[kg]} \\
+        $\boldsymbol{\bar{\sigma}_{\mathrm{err,burn}}}$ \textbf{[deg]} &
+        $\boldsymbol{e_{\mathrm{batt,min}} }$ \textbf{[\%]} &
+        \textbf{Burns denied} \\
         \midrule
-        ... \\
+        0 & 0.0 & 26.55 & -- & No \\
+        1 & 0.5 & 10.17 & -- & No  \\
+        2 & 1.0 & 18.53 & -- & No \\
+        3 & 1.5 & 18.61 & -- & No \\
+        4 & 2.0 & 12.08 & -- & No \\
+        5 & 2.5 & 13.31 & -- & No  \\
+        6 & 3.0 & 11.06 & -- & No \\
+        7 & 3.5 & 11.39 & -- & No \\
+        8 & 4.0 & 13.93 & -- & No \\
         \bottomrule
     \end{tabular}
 \end{table}
+
+The additional diagnostics in Table \ref{tab:deployment_velocity_acquisition_diagnostics} show that no burn requests were denied in any of the deployment cases. The average attitude tracking error during burns remains case-dependent, but no case is marked as burn-limited by the internal subsystem logic. The follower EPS overview shown in Appendix \ref{fig:diff_deploy_eps_overview} shows the battery-energy history and instantaneous net power for all deployment cases during the acquisition interval. The operational-mode in Appendix \ref{fig:diff_deploy_operational_mode} histories show the transitions between burn, capture, charge, communication, and coast modes, while the burn diagnostics in Appendix \ref{fig:diff_deploy_burn_statistics} summarize the burn execution statistics. Across the tested deployment-speed cases, the operational constraints did not prevent the execution of any commanded formation-maintenance burns. Since entering emergency mode is the condition required to block a burn request, this indicates that the simulated battery state remained sufficient for the formation acquisition sequence in all cases.
+
+
+
+
+\section{Steady-State Fuel Consumption}
+\begin{comment}
+Plots:
+1. Cumulative post-acquisition fuel consumption with fitted model
+2. RTN states over the entire duration
+3. operational mode timeline
+4. Battery stored energy over tiime
+5. Time spent in each operational mode
+
+
+\end{comment}
+
+
+\subsection{Post-Acquisition Fuel Consumption Model}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{Figures/05Results/steady_state_fuel_rate_analysis/steady_state_fuel_consumption.png}
+    \caption{}
+    \label{fig:steady_state_cum_consumption} 
+\end{figure}
+
+
+% \begin{figure}[H]
+%     \centering
+%     \begin{subfigure}[t]{0.44\textwidth}
+%         \centering
+%         \includegraphics[height=0.34\textheight, keepaspectratio]{Figures/05Results/steady_state_fuel_rate_analysis/predicted vs simulated remaining acquisition consumption.png}
+%         \caption{Remaining fuel over the full acquisition interval.}
+%         \label{fig:predicted_vs_simulated_remaining_fuel_acquisition}
+%     \end{subfigure}
+%     \hfill
+%     \begin{subfigure}[t]{0.52\textwidth}
+%         \centering
+%         \includegraphics[height=0.34\textheight, keepaspectratio]{}
+%         \caption{Remaining acquisition consumption during the initial interval.}
+%         \label{fig:predicted_vs_simulated_remaining_acquisition_consumption}
+%     \end{subfigure}
+%     \caption{Comparison of predicted and simulated remaining fuel during formation acquisition.}
+%     \label{fig:predicted_vs_simulated_remaining_fuel_comparison}
+% \end{figure}
+
+
+
+
+
+
+
+\subsection{Steady-State Operational Feasibility}
+zxczfgxhgxfhf
+
+% \begin{table}[H]
+% \centering
+% \caption{Steady-state campaign operational feasibility summary.}
+% \label{tab:steady_state_feasibility_summary}
+% \begin{tabular}{lcc}
+% \toprule
+% \textbf{Metric} & \textbf{Leader} & \textbf{Follower} \
+% \midrule
+% Simulation duration [days] & 24.00 & 24.00 \
+% Fit interval [days] & -- & -- \
+% Minimum battery energy [\%] & 36.16 & 36.14 \
+% Mean battery energy [\%] & 42.48 & 42.48 \
+% Maximum battery energy [\%] & 79.89 & 79.89 \
+% Mean net power [W] & -0.06 & -0.06 \
+% Minimum net power [W] & -- & -- \
+% Maximum net power [W] & -- & -- \
+% Time in BURN mode [h] & 0.00 & 0.02 \
+% Time in CAPTURE mode [h] & 328.35 & 328.17 \
+% Time in CHARGE mode [h] & 161.63 & 161.73 \
+% Time in COMMS mode [h] & 35.90 & 35.87 \
+% Time in COAST mode [h] & 50.12 & 50.21 \
+% Number of burns [-] & -- & -- \
+% Mean burn duration [s] & -- & -- \
+% Mean pointing error [deg] & -- & -- \
+% Burn denied & -- & -- \\
+% \bottomrule
+% \end{tabular}
+% \end{table}
+
+
+
+
+\section{GNSS-R Formation Flight Lifetime Estimation}
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{Figures/05Results/steady_state_fuel_rate_analysis/pisscum.png}
+    \caption{}
+    \label{fig:predicted_lifetime} 
+\end{figure}
+
+
+\begin{figure}[htbp]
+    \centering
+
+    \resizebox{\textwidth}{!}{%
+        \includegraphics[height=0.34\textheight]{Figures/05Results/steady_state_fuel_rate_analysis/predicted_vs_simulated_acquisition_consumption.png}
+        \hspace{0.03\textwidth}
+        \includegraphics[height=0.34\textheight]{Figures/05Results/steady_state_fuel_rate_analysis/predicted_vs_simulated_fuel_consumption.png}
+    }
+
+    \caption{Predicted and simulated remaining fuel during formation acquisition. The full acquisition interval is shown on the left, while the initial acquisition-consumption interval is shown on the right.}
+    \label{fig:predicted_vs_simulated_remaining_fuel_comparison}
+\end{figure}
+
+
+
 
 
 
@@ -337,7 +481,7 @@ CORE PLOTS FOR THE DEPLOYMENT SENSITIVITY RESULT
 1. Follower fuel consumption from all runs in one plot
     x-axis: time [h]
     y-axis: cumulative follower fuel consumed [g]
-    one curve per deployment-speed case
+    one curve per deployment speed case
     vertical marker at t_acq for each run, if acquired
 
 2. Accumulated acquisition fuel consumption as a function of differential deployment speed
@@ -396,16 +540,3 @@ SUMMARY TABLE
 \end{comment}
 
 
-\section{Steady-State Fuel Consumption}
-\begin{comment}
-Plots:
-1. Cumulative post-acquisition fuel consumption with fitted model
-2. RTN states over the entire duration
-3. operational mode timeline
-4. Battery stored energy over tiime
-
-
-\end{comment}
-
-
-\section{GNSS-R Formation Flight Lifetime Estimation}
