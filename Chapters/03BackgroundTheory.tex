@@ -152,7 +152,7 @@ The inclination is the intersection angle between the orbital plane and the refe
 
 The argument of perigee specifies the orientation of the ellipse within the orbital plane. It is defined as the angle from the ascending node to the perigee along the orbital trajectory, where perigee is a term specific to Earth satellites, describing the point along the trajectory closest to Earth. Finally, the mean anomaly defines the orbiting body's position along the orbit as a function of time. It is defined as the elapsed fraction of the orbital period since the orbiting body passed the perigee \cite{curtis2005orbital, astronomicalreturns_orbitalelements}. 
 
-\subsection{\hl{Undefined Orbits / Singularities?}}
+% \subsection{\hl{Undefined Orbits / Singularities?}}
 \begin{comment}
 WRITE A SMALL PARAGRAPH ABOUT THIS!!
 
@@ -161,7 +161,7 @@ i ≈ 0  →  RAAN Ω poorly defined
 e ≈ 0 and i ≈ 0  →  both Ω and ω become poorly defined
 \end{comment}
 
-\subsection{\hl{Two-Line Elements (TLE)?}}
+% \subsection{\hl{Two-Line Elements (TLE)?}}
 
 
 
@@ -382,16 +382,23 @@ where $||\textbf{a}_{D}||_2$ denotes the drag acceleration magnitude of the lead
 \label{sec:gnssr_coop_measurements}
 % Basically just reiterate the different observation modes presented in the HYDROSWARM paper. 
 % Mention both their different observation methodologies AND specify the different formation types. 
-\hl{Mentioned in Formation flight Scenario}
 
-Hill et al. propose three different formation flying modes in \cite{hill2025hydroswarm} that can enhance the \gls{gnssr} capabilities beyond a single receiver spacecraft. First, the \textit{coarse swarm mode}, or \textit{along-track mode} uses several \gls{gnssr} satellites separated by approximately $15~\mathrm{km}$ in the along-track direction to enhance the spatial coverage by observing adjacent ground tracks simultaneously. Second, the \textit{beamforming mode} places the \gls{gnssr} satellites in a closer formation using a circular projected orbit with approximately $1000~\mathrm{m}$ radius and $60^\circ$ separation between its orbiting satellites. This formation type is defined as the relative orbit where the followers' motion around the leader or barycenter projected into two of the \gls{rtn} basis-normal planes traces an approximate circle. In this configuration, the receivers are treated as a sparse antenna array cooperatively measuring the same specular point reflection. The reflected signals measured by the separate spacecraft can then be phase-adjusted and combined in post-processing to increase the effective gain in the direction of a selected specular point, resulting in improved sensitivity \cite{hill2025hydroswarm}.
+Hill et al. propose three different formation flying modes in \cite{hill2025hydroswarm} that can enhance the \gls{gnssr} capabilities beyond a single receiver spacecraft. First, the \textit{coarse swarm mode}, or \textit{along-track mode} uses several \gls{gnssr} satellites separated by approximately $15~\mathrm{km}$ in the along-track direction to enhance the spatial coverage by observing adjacent ground tracks simultaneously. Second, the \textit{beamforming mode} places the \gls{gnssr} satellites in a closer formation using a \gls{cpo} with approximately $1000~\mathrm{m}$ radius and $60^\circ$ separation between its orbiting satellites. This formation type is defined as the relative orbit where the followers' motion around the leader or barycenter projected into two of the \gls{rtn} basis-normal planes traces an approximate circle \cite{pco2022}. In this configuration, the receivers are treated as a sparse antenna array cooperatively measuring the same specular point reflection. The reflected signals measured by the separate spacecraft can then be phase-adjusted and combined in post-processing to increase the effective gain in the direction of a selected specular point, resulting in improved sensitivity \cite{hill2025hydroswarm}.
 
 The third and final operational mode is the \textit{SAR imaging mode}, which uses an even tighter formation type. In the HydroSwarm concept, this is achieved using concentric \gls{cpo}s, or simply a \textit{concentric formation}, where the leader spacecraft is placed near the center and the remaining spacecraft occupy relative orbits separated by approximately $100~\mathrm{m}$ in increasingly large orbital shells. The purpose of this configuration is to use the distributed receivers as a \gls{sar}. This enables post-processing to reduce data ambiguities, which increases both the  cross-track coverage and resolution. While the processing step is more complex for this mode, it does not require cooperative measurements of the same specular point reflections \cite{hill2025hydroswarm}. 
 
 
 \subsection{Operational Constraints}
 \label{sec:gnssr_constraints}
-\hl{ALREADY REFERENCED in "Pointing Guidance System": Requires GNSS receiver at the zenith satellite, and GNSS-R receiver at the opposite, nadir, side}
+
+The operational constraints of a formation-flying \gls{gnssr} mission follow from both the bistatic observation geometry and the cooperative formation requirements proposed in \cite{hill2025hydroswarm}. The general \gls{gnssr} measurement principle, described by Zavorotny et al., requires a receiver capable of processing reflected \gls{gnss} signals from the Earth surface while also maintaining access to direct \gls{gnss} signals for positioning, timing, and reference purposes \cite{zavorotny2014tutorial}. From a spacecraft operations perspective, this imposes pointing and antenna-placement constraints: the payload side must be oriented such that reflected signals from the Earth-facing direction can be observed, while the navigation receiver must preserve sufficient visibility toward the \gls{gnss} constellation.
+
+The cooperative modes described by Hill et al. introduce an additional formation-geometry constraint \cite{hill2025hydroswarm}. The spacecraft must not only observe individually, but must also maintain a known and controlled relative geometry. This requires relative navigation, autonomous formation-control decisions, and propulsive maneuvers to acquire and maintain the selected formation. The formation state therefore becomes an operational condition for the mission. The paper directly states that formation geometries are required to maintain a $10~\mathrm{m}$ relative position accuracy. If the spacecraft cannot maintain the required separation within this tolerance, the cooperative observation mode can no longer be supported.
+
+The same study also identifies CubeSat resource limitations as a central operational constraint. Payload operation, attitude control, communications, propulsion system operation, on-board computing, and battery thermal control all compete for the stored energy. A realistic formation-flying \gls{gnssr} spacecraft can therefore not be assumed to observe, communicate, charge, and maneuver simultaneously without restriction. Instead, the spacecraft operation must be divided into modes that prioritize between payload observations, battery charging, ground-station communication, coasting, and formation-control burns.
+
+Communication and data handling further constrain the mission. Hill et al. notes that raw \gls{gnssr} data can be generated at high data rates and must be stored and relayed to the ground. Even when the observation geometry is favorable, the spacecraft may therefore be limited by on-board storage, downlink rate, and ground-station access. From an operations point of view, this motivates intermittent observation windows rather than continuous payload operation. Finally, Hill et al. highlights that formation transitions, station-keeping, missed maneuvers, and safe-mode recovery must be considered when designing cooperative CubeSat operations. Close formation geometries require sufficient propulsive capability to correct relative drift, but also require safe behavior if a maneuver is delayed or not executed.
+
 % 
 % Opportunity Logic
 % Formation geometry tolerances
@@ -475,6 +482,7 @@ For a GNSS-R formation flying mission that rely on precise formation geometry to
 \section{Basilisk Process-Task-Model Hierarchy}
 
 Basilisk simulations are constructed from a hierarchy of processes, tasks and models. A model is the lowest-level simulation object, and represents an individual computational component, such as a spacecraft dynamics model, environmental effector, guidance module, controller, actuator model or data recorder. In this thesis, models are grouped according to their functional role. Environmental models describe the spatial conditions, such as gravity bodies, atmospheric density, eclipse conditions and ground-station access. Dynamics models describe the physical spacecraft and its interacting forces and subsystems, including translational and attitude dynamics, perturbation effectors and actuators. Flight software models describe onboard \gls{gnc} algorithms.
+
 \begin{figure}[htbp]
     \small
     \dirtree{%
@@ -494,6 +502,8 @@ Basilisk simulations are constructed from a hierarchy of processes, tasks and mo
     \label{fig:general_process_hierarchy}
 \end{figure}
 
+
+\clearpage
 Models are scheduled for execution by assigning them to tasks, where each task has a specified update rate. Tasks are in turn assigned to processes, which provide a higher-level grouping of related tasks. An illustration of a process-task-model hierarchical structure for a generic Basilisk simulator is shown in Figure \ref{fig:general_process_hierarchy}. The execution order is determined by the assigned priority, where higher-order objects are executed first. Same-priority objects or object without a specified priority are updated according to their initialization order. Using these rules, the execution order of the generic Basilisk simulator would thus be:
 
 \begin{equation*}

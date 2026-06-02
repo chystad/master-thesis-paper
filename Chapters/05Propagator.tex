@@ -84,12 +84,14 @@ This section should include the following:
 \end{comment}
 
 
-\section{\hl{Continuously Updating TLE File}}
-\hl{Explain the use of the term "observation-based" or "observation-updated" in this context}
+% \section{\hl{Continuously Updating TLE File}}
+% \hl{Explain the use of the term "observation-based" or "observation-updated" in this context}
 
 
 \section{Simulator Inputs}
 As mentioned in Section \ref{sec:propagator_init}, each simulation case is defined through three user-defined configuration files, which have been summarized in Table \ref{tab:propagator_config_files}. This structure makes it easy to keep the simulated scenario fixed while independently changing the configuration of each propagation method. The file \texttt{default.yaml} contain all parameters required to define the simulation scenario. This includes the simulation start time and duration, the leader TLE time series, the number of satellites, the initial in-plane separation between the leader and follower, spacecraft physical parameters, and plotting options.
+
+The file \texttt{skyfield.yaml} contains the Skyfield-specific propagation setting, which is only the time step between each SGP4 evaluation. Finally, the \texttt{basilisk.yaml} file defines the Basilisk propagation setup, including the numerical integrator, integration step size, spherical harmonics degree, and boolean flags for enabling or disabling individual perturbation models. In addition to the configuration files, the Basilisk sub-simulation uses external model data for selected environmental models. This includes the gravity coefficient file used by the spherical harmonics model and the space-weather data used by the NRLMSISE-00 atmosphere model.
 
 \begin{table}[H]
 \centering
@@ -116,7 +118,7 @@ basilisk.yaml
 \label{tab:propagator_config_files}
 \end{table}
 
-The file \texttt{skyfield.yaml} contains the Skyfield-specific propagation setting, which is only the time step between each SGP4 evaluation. Finally, the \texttt{basilisk.yaml} file defines the Basilisk propagation setup, including the numerical integrator, integration step size, spherical harmonics degree, and boolean flags for enabling or disabling individual perturbation models. In addition to the configuration files, the Basilisk sub-simulation uses external model data for selected environmental models. This includes the gravity coefficient file used by the spherical harmonics model and the space-weather data used by the NRLMSISE-00 atmosphere model.
+
 
 
 

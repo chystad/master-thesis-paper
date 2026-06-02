@@ -4,7 +4,6 @@
 
 
 All simulator code used in the thesis is provided by the GitHub repository linked below. Note that both the Comparative Propagation Simulator and GNSS-R Formation Flight Simulator are contained within the \textit{Simulator Repository} link, but reside in different directories.
-\hl{Brief folder structure}
 
 \section{
     Simulator Repository}
@@ -25,15 +24,15 @@ All simulator code used in the thesis is provided by the GitHub repository linke
 \clearpage
 \chapter{Simulator Flow Diagrams}
 
-\section{Comparative Propagation Simulator}
+% \section{Comparative Propagation Simulator}
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1.3\textwidth, angle=-90]{Figures/04Method/Propagation Accuracy Comparison Simulator Flowchart v2.png}
+    \includegraphics[width=0.8\textwidth, angle=-90]{Figures/04Method/Propagation Accuracy Comparison Simulator Flowchart v2.png}
     \caption{Full size detailed Comparative Propagation Simulator flow diagram}
     \label{fig:full_size_propagator_comp_flow} 
 \end{figure}
 
-\section{GNSS-R Formation Flight Simulator}
+% \section{GNSS-R Formation Flight Simulator}
 \begin{figure}[H]
     \centering
     \includegraphics[width=1.4\textwidth, angle=-90]{Figures/04Method/Formation Flight Simulator.png}
@@ -43,7 +42,7 @@ All simulator code used in the thesis is provided by the GitHub repository linke
 
 
 \clearpage
-\chapter{\hl{Spacecraft Component Parameters}}
+\chapter{Spacecraft Component Parameters}
 
 
 \newcommand{\tcell}[1]{\begin{tabular}[t]{@{}l@{}}#1\end{tabular}}
@@ -190,7 +189,7 @@ All simulator code used in the thesis is provided by the GitHub repository linke
 
     Zenith GNSS antenna (Payload) &
     114 &
-    \hl{idk} &
+    -- &
     \begin{itemize}[leftmargin=*, nosep, topsep=0pt, partopsep=0pt]
         \item Dim. [mm]: $70 \times 70 \times 10$
         \item L1+L2
@@ -203,8 +202,8 @@ All simulator code used in the thesis is provided by the GitHub repository linke
     \hline
 
     Nadir GNSS-R antenna (Payload) &
-    \hl{idk} &
-    \hl{idk} &
+    -- &
+    -- &
     \begin{itemize}[leftmargin=*, nosep, topsep=0pt, partopsep=0pt]
         \item 12 dBi gain
         \item $3 \times 2$ microstrip patch array
@@ -217,11 +216,7 @@ All simulator code used in the thesis is provided by the GitHub repository linke
 
 
 \clearpage
-\chapter{\hl{Simulator Basilisk Process-Task-Model Structure}}
-
-
-\section{Comparative Propagation Simulator}
-% Todo
+\chapter{Simulator Basilisk Process-Task-Model Structure}
 
 \section{GNSS-R Formation Flight Simulator}
 \begin{figure}[htbp]
@@ -257,7 +252,7 @@ All simulator code used in the thesis is provided by the GitHub repository linke
     .3 [20] RecorderFlusherTask.
     .4 [20] recorderFlusher.
     }
-    \caption{\hl{TODO: Update and verify after simulator update. Hierarchical process-task-model structure of the GNSS-R formation flight Basilisk simulator. The number in square brackets denote the model priority, where higher priority models are updated first. Same-priority tasks are orderly updated from the top-down within a task. ``\textit{<sat\_idx>}'' represents per-spacecraft processes and tasks.}}
+    \caption{Process-task-Model hierarchy structure for the GNSS-R Formation Flight Simulator. }
     \label{fig:formfly_process_hierarchy}
 \end{figure}
 
@@ -311,7 +306,7 @@ All simulator code used in the thesis is provided by the GitHub repository linke
 
 
 
-\chapter{\hl{Supplementary Result Figures}}
+\chapter{Supplementary Result Figures}
 
 \section{Deployment Velocity Acquisition Fuel Sensitivity}
 
@@ -333,7 +328,7 @@ All simulator code used in the thesis is provided by the GitHub repository linke
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{Figures/05Results/deployment_sensitivity_analysis/deployment_velocity_operational_modes_all_runs.png}
-    \caption{}.
+    \caption{Operational modes shown for all deployment cases considered in the differential deployment sensitivity analysis}.
     \label{fig:diff_deploy_operational_mode} 
 \end{figure}
 
@@ -341,6 +336,6 @@ All simulator code used in the thesis is provided by the GitHub repository linke
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{Figures/05Results/deployment_sensitivity_analysis/deployment_velocity_eps_overview_all_runs.png}
-    \caption{}.
+    \caption{Battery percentage and operational modes for the first 15 hours for all deployment cases considered in the differential deployment sensitivity analysis}.
     \label{fig:diff_deploy_eps_overview} 
 \end{figure}

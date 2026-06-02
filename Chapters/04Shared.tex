@@ -23,16 +23,6 @@ Although the two simulators differ in purpose and implementation complexity, the
 * Mention that all spacecraft in any of the simulators are exact replicas 
 \end{comment}
 
-
-
-\subsection{Spacecraft Platform}
-\begin{comment}
-* 6U satellite without tuna-can
-* Drag coefficient = 2.2 based on the Montenbruck \& Gill crude estimate range of 2.1-2.3 sf. These belong here because they are directly tied to the spacecraft geometry
-* Body frame definition
-\end{comment}
-\hl{Mention attitude-fixed drag coefficient}
-
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.3\textwidth]{Figures/04Method/Body frame 2.png}
@@ -40,18 +30,7 @@ Although the two simulators differ in purpose and implementation complexity, the
     \label{fig:body_def} 
 \end{figure}
 
-\subsection{Component Selection Method}
-\begin{comment}
-* How set of general components were selected based on gnss-r mission requirements
-* How specific hardware was selected within satellite platform constraints and mission requirements 
-(An example of a distinction between the two points is: in the first point, we decide that we need a general thruster, while in the secon point we perform a trade-off to see that we need a cold gas thruster AND find hardware that fit. However, do not mention any actual hardware, but point to table in appendix with all hardware parameter details)
-\end{comment}
-
-
-\subsection{Component Mounting Configuration}
-\begin{comment}
-* Describe where all components are mounted, and why this is the case
-\end{comment}
+The spacecraft component set was selected to represent the main subsystem functions required for a \gls{gnssr} formation-flying mission. This includes components required for payload operation, direct \gls{gnss} reception, communication, power generation and storage, attitude control, propulsion, and on-board computation. The purpose of the component selection was not to produce a detailed flight design, but to construct a representative 6U spacecraft model whose mass, power consumption, and actuation capabilities are consistent with the operational requirements of the simulated mission.
 
 \begin{table}[htbp]
     \centering
@@ -81,7 +60,58 @@ Although the two simulators differ in purpose and implementation complexity, the
     \end{tabular}
 \end{table}
 
-\hl{Insert table showing spacecraft face pointing direction depending on operational mode}
+Each component was modelled using parameters from existing flight-proven or commercially available CubeSat-compatible hardware. This was done to keep the simulated spacecraft representative of what could realistically be accommodated within a 6U platform, rather than relying on idealized subsystem assumptions. The selected hardware was therefore used as a basis for the spacecraft mass budget, power budget, propulsion capability, and component mounting configuration. The resulting spacecraft model provides a system-level approximation of a realistic GNSS-R formation-flying satellite, while still remaining simplified enough to support long-horizon simulation.
+
+
+
+
+\begin{comment}
+* 6U satellite without tuna-can
+* Drag coefficient = 2.2 based on the Montenbruck \& Gill crude estimate range of 2.1-2.3 sf. These belong here because they are directly tied to the spacecraft geometry
+* Body frame definition
+\end{comment}
+
+
+
+\begin{comment}
+* How set of general components were selected based on gnss-r mission requirements
+* How specific hardware was selected within satellite platform constraints and mission requirements 
+(An example of a distinction between the two points is: in the first point, we decide that we need a general thruster, while in the secon point we perform a trade-off to see that we need a cold gas thruster AND find hardware that fit. However, do not mention any actual hardware, but point to table in appendix with all hardware parameter details)
+\end{comment}
+
+
+\begin{comment}
+* Describe where all components are mounted, and why this is the case
+\end{comment}
+
+
+
+
+
+\begin{table}[htbp]
+    \centering
+    \caption{Desired face orientation in the different operating modes}
+    \label{tab:desired_face_orientation}
+    \begin{tabular}{lllll}
+        \toprule
+        \makecell[l]{Operational\\mode} &
+        \makecell[l]{Primary\\face} &
+        \makecell[l]{Desired\\direction} &
+        \makecell[l]{Secondary\\face} &
+        \makecell[l]{Desired\\direction} \\
+        \midrule
+        \texttt{Coast}        & Z+ & Sun            & Y+ & Velocity \\
+        \texttt{Charge}       & Z+ & Sun            & Y+ & Velocity \\
+        \texttt{Capture}      & Z-, Z+ & Nadir, zenith   & X+ & Sun \\
+        \texttt{Comms}        & Y+ & Ground station & Z+ & Sun \\
+        \texttt{Burn transit} & X+ & Burn direction & Z+ & Sun \\
+        \texttt{Burn}         & X+ & Burn direction & Z+ & Sun \\
+        \texttt{Emergency}    & -- & --             & -- & -- \\
+        \bottomrule
+    \end{tabular}
+
+    \vspace{0.5em}
+\end{table}
 
 
 \subsection{Mass Budget \& Inertia Estimate}
@@ -104,14 +134,14 @@ Although the two simulators differ in purpose and implementation complexity, the
         Subsystem & Component & Mass [g] & Source \\
         \hline
 
-        Structural & Frame & 665 & GomSpace NanoStructure 6U \cite{endurosat_6u_solar_panel} \\
+        Structural & Frame & 665 & GomSpace NanoStructure 6U\\
         OBC & OBC & 240 & GomSpace NanoMind HP MK3 \\
         EPS & Power management & 80 & GomSpace NanoPower (1ACU \& 1PCU) \\
         EPS & battery & 500 & GomSpace Nanopower BPX 100 Wh \\
         EPS & Solar panels BIG & 392 & Endurosat 6U Solar panel \\
         EPS & Solar panels SMALL & 2 $\times$ 147 & Endurosat 3U Solar panel \\
         Comms & Radio Antenna & 2 & Endurosat X-band patch antenna \\
-        Payload & Payload system & 1200 & Scout-2 HydroGNSS payload system \cite{hydrognss_requirements_2024} \\
+        Payload & Payload system & 1200 & Scout-2 HydroGNSS payload system  \\
         AOCS & Propulsion System Dry & 1430 & VACCO ArgoMoon propulsion system \\
         AOCS & RWs & 4 $\times$ 144 & Cubespace CW0162 \\
         Misc & Wires and mounting & 100 &  \\
@@ -127,7 +157,7 @@ Although the two simulators differ in purpose and implementation complexity, the
 \end{table}
 
 
-Assuming uniform mass distribution, a perfect cuboid shape, and the body frame definition illustrated in Figure \ref{fig:body_def}, the spacecraft moment of inertia matrix can be estimated to \hl{ROUND FINAL ESTIMATE}
+Assuming uniform mass distribution, a perfect cuboid shape, and the body frame definition illustrated in Figure \ref{fig:body_def}, the spacecraft moment of inertia matrix can be estimated to:
 \begin{equation}
   J = \begin{bmatrix}
     0.060081667 &	0	& 0 \\
@@ -135,6 +165,12 @@ Assuming uniform mass distribution, a perfect cuboid shape, and the body frame d
     0 &	0 &	0.078106167
   \end{bmatrix} 
 \end{equation}
+ 
+
+% \subsection{Assumptions \& Limitations}
+% \begin{comment}
+% * Payload receivers do not have a HPBW
+% \end{comment}
 
 \begin{comment}
 
@@ -215,4 +251,4 @@ The dynamics in both Basilisk-based simulators are propagated using the same num
 
 Although these results suggest that several of the tested numerical integration configurations would be sufficient for the translational propagation problem alone, the simulators developed in this thesis impose stricter requirements on the numerical setup. In the Comparative Propagation Simulator, the inclusion of the NRLMSISE-00 atmosphere model introduces atmospheric density variations that are not present in the simpler propagation configurations considered previously. In the GNSS-R Formation Flight Simulator, the same orbital propagation is further coupled to fast attitude dynamics, actuator models, power generation, and autonomous mode switching. These additional models introduce faster dynamics, making it necessary to choose a conservative integration configuration that remains robust across both simulators.
 
-Based on these considerations, both Basilisk-based simulators use the RKF78 variable-step integrator with a maximum step size of $1.0$ seconds. A variable-step integrator is selected because it provides high accuracy during dynamically demanding parts of the simulation, such as attitude transitions and formation-keeping maneuvers, while allowing longer internal step sizes during less dynamic coasting or idle periods. This adaptivity is important for reducing computational cost over the long simulation horizons considered in this thesis. The RKF78 method is chosen because a high-precision integration method is desirable when propagating spacecraft trajectories over long time intervals, and because formation-control performance depends directly on accurate relative positioning between the leader and follower satellites. This justifies the increased computational cost per integration step. Finally, the maximum step size is limited to $0.5$ seconds as a numerical safeguard against instability in the reaction wheel actuator dynamics used in the GNSS-R Formation Flight Simulator. Although this constraint is only required for the full formation-flight simulator, the same maximum step size is also used in the Comparative Propagation Simulator to ensure that results from the two simulators remain directly comparable.
+Based on these considerations, both Basilisk-based simulators use the RKF78 variable-step integrator with maximum step size of $1.0$ seconds. A variable-step integrator is selected because it provides high accuracy during dynamically demanding parts of the simulation, such as attitude transitions and formation-keeping maneuvers, while allowing longer internal step sizes during less dynamic coasting or idle periods. This adaptivity is important for reducing computational cost over the long simulation horizons considered in this thesis. The RKF78 method is chosen because a high-precision integration method is desirable when propagating spacecraft trajectories over long time intervals, and because formation-control performance depends directly on accurate relative positioning between the leader and follower satellites. This justifies the increased computational cost per integration step. Finally, the maximum step size is limited to $0.5$ seconds as a numerical safeguard against instability in the reaction wheel actuator dynamics used in the GNSS-R Formation Flight Simulator. Although this constraint is only required for the full formation-flight simulator, the same maximum step size is also used in the Comparative Propagation Simulator to ensure that results from the two simulators remain directly comparable.

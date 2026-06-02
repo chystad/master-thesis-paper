@@ -128,13 +128,13 @@ The simulator uses eight operational modes, each representing a distinct mission
         \makecell[l]{Primary\\objective} &
         \makecell[l]{Secondary\\objective} \\
         \midrule
-        Coast & -- & Sun-pointing & Minimum drag \\
-        Charge & -- & Sun-pointing & Minimum drag \\
-        Capture & Payload & Data capture & Sun-pointing \\
-        Comms & Communication system & Communication & Sun-pointing \\
-        Burn transit & Propulsion heating & Burn-pointing & Sun-pointing \\
-        Burn & Propulsion thrusting & Burn-pointing & Sun-pointing \\
-        Emergency & -- & -- & -- \\
+        \texttt{Coast} & -- & Sun-pointing & Minimum drag \\
+        \texttt{Charge} & -- & Sun-pointing & Minimum drag \\
+        \texttt{Capture} & Payload & Data capture & Sun-pointing \\
+        \texttt{Comms} & Communication system & Communication & Sun-pointing \\
+        \texttt{Burn transit} & Propulsion heating & Burn-pointing & Sun-pointing \\
+        \texttt{Burn} & Propulsion thrusting & Burn-pointing & Sun-pointing \\
+        \texttt{Emergency} & -- & -- & - \\
         \bottomrule
     \end{tabular}
 
@@ -145,7 +145,7 @@ The simulator uses eight operational modes, each representing a distinct mission
 \end{table}
 
 
-\subsection{\hl{Mode Switching Logic}}
+\subsection{Mode Switching Logic}
 \label{sec:mode_switching_logic}
 The mode switching logic is built around a set of logical parameters, here referred to as switching parameters, which determine whether transitions between operational modes are feasible. These parameters are divided into three groups depending on what part of the simulation state they depend on. The first group consists of environmental switching parameters, which are determined by spatial or illumination conditions. The parameter \texttt{canCap} indicates whether scientific data capture is feasible. In a full GNSS-R mission simulator, this would require a \gls{gnss} satellite to be within the \gls{gnss} receiver field of view and the corresponding specular reflection point to be within the \gls{gnssr} receiver field of view. Since GNSS satellite constellations are not modeled in this simulator, data capture is assumed to be geometrically feasible whenever it is requested. The parameter \texttt{canCom} is true when at least one ground station has direct line of sight to the spacecraft, and its elevation angle is greater than $10^\circ$ above the horizon. Finally, \texttt{canChar} indicates whether charging is possible, which requires the spacecraft to be fully or partially illuminated by the Sun. 
 
@@ -247,7 +247,6 @@ Although Figure \ref{fig:mode_flow} shows the allowed transitions between operat
 Power management is one of the key operational constraints for autonomous remote sensing satellite missions, since the available battery charge determines which operational modes can be safely executed. In the GNSS-R Formation Flight Simulator, the battery state therefore influences the spacecraft guidance logic by constraining transitions between internal operational modes, which is described in Section \ref{sec:operational_mode_logic}. This section, however, focuses on how electrical power generation, storage and consumption are modeled for each spacecraft in the formation. Since these quantities depend directly on the assumed spacecraft hardware, the \gls{eps} model assumes the spacecraft component configuration presented in Section \ref{sec:spacecraft_config}.
 
 
-\clearpage
 \subsection{EPS Model Overview}
 The \gls{eps} model is implemented to track the high-level electrical power flow for each spacecraft. Its purpose is to estimate the remaining battery energy during the mission, rather than to model detailed electrical bus dynamics. An overview of the per-spacecraft \gls{eps} structure is shown in Figure \ref{fig:eps}. Here, the green module represents power sources, red and yellow modules represent constant and variable power sinks, and the blue module represents battery energy storage. The power management module at the center represents the physical power distribution component included in the spacecraft configuration, but is not modeled with internal distribution logic, and does not contribute to the net power itself. The individual power generation, storage, and consumption models are described in the following subsections.
 \begin{figure}[H]
@@ -453,8 +452,6 @@ The module also introduces several assumptions and limitations that constrain ho
 
 2nd paragraph (This paragraph should explain how the formation control actually works, how is the control objective achieved)
 \end{comment}
-
-\section{\hl{Simulator inputs}}
 
 
 
