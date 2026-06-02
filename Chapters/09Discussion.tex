@@ -15,7 +15,7 @@
 
 % \section{GNSS-R Formation Flight Lifetime Estimate}
 % * comment on the fact that the linear fitted m\_acq is negative for the zero differential deployment speed case. 
-
+\hl{Introduction}
 
 \section{Propagation Benchmark Interpretation}
 \begin{comment}
@@ -71,12 +71,11 @@ The updating-\gls{tle} Skyfield-SGP4 trajectory is therefore a valuable comparis
 
 
 \subsection{Implications for the Lifetime Analysis}
+\label{sec:comparison_implication_for_lifetime}
 
 The comparative propagation analysis indicates that the primary thesis Basilisk configuration is the most accurate of the evaluated Basilisk configurations relative to the continuously updating Skyfield-SGP4 baseline. Across the same-spacecraft state comparisons, the NRLMSISE-00 configuration produces substantially smaller divergence than both exponential-atmosphere configurations. This supports the use of the primary thesis configuration as the propagation environment for the GNSS-R formation flight lifetime analysis. However, the primary thesis configuration still accumulates a significant same-satellite difference over the 14-day comparison interval, dominated by radial and along-track drift. 
 
-Perhaps more importantly for the lifetime analysis, is the same-formation position drift difference. Although the major drift difference between the primary thesis configuration and the Skyfield-SGP4 baseline remain unexplained, the increased along-track formation drift will require additional formation-maintenance maneuvers to compensate. The resulting lifetime estimations will therefore likely be pessimistic in its predictions. 
-
-However, the updating-TLE Skyfield-SGP4 baseline also limits how strongly the propagation comparison can be interpreted. Since the baseline is an observation-updated SGP4 reference rather than a precise orbit-determination truth model, the observed Basilisk-Skyfield differences are not direct physical prediction errors. The comparison still provides useful evidence that the thesis configuration improves over the specialization-project configuration, but it does not fully validate the long-horizon Basilisk trajectory. For the lifetime analysis, this means that the fuel consumption results are most reliable as a simulation-based estimate of formation acquisition and maintenance behavior under the selected Basilisk force model, while Earth-relative mission quantities that depend on absolute orbital phase should be interpreted with the propagation benchmark uncertainty in mind.
+Perhaps more importantly for the lifetime analysis, is the same-formation position drift difference. Although the major drift difference between the primary thesis configuration and the Skyfield-SGP4 baseline remain unexplained, the increased along-track formation drift will require additional formation-maintenance maneuvers. The resulting lifetime estimations will therefore likely be pessimistic in its predictions. However, the updating-TLE Skyfield-SGP4 baseline also limits how strongly the propagation comparison can be interpreted. Since the baseline is an observation-updated SGP4 reference rather than a precise orbit-determination truth model, the observed Basilisk-Skyfield differences are not direct physical prediction errors. The comparison still provides useful evidence that the thesis configuration improves over the specialization-project configuration, but it does not fully validate the long-horizon Basilisk trajectory.
 
 
 
@@ -84,20 +83,9 @@ However, the updating-TLE Skyfield-SGP4 baseline also limits how strongly the pr
 
 
 
-
-\section{GNSS-R Formation Flight Mission Realism}
-\begin{comment}
-The operational constraints implemented to limit the satellites operations to be consistent with a real GNSS-R mission did not prevent any formation corrections. It then raises the question, did these operational constraints actually represent the real day-to-day operations of a GNSS-R formation spacecraft? 
-* Does the operational modes sufficiently model the realistic operations of formation flight GNSS-R spacecraft? 
-* Discuss around the steady-state mode transitions and battery level. 
-* Spacecraft configuration (component placement, mass, size, etc.)
-* Does the formation meet the GNSS-R formation flight requirements for cooperative measurements? If no, how would maintenance of the preferred formation have changed the observed fuel consumption
-\end{comment}
 
 
 \section{Formation Fuel Consumption}
-
-\hl{Intro}
 
 \subsection{Acquisition Consumption}
 \label{sec:discussion_acq_consumption}
@@ -133,10 +121,10 @@ Discuss the simulated acquisition fuel consumption:
 \end{comment}
 
 
-\subsection{Steady-State Maintenance Fuel Consumption}
+\subsection{Steady-State Maintenance Consumption}
 \label{sec:discussion_steady_state_fuel_consumption}
 
-The steady-state fuel consumption result in Figure \ref{fig:steady_state_cum_consumption} show that the steady-state cumulative fuel consumption rate is not perfectly constant, but appears to decrease slightly over the 24-day simulation. This trend is physically reasonable, since a lower remaining propellant mass reduces the spacecraft mass, so a given orbital correction requires slightly less thrust impulse, assuming that the required formation-maintenance corrections remain approximately the same. This behavior differs from the acquisition phase, where fuel consumption is dominated by a short sequence of corrective burns shortly after deployment. Regardless of how the acquisition time is defined, the deployment sensitivity fuel time series in Figure \ref{fig:diff_deploy_cum_fuel_consumption} clearly show that the burn frequency is strongly reduced after the initial formation insertion period. The remaining fuel consumption is therefore associated with slower formation-maintenance corrections, rather than the removal of the initial deployment-induced relative motion.
+The steady-state fuel consumption result in Figure \ref{fig:steady_state_cum_consumption} show that the steady-state cumulative fuel consumption rate is not perfectly constant, but appears to decrease slightly over the 24-day simulation. This trend is physically reasonable, since a lower remaining propellant mass reduces the spacecraft mass, such that a given orbital correction requires slightly less thrust impulse, assuming that the required formation-maintenance corrections remain approximately the same. This behavior differs from the acquisition phase, where fuel consumption is dominated by a short sequence of corrective burns shortly after deployment. Regardless of how the acquisition time is defined, the deployment sensitivity fuel time series in Figure \ref{fig:diff_deploy_cum_fuel_consumption} clearly show that the burn frequency is strongly reduced after the initial formation insertion period. The remaining fuel consumption is therefore associated with slower formation-maintenance corrections, rather than the removal of the initial deployment-induced relative motion.
 
 This behavior differs from the acquisition phase, where fuel consumption is dominated by a short sequence of corrective burns shortly after deployment. Regardless of how the acquisition time is defined, the deployment sensitivity fuel time series in Figure \ref{fig:diff_deploy_cum_fuel_consumption} clearly show that the burn frequency is strongly reduced after the initial formation insertion period. The remaining fuel consumption is therefore associated with slower formation-maintenance corrections, rather than the removal of the initial deployment-induced relative motion.
 
@@ -160,8 +148,6 @@ The full \gls{oed} time series in Appendix \ref{fig:diff_dep_all_6_oed} show tha
 
 
 \section{Lifetime Estimate Reliability}
-
-\hl{Introduction}
 
 
 \subsection{Acquisition Fuel Model Reliability}
@@ -202,17 +188,50 @@ The reliability of the linear steady-state model is limited by the available sim
     * To better model the effect of reducing mass on fuel consumption, longer horizon simulator runs must be completed. As mentioned in Section \ref{sec:lifetime_limitations}, the campaign was intended to run for 90 days, but all attempts ended prematurely due to a persistent memory overflow issue in the GNSS-R Formation Flight Simulator. Either the data collection must be optimized further, or the simulator must be run on hardware that can support its hunger for RAM.
 \end{comment}
 
-\subsection{\hl{Interpretation of the Predicted Lifetime}}
+\subsection{Interpretation of the Predicted Lifetime}
+
+The linear remaining-fuel model gives a predicted fuel-limited lifetime range of $366.5$-$413.6~\mathrm{days}$ across the evaluated deployment-speed cases, as shown in Figure \ref{fig:predicted_lifetime}. The spread in predicted lifetime is caused by the deployment-speed-dependent acquisition fuel consumption, where larger differential deployment speeds reduce the remaining fuel available for long-term formation maintenance. However, the dominant source of uncertainty in the lifetime estimate is arguably the steady-state maintenance fuel consumption rate. This is because the estimated lifetime is extrapolated over hundreds of days, while the acquisition phase lasts only a few hours. For example, reducing the fitted linear maintenance rate from $1.536~\mathrm{g/day}$ to $1.436~\mathrm{g/day}$ increases the predicted lifetime by approximately $28.4~\mathrm{days}$ when zero acquisition fuel consumption is assumed. This is comparable to the lifetime difference between the $\Delta v_{\mathrm{dep}}=0~\mathrm{m/s}$ and $\Delta v_{\mathrm{dep}}=2.5~\mathrm{m/s}$ cases.
+
+The acquisition fuel model also introduces uncertainty, but its effect on the predicted lifetime is smaller. The largest deviation between fitted and simulated acquisition fuel consumption is $8.16~\mathrm{g}$, which corresponds to a lifetime change of approximately $5.3~\mathrm{days}$ when using the fitted linear steady-state maintenance rate. The lifetime estimate is therefore more sensitive to the steady-state maintenance model than to the acquisition model. This also means that the limited duration of the completed steady-state campaign is a central limitation of the final lifetime prediction.
+
+The linear steady-state model does not capture the observed reduction in fuel consumption rate over the completed long-horizon simulation. Since the spacecraft mass decreases as propellant is consumed, the required propellant mass for equivalent orbital corrections may also decrease over time. This makes the linear steady-state model conservative with respect to this effect. In addition, the comparative propagation analysis showed that the NRLMSISE-00 Basilisk configuration used in the GNSS-R Formation Flight Simulator experienced stronger drag than the updating-TLE Skyfield-SGP4 baseline. Although this effect is reduced in the considered leader-follower formation scenario, as discussed Subsection \ref{sec:discussion_steady_state_fuel_consumption}, the same-formation drift comparison in Section \ref{sec:comparison_implication_for_lifetime} showed larger simulated leader-follower drift in Basilisk than in the Skyfield-SGP4 baseline. This indicates that the steady-state fuel consumption may be overestimated, although the increased formation drift is only partially explained by the available comparison results.
+
+Based on these considerations, the overall predicted lifetime range should be interpreted as a conservative fuel-limited estimate for the selected spacecraft configuration, formation geometry, controller, and disturbance environment. The results indicate that the formation can likely remain fuel-capable for over one year under the simulated assumptions, but the exact depletion time is uncertain. If we assume that the linear steady-state fuel consumption rate were overestimated by a maximum of $10\%$, the predicted lifetime would increase by roughly $45~\mathrm{days}$. Combined with the acquisition fuel model uncertainty due to the sensitivity of $t_{\mathrm{acq}}$ to the selected \gls{oed} tolerances, the estimated lifetime is likely accurate to within $2~\mathrm{months}$ of the true lifetime, heavily biased in the positive direction.
+
 \begin{comment}
-
-* As mentioned in Section \ref{sec:discussion_acq_consumption}, loose tolerances in the formation acquisition criterion means that there is a substantial uncertainty in the acquisition times. Furthermore, small uncertainties translate to big lifetime variance due to the large fuel rate in during the acquisition (poorly explained)
-* The linear steady-state cumulative fuel consumption model fails to model the decrease in consumption rate over time from to reduced mass. This makes the linear model a conservative estimate. 
-* Its predictive capabilities have only been evaluated over a 2 day period, which is too short to draw any conclusions about its accuracy. Even the 24-day period used to fit the model is too short considering the estimated \~1-year lifetime. 
-
-
+Predicted lifetime confidence:
+    * The final lifetime estimate using the remaining fuel model gives a lifetime range estimate of 366.5-413.6 days, depending on the differential deployment speed, as seen in the extrapolated linear model presented in Figure \ref{fig:predicted_lifetime}. 
+    * Arguably, the largest source of lifetime estimation uncertainty stems from the steady-state fuel consumption because of the long durations involved and comparatively small formation-maintenance consumption rate. 
+    * For example, decreasing the estimated steady-state fuel consumption from 1.536 g/day to 1.436 g/day cause an increase in the estimated lifetime of 28.4 days, assuming zero acquisition consumption and a linear model. 
+    * To put that into perspective, this corresponds roughly to the difference in estimated lifetime between the 0m/s and the 2.5m/s differential deployment speed cases. 
+    * There is also an uncertainty in the lifetime estimate from the acquisition fuel consumption estimate, but with a smaller impact. If the predicted acquisition consumption is wrong by 8.16g, the largest deviance observed, the lifetime estimate would change by 5.3 days, assuming the steady-state fuel consumption. 
     
-* Based on observed model deviations, how would I evaluate the predicted lifetimes (optimistic? Pessimistic?)
-* Adjusted for propagation uncertainty (from evaluation performed in the first section)
+    * As previously discussed, the linear steady-state cumulative fuel consumption model fails to model the decrease in consumption rate over time from reduced stored propellant mass, which makes the derived model conservative. 
+    * In addition to this, the propagator comparison showed that the NRLMSISE-00 propagator configuration used in the GNSS-R Formation Flight Simulator subjected the spacecraft to more drag than the updating-TLE Skyfield-SGP4 comparison baseline. Although this effect is greatly reduced for this scenario as discussed in Section \ref{sec:discussion_steady_state_fuel_consumption}, its effect over this long time horizon is likely not negligible. 
+    * This again suggest that the steady-state model over-estimates its consumption.
+    * Finally, this is again reinforced by the much larger simulated leader-follower drift compared to the Skyfield-SGP4 baseline, as discussed in Section \ref{sec:comparison_implication_for_lifetime}. However, it is important to note that this increased formation drift can only be partially explained, which means this result has to be "taken with a pinch of salt". 
+    * Due to these facts, the overall assessment of the lifetime estimates for the different deployment cases, is that the estimates are likely under-estimated. However, quantifying how pessimistic these predictions are is hard to estimate due to the unknown effect of the decreasing stored fuel mass, and the partially unexplained increased formation drift relative to the Skyfield-SGP4 baseline. However, if we assume the linear steady-state model has an error margin of 10\%, this would give a potential increase in estimated lifetime of 45days. Coupled with the unbiased acquisition fuel consumption uncertainty from the linear model and relaxed acquisition time \gls{oed} tolerances, the "true" lifetime is likely within 2 months of the estimated lifetime. 
+\end{comment}
+
+
+
+
+\section{GNSS-R Formation Flight Mission Realism}
+\begin{comment}
+* The operational constraints implemented to limit the satellites operations to be consistent with a real GNSS-R mission did not prevent any formation corrections. It then raises the question, did these operational constraints actually represent the real day-to-day operations of a GNSS-R formation spacecraft? 
+* Does the operational modes sufficiently model the realistic operations of formation flight GNSS-R spacecraft? 
+* Discuss around the steady-state mode transitions and battery level. 
+* Spacecraft configuration (component placement, mass, size, etc.)
+* Does the formation meet the GNSS-R formation flight requirements for cooperative measurements? If no, how would maintenance of the preferred formation have changed the observed fuel consumption
+\end{comment}
+
+\subsection{Representativeness of the Spacecraft Model}
+
+\subsection{Formation \& Operational Mode Realism}
+
+\subsection{Realism of the Fuel-Consumption Results}
+\begin{comment}
+    
 \end{comment}
 
 

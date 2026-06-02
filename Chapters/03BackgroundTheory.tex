@@ -380,9 +380,13 @@ where $||\textbf{a}_{D}||_2$ denotes the drag acceleration magnitude of the lead
 
 \subsection{Cooperative GNSS-R Measurements}
 \label{sec:gnssr_coop_measurements}
-% Multi-satellite cooperation concepts
-% required formation
+% Basically just reiterate the different observation modes presented in the HYDROSWARM paper. 
+% Mention both their different observation methodologies AND specify the different formation types. 
 \hl{Mentioned in Formation flight Scenario}
+
+Hill et al. propose three different formation flying modes in \cite{hill2025hydroswarm} that can enhance the \gls{gnssr} capabilities beyond a single receiver spacecraft. First, the \textit{coarse swarm mode}, or \textit{along-track mode} uses several \gls{gnssr} satellites separated by approximately $15~\mathrm{km}$ in the along-track direction to enhance the spatial coverage by observing adjacent ground tracks simultaneously. Second, the \textit{beamforming mode} places the \gls{gnssr} satellites in a closer formation using a circular projected orbit with approximately $1000~\mathrm{m}$ radius and $60^\circ$ separation between its orbiting satellites. This formation type is defined as the relative orbit where the followers' motion around the leader or barycenter projected into two of the \gls{rtn} basis-normal planes traces an approximate circle. In this configuration, the receivers are treated as a sparse antenna array cooperatively measuring the same specular point reflection. The reflected signals measured by the separate spacecraft can then be phase-adjusted and combined in post-processing to increase the effective gain in the direction of a selected specular point, resulting in improved sensitivity \cite{hill2025hydroswarm}.
+
+The third and final operational mode is the \textit{SAR imaging mode}, which uses an even tighter formation type. In the HydroSwarm concept, this is achieved using concentric \gls{cpo}s, or simply a \textit{concentric formation}, where the leader spacecraft is placed near the center and the remaining spacecraft occupy relative orbits separated by approximately $100~\mathrm{m}$ in increasingly large orbital shells. The purpose of this configuration is to use the distributed receivers as a \gls{sar}. This enables post-processing to reduce data ambiguities, which increases both the  cross-track coverage and resolution. While the processing step is more complex for this mode, it does not require cooperative measurements of the same specular point reflections \cite{hill2025hydroswarm}. 
 
 
 \subsection{Operational Constraints}
@@ -393,6 +397,39 @@ where $||\textbf{a}_{D}||_2$ denotes the drag acceleration magnitude of the lead
 % Formation geometry tolerances
 % Attitude constraints (antenna pointing, Earth-visibility, GNSS visibility)
 % Power constraints (observation power consumtion, attitude maintenance costs, battery dependence)
+\begin{comment}
+This subsection should explain that cooperative GNSS-R measurements impose constraints on geometry, attitude, timing, data handling, and spacecraft resources.
+
+Include these points:
+
+1. Geometry and relative-position knowledge
+
+Cooperative GNSS-R requires controlled and known receiver separation. HydroSwarm explicitly states that the data collection and processing require known and controlled sensor separation, which drives the need for formation flying and autonomous relative navigation. For the more coherent modes, the required relative position, velocity, and timing knowledge becomes stricter because phase adjustment and matched filtering depend on the assumed receiver geometry.
+
+2. Attitude and antenna-viewing constraints
+
+GNSS-R spacecraft generally need to receive both direct GNSS signals and reflected signals. This supports your note that the zenith side should provide access to direct GNSS signals, while the nadir-facing side supports reflected-signal observation. The observing geometry also depends on the GNSS transmitter, specular point, and receiver position, so observation opportunities are inherently time-varying.
+
+3. Specular-point and target-region opportunity constraints
+
+GNSS-R observations are only useful when the transmitter–receiver geometry produces relevant reflection points over the target region. HydroSwarm focuses on tropical forested rivers/wetlands such as the Amazon and notes that intermittent operation is necessary because of platform limitations and data downlink constraints. This means a realistic mission cannot observe continuously; it must select observation windows.
+
+4. Power and duty-cycle constraints
+
+GNSS-R payload operation, attitude control, communication, and formation-keeping all consume power. HydroSwarm emphasizes that CubeSat form factors limit available power and delta-V, which constrains the mission concept and equipment selection. For your thesis, this background supports the need for operational modes such as charge, capture/observation, communication, coast, and burn.
+
+5. Data-rate and downlink constraints
+
+This is important. HydroSwarm states that raw GNSS-R data is generated at a high rate and must be stored and relayed to the ground. Its mission architecture lists a payload data generation rate of 64 Mbps, and later notes that a combination of two polar ground stations and a 50 Mbps transmitter was considered for downlinking data collected during Amazon passes.
+
+6. Formation-control and propulsion constraints
+
+The cooperative modes require transitions between formations and station-keeping. HydroSwarm identifies initial deployment, formation setting, and station-keeping as important delta-V drivers. It also notes the need for a propulsion system with high total delta-V and a small minimum impulse bit.
+
+7. Safety and missed-burn constraints
+
+HydroSwarm repeatedly discusses safe formation transitions, missed maneuver cases, and the need to avoid collision if a satellite fails to execute a burn. This fits naturally into the operational-constraints subsection, but only briefly. You can state that cooperative formations require not only precise relative geometry, but also safe recovery logic for missed maneuvers or safe-mode events.
+\end{comment}
 
 \subsection{GNSS-R Formation Flying Mission Lifetime Definition}
 \label{sec:gnssr_mission_lifetime_def}

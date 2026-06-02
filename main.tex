@@ -10,6 +10,15 @@
 % Insert title page
 \import{./}{title} %include the title page from the file
 
+% Insert external PDF as its own page after the title page
+\cleardoublepage
+\includepdf[
+    pages=1,
+    pagecommand={},
+    fitpaper=true
+]{Chapters/0aMaster_thesis_AI_declaration.pdf}
+\cleardoublepage
+
 % % The pre-chapters
 % \chapter*{Abstract} %pre-chapters should not be numbered, hence the "*"
 % \pagenumbering{roman} %introductory pages should be roman
@@ -47,10 +56,6 @@
 % The pre-chapters
 \pagenumbering{roman}
 \setcounter{page}{1}
-
-\chapter*{AI Declaration}
-\addcontentsline{toc}{chapter}{AI Declaration}
-\input{Chapters/0aAIdecllaration.tex}
 
 \chapter*{Abstract}
 \addcontentsline{toc}{chapter}{Abstract}
