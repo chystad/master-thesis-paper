@@ -448,6 +448,7 @@ The resulting follower fuel history is used to estimate the cumulative post-acqu
 
 
 \subsection{Assumptions \& Limitations}
+\label{sec:lifetime_limitations}
 The GNSS-R formation flight lifetime analysis is limited to the two-spacecraft leader-follower scenario defined in Section \ref{sec:formation_flight_scenario}. The simulated formation is therefore a reduced representation of a larger concentric GNSS-R formation, and only the follower spacecraft is used as the limiting spacecraft for the fuel-limited lifetime estimate. The formation geometry is also limited by the single selected concentric orbit radius and the implemented orbital-element-difference-based formation controller. Other formation geometries, alternative control strategies, and larger multi-spacecraft configurations are not evaluated.
 
 The deployment velocity fuel sensitivity campaign is limited to the selected deployment direction and deployment-speed range. The leader and follower are initialized from the same deployer orbit and are ejected in opposite directions along the inertial $\hat{\mathbf{x}}^n$ direction. The resulting acquisition fuel model $m_{\mathrm{acq}}(\Delta v_{\mathrm{dep}})$ is therefore based only on this set of deterministic deployment cases. Other deployment directions, release dispersions, navigation errors, actuator errors, or stochastic uncertainty in the initial conditions are not included.

@@ -1,9 +1,3 @@
-
-\[IMPORTANT!\]
-I have done some initial testing using the Basilisk Station Keeping example, and it seems like a strict CPO or Concentric formation is unachievable for the spacecraft reconfig module. If I have time, I should absolutely implement a HCW/ROE based controller for formation control. If I don't have time, I should just argue that this should be expanded in the future, and make a solid discussion about how my fuel consumption estimate is in comparison to the more realistic HCW case. 
-
-For the Basilisk-Skyfield comparison, the TLE series propagation will also drift from drag caused by any and all attitude maneuvers. This can be seen in the difference between the first and last TLE mean motion (revolutions per day) estimate, which increase by 0.061 over the span of 130 days. The increase in daily revolutions correspond to a smaller semimajor axis, which is primarily caused by drag. A perfect match would therefore not necessarily mean perfect Basilisk prediction accuracy. Ideally, multiple TLE series should be compared and averaged to use as a baseline, but it is not feasible to find multiple TLE series that define the EXACT same orbit. Any deviation in orbital elements will manifest as a drift in the comparison. It might be possible to find 2 separate TLE series for 2 same-shaped spacecraft that have approximately the same position and orbit at different points in time, but this search and additional implementation complexity does not justify the presumably small increase "ground-truth" accuracy.
-
 % \subsection{comparative bsk / sgp4 propagation}
 % * TLEs are tied to real spacecraft, which mean that their change in orbit over time is the result of real perturbations acting on the real spacecraft. HYPSO-1, which is the corresponding satellite for the TLEs used by the Skyfield SGP4 models, is an Earth-observation satellite with a fixed imaging payload. This means its attitude will change over time to 
 % * TLEs are estimated from observations, which mean there are intrinsic parameter uncertanties.
@@ -23,12 +17,72 @@ For the Basilisk-Skyfield comparison, the TLE series propagation will also drift
 % * comment on the fact that the linear fitted m\_acq is negative for the zero differential deployment speed case. 
 
 
-
-
 \section{Propagation Benchmark Interpretation}
 \begin{comment}
-Wait with this section, for now
+* 
 \end{comment}
+
+\subsection{Basilisk-Skyfield-SGP4 Divergence Interpretation}
+
+Across the same-spacecraft comparison results, the primary thesis Basilisk configuration shows the smallest divergence from the continuously updating Skyfield-SGP4 baseline. Figure \ref{fig:same_sc_ECI_state_mag_diff} shows that the specialization-project exponential atmosphere configuration reaches approximately three times the position difference of the primary thesis configuration after the 14-day propagation interval, while the re-tuned exponential atmosphere configuration reaches approximately 1.5 times the position difference. Since the main difference between the evaluated Basilisk configurations is the atmospheric density model, the observed ordering can be interpreted primarily through the different drag environments experienced by the spacecraft.
+
+The altitude difference in Figure \ref{fig:same_sc_altitude_difference} supports this interpretation. The primary thesis configuration with the NRLMSISE-00 atmosphere model gradually drops below the Skyfield-SGP4 reference altitude, while both exponential atmosphere configurations drift toward higher relative mean altitude. This indicates that the primary thesis configuration experiences stronger effective drag than the exponential atmosphere configurations over the comparison interval. The re-tuned exponential atmosphere model reduces the altitude divergence relative to the specialization-project configuration, but it does not reproduce the same altitude evolution as the NRLMSISE-00 configuration.
+
+The RTN decomposition in Figure \ref{fig:same_sc_pos_RTN_decomposition} shows that the resulting same-spacecraft position difference is dominated by radial and along-track drift. Because we are effectively considering the relative drift between two deactivated spacecraft affected by different amounts of drag, the relative drift mechanics covered in Section \ref{sec:diff_perturb} apply. Sustained differential drag will accumulate into substantial along-track drift. This is because a sustained altitude difference changes the relative orbital period, which accumulates into along-track separation over time. The exponential atmosphere configurations maintain a higher relative mean altitude than the Skyfield-SGP4 baseline and therefore increasingly lag behind the reference trajectory. This produces the negative along-track difference observed in the RTN decomposition. In contrast, the primary thesis configuration drops to a lower relative mean altitude, corresponding to a shorter relative orbital period, and therefore drifts ahead of the Skyfield-SGP4 baseline in the positive along-track direction.
+
+The radial component in Figure \ref{fig:same_sc_pos_RTN_decomposition} should be interpreted together with the dominant along-track separation. Since the RTN frame is defined at the Skyfield-SGP4 leader position, the radial component represents the direction along its position vector away from the Earth. For large along-track separations, this radial projection is not equivalent to the altitude difference, but rather the circular curvature of the orbit. Thus, a sufficiently large along-track difference correspond to a negative radial deviation for spacecraft in the same approximate near-circular orbit.
+
+The same differential-drag interpretation also applies to the same-formation drift difference shown in Figure \ref{fig:same_form_drift_RTN_decomposition}. All Basilisk configurations predict a larger leader-follower along-track drift than the Skyfield-SGP4 baseline. However, the ordering between the Basilisk configurations is reversed and less separated compared to the same-satellite state comparison. The primary thesis configuration gives a slightly larger same-formation along-track drift difference, while the exponential configurations remain close to it. This indicates that the atmospheric model has a much stronger effect on the absolute Earth-relative propagation of each spacecraft than on the passive leader-follower drift over the same interval. The primary thesis configuration likely diverges more than the others, because its differential drag drift is stronger due to each spacecraft being subject to higher intensity drag. Also, the very small relative divergence between the Basilisk configurations are probably due to the \gls{eci}-fixed spacecraft attitude assumption, where the difference in incident flow in each body-fixed frame are only slightly different due to the initial $1^\circ$ in-plane separation angle. 
+
+\begin{comment}
+Discuss around the fact that the thesis propagator configuration has the least divergence across all same-spacecraft difference representation:
+    * Across all same-spacecraft comparisons of various Basilisk configurations against the updating-TLE Skyfield-SGP4 comparison baseline, the primary thesis configuration show significantly less divergence than all other Basilisk configurations. Figure \ref{fig:same_sc_ECI_state_mag_diff} show that the divergence distance for the specialization-project untuned exponential atmosphere is approximately three times that of the primary thesis NRLMSISE-00 configuration after a 14-day propagation duration. The tuned exponential atmosphere configuration deviation distance is approximately 1.5 times after the same propagation duration. 
+    * Since the only difference between the Basilisk configurations are their respective atmosphere models, it is natural to evaluate the deviations in terms of differences in experienced drag. 
+    * Figure \ref{fig:same_sc_altitude_difference} showing the altitude same-satellite differences offers important insight. Here, the primary thesis configuration's mean altitude slightly drops below the reference Skyfield-SGP4 altitude, while the tuned and old Basilisk configurations have increasingly higher relative mean altitudes. This strongly indicates that the primary thesis configuration with its NRLMSISE-00 atmosphere model is subject to more drag than the exponential atmosphere counterparts. 
+    * Because we are effectively considering the relative drift between two deactivated (no formation control) satellites affected by different amounts of drag, the relative drift mechanics covered in Section \ref{sec:diff_perturb} apply. Sustained differential drag will accumulate into substantial along-track drift, which is exactly what the RTN component divergence shows in Figure \ref{fig:same_sc_pos_RTN_decomposition}. 
+    * This is because The drag-induced relative gain in mean altitude for the tuned and specialization-project Basilisk configurations mean that their relative orbital period is extended, which cause them to increasingly lag behind the Skyfield-SGP4 baseline. 
+    * The opposite is true for the primary thesis configuration, where more drag causes its mean relative altitude to decrease, which decreases its relative orbital period. This in turn causes this satellite to lead in front of the Skyfield-SGP4 baseline, thus explaining the positive divergence in the along-track direction. 
+    * The radial divergence is a consequence of the along-track separation. Because the radial direction is defined along the Skyfield-SGP4 leader's position vector, any along-track same-satellite position difference in the same orbital plane will manifest as a negative radial deviation. 
+    
+Same-formation position drift difference:
+    * The same differential drag argument can be used to explain the observed divergence in the same-formation position drift differences shown in Figure \ref{fig:same_form_drift_RTN_decomposition}. Here, all configurations give a larger along-track leader-follower position drift than the Skyfield-SGP4 baseline, and the previous divergence order has reversed. The primary thesis configuration likely diverges more than the others, because its differential drag drift is stronger due to each spacecraft being subject to higher intensity drag. Also, the very small relative divergence between the Basilisk configurations are probably due to the \gls{eci}-fixed spacecraft attitude assumption, where the difference in incident flow in each body-fixed frame are only slightly different. 
+
+\end{comment}
+
+
+\subsection{Updating-TLE SGP4 as a Comparison Baseline}
+
+The interpretation of the comparative propagation results depends on the quality of the continuously updating Skyfield-SGP4 baseline. This baseline is not a true physical ground truth, but an observation-updated reference generated from a sequence of \glspl{tle}. Since the propagated \gls{tle} is replaced regularly throughout the comparison interval, the SGP4 prediction error is not allowed to accumulate over the full 14-day horizon in the same way as it would for a static-\gls{tle} propagation. This makes the updating-\gls{tle} baseline a more useful long-horizon comparison reference than the single-\gls{tle} baseline used in the specialization project~\cite{hystad2025}.
+
+The frequent \gls{tle} updates also explain why no distinct correction discontinuities are visible in the comparison figures. Over short propagation intervals, SGP4 is generally expected to remain sufficiently close to the estimated spacecraft state that the transition between adjacent \glspl{tle} does not dominate the plotted state histories. The resulting baseline is therefore best interpreted as a sequence of short SGP4 predictions tied together by updated orbit estimates, rather than as one uninterrupted long-horizon physical propagation.
+
+However, the \glspl{tle} used by the Skyfield-SGP4 baseline are tied to the real HYPSO-1 spacecraft. The orbital evolution represented by the \gls{tle} sequence therefore includes the effect of real perturbations acting on HYPSO-1, including effects associated with its actual attitude and operational history. Since HYPSO-1 is an Earth-observation satellite with a body-fixed imaging payload, its attitude may vary over time due to science objectives. This means that the effective drag experienced by the real spacecraft may differ from the drag experienced by the simplified Basilisk spacecraft, which is propagated with a fixed attitude in the comparative propagation analysis. As a result, differences between Basilisk and the updating-\gls{tle} Skyfield-SGP4 would still be present with a perfect atmosphere model simply because of different experienced attitude-coupled drag.
+
+The updating-\gls{tle} Skyfield-SGP4 trajectory is therefore a valuable comparison baseline, but it should not be interpreted as exact truth. It provides a practical reference for evaluating whether the primary thesis Basilisk configuration improves over the specialization-project configuration and for quantifying the scale of the remaining propagation divergence. The comparison result should consequently be interpreted as agreement with an observation-updated SGP4 reference, rather than as an absolute validation of the Basilisk propagator.
+\begin{comment}
+    * The evaluation of the primary thesis Basilisk configuration propagation accuracy depends on the accuracy of the comparative model, the updating-TLE Skyfield-SGP4.
+    * Because the TLEs are updated every few hours, its prediction accuracy is again dependent on the TLEs, and its physical interpretation. 
+    * One thing to point is that although the TLEs are frequently updated, no visible corrections are visible in the propagator comparison figures. This is because the SGP4 TLE propagation algorithm is widely known to be sufficiently accurate for 1-2 days before noticeably deviation from the real state, depending on the orbit and TLE estimation accuracy. Thus, the SGP4 propagation error does not have enough time to accumulate before the propagated TLE is updated.
+    * However, the TLEs are tied to real spacecraft, which mean that their change in orbit over time is the result of real perturbations acting on the spacecraft. HYPSO-1, whose TLEs are used in all the Skyfield-SGP4 propagator, is an Earth-observation satellite with a fixed imaging payload. This means its attitude will change over time to perform science operations, causing its experienced drag to vary with time.
+    * This means that, even with a perfect Basilisk atmosphere model, deviations will still appear if their attitudes are  different over time. 
+    * Still, because the updating TLEs guarantee that the state error of the comparison baseline is small, it still a valuable comparison baseline, and an improvement from the static-TLE baseline considered in the specialization project in \cite{hystad2025}
+\end{comment}
+
+
+
+\subsection{Implications for the Lifetime Analysis}
+
+The comparative propagation analysis indicates that the primary thesis Basilisk configuration is the most accurate of the evaluated Basilisk configurations relative to the continuously updating Skyfield-SGP4 baseline. Across the same-spacecraft state comparisons, the NRLMSISE-00 configuration produces substantially smaller divergence than both exponential-atmosphere configurations. This supports the use of the primary thesis configuration as the propagation environment for the GNSS-R formation flight lifetime analysis. However, the primary thesis configuration still accumulates a significant same-satellite difference over the 14-day comparison interval, dominated by radial and along-track drift. 
+
+Perhaps more importantly for the lifetime analysis, is the same-formation position drift difference. Although the major drift difference between the primary thesis configuration and the Skyfield-SGP4 baseline remain unexplained, the increased along-track formation drift will require additional formation-maintenance maneuvers to compensate. The resulting lifetime estimations will therefore likely be pessimistic in its predictions. 
+
+However, the updating-TLE Skyfield-SGP4 baseline also limits how strongly the propagation comparison can be interpreted. Since the baseline is an observation-updated SGP4 reference rather than a precise orbit-determination truth model, the observed Basilisk-Skyfield differences are not direct physical prediction errors. The comparison still provides useful evidence that the thesis configuration improves over the specialization-project configuration, but it does not fully validate the long-horizon Basilisk trajectory. For the lifetime analysis, this means that the fuel consumption results are most reliable as a simulation-based estimate of formation acquisition and maintenance behavior under the selected Basilisk force model, while Earth-relative mission quantities that depend on absolute orbital phase should be interpreted with the propagation benchmark uncertainty in mind.
+
+
+
+
+
+
 
 
 \section{GNSS-R Formation Flight Mission Realism}
@@ -80,6 +134,7 @@ Discuss the simulated acquisition fuel consumption:
 
 
 \subsection{Steady-State Maintenance Fuel Consumption}
+\label{sec:discussion_steady_state_fuel_consumption}
 
 The steady-state fuel consumption result in Figure \ref{fig:steady_state_cum_consumption} show that the steady-state cumulative fuel consumption rate is not perfectly constant, but appears to decrease slightly over the 24-day simulation. This trend is physically reasonable, since a lower remaining propellant mass reduces the spacecraft mass, so a given orbital correction requires slightly less thrust impulse, assuming that the required formation-maintenance corrections remain approximately the same. This behavior differs from the acquisition phase, where fuel consumption is dominated by a short sequence of corrective burns shortly after deployment. Regardless of how the acquisition time is defined, the deployment sensitivity fuel time series in Figure \ref{fig:diff_deploy_cum_fuel_consumption} clearly show that the burn frequency is strongly reduced after the initial formation insertion period. The remaining fuel consumption is therefore associated with slower formation-maintenance corrections, rather than the removal of the initial deployment-induced relative motion.
 
@@ -106,10 +161,12 @@ The full \gls{oed} time series in Appendix \ref{fig:diff_dep_all_6_oed} show tha
 
 \section{Lifetime Estimate Reliability}
 
+\hl{Introduction}
+
 
 \subsection{Acquisition Fuel Model Reliability}
 
-The acquisition fuel model used in the lifetime estimate is based on the nine deployment velocity cases shown in Figure \ref{fig:diff_deploy_curve_fitting}. The fitted linear model captures the overall increase in acquisition fuel consumption with differential deployment speed, but it does not reproduce all features of the simulated data. The deviations between the predicted and simulated acquisition fuel consumption are shown in Figure \ref{fig:predicted_vs_simulated_remaining_fuel_comparison} and summarized numerically in Table \ref{tab:gnssr_lifetime_prediction_summary}. Some of non-systematic deviation from the linear model may be explained by the uncertainty related to the determination of the acquisition time, as discussed in Subsection \ref{sec:discussion_acq_consumption}. However, the largest deviation occurs for the zero-deployment-speed case, where the fitted model predicts an acquisition fuel consumption of $-2.56~\mathrm{g}$, compared with the simulated value of $5.60~\mathrm{g}$. This gives a prediction error of $8.16~\mathrm{g}$ and is physically unrealistic, since acquisition fuel consumption cannot be negative.
+The acquisition fuel model used in the lifetime estimate is based on the nine deployment velocity cases shown in Figure \ref{fig:diff_deploy_curve_fitting}. The fitted linear model captures the overall increase in acquisition fuel consumption with differential deployment speed, but it does not reproduce all features of the simulated data. The deviations between the predicted and simulated acquisition fuel consumption are shown in Figure \ref{fig:predicted_vs_simulated_remaining_fuel_comparison} and summarized numerically in Table \ref{tab:gnssr_lifetime_prediction_summary}. Some of non-systematic deviation from the linear model may be explained by the uncertainty related to the determination of the acquisition time, as discussed in Subsection \ref{sec:discussion_acq_consumption}. However, the largest deviation occurs for the zero-deployment-speed case, where the fitted model predicts an acquisition fuel consumption of $-2.56~\mathrm{g}$, compared with the simulated value of $5.60~\mathrm{g}$. This gives a prediction error of $8.16~\mathrm{g}$, which is both a relatively large deviation, and is physically unrealistic since acquisition fuel consumption cannot be negative.
 
 The poor zero-speed prediction is consistent with the non-monotonic behavior between the $\Delta v_{\mathrm{dep}}=0.0~\mathrm{m/s}$ and $\Delta v_{\mathrm{dep}}=0.5~\mathrm{m/s}$ cases discussed in Section \ref{sec:discussion_acq_consumption}. Since the remaining data points follow a more regular increasing trend, the fitted linear model is more representative for the higher deployment-speed cases than for the lowest part of the tested range. This indicates that the acquisition fuel dependence on $\Delta v_{\mathrm{dep}}$ is not fully captured by a single unconstrained linear fit across the complete interval.
 
@@ -127,20 +184,33 @@ How accurate do I think the model predictions are. Discuss the methodology here 
     
 \end{comment}
 
-\subsection{Steady-State Fuel Model Reliability}
-\begin{comment}
 
+
+\subsection{Steady-State Fuel Model Reliability}
+
+The steady-state maintenance fuel model is based on the post-acquisition cumulative fuel consumption shown in Figure \ref{fig:steady_state_cum_consumption}. A quadratic model was fitted in order to capture the slight decrease in apparent fuel consumption rate over the completed simulation interval due to mass reduction. Although this model follows the simulated fuel trajectory over the available data interval, its extrapolated behavior in Figure \ref{fig:predicted_lifetime} shows that it is not suitable for predicting fuel depletion over approximately 40 days. The corresponding remaining-fuel model does not reach zero fuel, which makes the quadratic lifetime estimate undefined.
+
+A linear steady-state fuel model was therefore also fitted. The comparison between the predicted and simulated remaining fuel time series in Figure \ref{fig:predicted_vs_simulated_remaining_fuel_comparison} shows that, after accounting for the initial offset caused by acquisition-fuel model deviations, the linear model remains approximately parallel to the simulated post-acquisition fuel time series. This indicates that the linear model captures the average steady-state consumption rate over the short post-acquisition interval covered by the deployment sensitivity campaign cases.
+
+The reliability of the linear steady-state model is limited by the available simulation horizon. The deployment sensitivity simulations only provide a few days of post-acquisition comparison, while the long-horizon steady-state campaign was limited to 24 days. As stated in Section \ref{sec:lifetime_limitations}, the campaign was originally intended for a 90-day simulation horizon, but all longer attempts ended prematurely due to persistent memory overflow issues in the GNSS-R Formation Flight Simulator. Longer completed steady-state simulations would be required to model the fuel rate reduction over time due to decreasing stored propellant mass. 
+
+\begin{comment}
+* Steady-state consumption
+    * In order to capture the slightly decreasing fuel consumption rate over time, a quadratic steady-state cumulated fuel consumption model was fitted to the post-acquisition consumption data shown in Figure \ref{fig:steady_state_cum_consumption}. Although the seemingly good fit for the simulated interval, the use of this model to predict mission lifetime in Figure \ref{fig:predicted_lifetime}, clearly show that this model fails to make any predictions over approximately 50 days. 
+    * Therefore, a linear model was also fitted. The difference between its predicted and simulated steady-state fuel consumption for all differential deployment speed cases is shown in Figure \ref{fig:predicted_vs_simulated_remaining_fuel_comparison}. Ignoring the initial offset due to predicted acquisition fuel consumption deviations, we see that the linear model is approximately parallel to the simulated steady-state consumption. 
+    * This is a good sign of the model's predictive capabilities, but the short time-horizon of only 2 days is too short to draw any definitive conclusions. 
+    * To better model the effect of reducing mass on fuel consumption, longer horizon simulator runs must be completed. As mentioned in Section \ref{sec:lifetime_limitations}, the campaign was intended to run for 90 days, but all attempts ended prematurely due to a persistent memory overflow issue in the GNSS-R Formation Flight Simulator. Either the data collection must be optimized further, or the simulator must be run on hardware that can support its hunger for RAM.
 \end{comment}
 
-\subsection{Interpretation of the Predicted Lifetime}
+\subsection{\hl{Interpretation of the Predicted Lifetime}}
 \begin{comment}
 
 * As mentioned in Section \ref{sec:discussion_acq_consumption}, loose tolerances in the formation acquisition criterion means that there is a substantial uncertainty in the acquisition times. Furthermore, small uncertainties translate to big lifetime variance due to the large fuel rate in during the acquisition (poorly explained)
+* The linear steady-state cumulative fuel consumption model fails to model the decrease in consumption rate over time from to reduced mass. This makes the linear model a conservative estimate. 
+* Its predictive capabilities have only been evaluated over a 2 day period, which is too short to draw any conclusions about its accuracy. Even the 24-day period used to fit the model is too short considering the estimated \~1-year lifetime. 
 
-    * Steady-state consumption
-        - deviations from predicted in Figure \ref{predicted_lifetime}
-        - Linear model sufficient? (mention that the actual steady-state fuel rate should decrease as the spacecraft mass becomes smaller as propellant is used up, assuming the rate of formation drift remain the same. This might not be the case though if differential drag is a big influence and the formation looses orbital altitude over time)
-        - Excluding orbital maintenance maneuvers. 
+
+    
 * Based on observed model deviations, how would I evaluate the predicted lifetimes (optimistic? Pessimistic?)
 * Adjusted for propagation uncertainty (from evaluation performed in the first section)
 \end{comment}
@@ -151,5 +221,5 @@ How accurate do I think the model predictions are. Discuss the methodology here 
 \begin{comment}
 * Only one orbital "layer" of the concentric formation was studied. Spacecraft in larger radius relative orbit about the leader will probably experience larger differential perturbations, but this needs more studying. 
 * GNSS-R observation geometry
-* 
+* Fuel consumption related to orbital maintenance is not included. 
 \end{comment}
